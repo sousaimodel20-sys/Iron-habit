@@ -3,6 +3,7 @@ import MilestoneBadge from '../components/MilestoneBadge';
 import { Card, PageHeader, Stat } from '../components/UI';
 import { loadData, type IronHabitData } from '../utils/storage';
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
+import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 
@@ -28,6 +29,7 @@ const ProgressDashboard = () => {
   const soberCheckIns = checkIns.filter((entry) => entry.sober).length;
   const completionRate = getCompletionRate();
   const nextMilestone = milestones.find((days) => days > streak) || 365;
+  const metrics = getTransformationMetrics(data, streak);
 
   return (
     <div className="page stack-lg">
@@ -48,6 +50,18 @@ const ProgressDashboard = () => {
         <Stat label="training min" value={totalMinutes} />
         <Stat label="completion" value={`${completionRate}%`} />
       </div>
+
+      <Card className="transformation-card stack-sm">
+        <span className="tag">Transformation Scoreboard</span>
+        <h2>What the old life did not get.</h2>
+        <div className="proof-grid">
+          <div><strong>{formatMoney(metrics.moneySaved)}</strong><span>estimated money saved</span></div>
+          <div><strong>{formatNumber(metrics.caloriesAvoided)}</strong><span>alcohol calories avoided</span></div>
+          <div><strong>{formatNumber(metrics.drinksSkipped)}</strong><span>drinks skipped</span></div>
+          <div><strong>{metrics.trainingHours}h</strong><span>training time banked</span></div>
+        </div>
+        <p className="quote">“{data.profile.transformationGoal || 'Lean, sober, strong, and consistent.'}”</p>
+      </Card>
 
       <Card>
         <h2>Milestones</h2>

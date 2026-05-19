@@ -97,6 +97,20 @@ const Onboarding = () => {
             <option value="new-life">New life build</option>
           </select>
         </Field>
+        <div className="metric-input-grid">
+          <Field label="Old average drink cost">
+            <input inputMode="decimal" value={profile.averageDrinkCost} onChange={(e) => update('averageDrinkCost', e.target.value)} placeholder="8" />
+          </Field>
+          <Field label="Old drinks per drinking day">
+            <input inputMode="decimal" value={profile.drinksPerDay} onChange={(e) => update('drinksPerDay', e.target.value)} placeholder="4" />
+          </Field>
+          <Field label="Calories per drink">
+            <input inputMode="numeric" value={profile.caloriesPerDrink} onChange={(e) => update('caloriesPerDrink', e.target.value)} placeholder="150" />
+          </Field>
+        </div>
+        <Field label="Transformation goal">
+          <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
+        </Field>
         <div className="button-row">
           <Button onClick={handleSave}>Save profile</Button>
           <Button variant="ghost" onClick={quickStart}>Quick start today</Button>

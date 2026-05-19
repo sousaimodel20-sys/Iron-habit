@@ -2,12 +2,14 @@ import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { Button } from './UI';
 import type { IronHabitData } from '../utils/storage';
+import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 
 const ShareableProgressCard = ({ data, streak }: { data: IronHabitData; streak: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState('');
   const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
   const latestMood = Object.values(data.checkIns).at(-1)?.mood || 'Locked in';
+  const metrics = getTransformationMetrics(data, streak);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -38,6 +40,10 @@ const ShareableProgressCard = ({ data, streak }: { data: IronHabitData; streak: 
           <span><b>{data.habits.length}</b> habits</span>
           <span><b>{data.fitnessEntries.length}</b> workouts</span>
           <span><b>{totalMinutes}</b> min</span>
+        </div>
+        <div className="share-proof-strip">
+          <span>{formatMoney(metrics.moneySaved)} saved</span>
+          <span>{formatNumber(metrics.drinksSkipped)} drinks skipped</span>
         </div>
         <p className="share-why">{data.profile.why || 'Build a body and life I am proud of.'}</p>
         <footer>

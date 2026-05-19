@@ -29,6 +29,10 @@ export type Profile = {
   sobrietyDate: string;
   why: string;
   focus: string;
+  averageDrinkCost: string;
+  drinksPerDay: string;
+  caloriesPerDrink: string;
+  transformationGoal: string;
 };
 
 export type IronHabitData = {
@@ -48,6 +52,10 @@ export const defaultData: IronHabitData = {
     sobrietyDate: today(),
     why: 'Build a body and life I am proud of.',
     focus: 'sobriety-strength-discipline',
+    averageDrinkCost: '8',
+    drinksPerDay: '4',
+    caloriesPerDrink: '150',
+    transformationGoal: 'Lean, sober, strong, and consistent.',
   },
   checkIns: {},
   habits: [
