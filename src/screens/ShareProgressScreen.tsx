@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react';
 import { loadData, type IronHabitData } from '../utils/storage';
-import ShareableProgressCard from '../components/ShareableProgressCard';
+import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
 import { Button, Card, PageHeader } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
+
+const templates: { id: VictoryTemplate; label: string; description: string }[] = [
+  { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
+  { id: 'discipline', label: 'Discipline', description: 'Gym/recovery lock-in proof.' },
+  { id: 'receipts', label: 'Receipts', description: 'Stats-first proof card.' },
+];
 
 const ShareProgressScreen = () => {
   const [data, setData] = useState<IronHabitData>(loadData());
   const [streak, setStreak] = useState(calculateSobrietyStreak());
+  const [template, setTemplate] = useState<VictoryTemplate>('comeback');
+  const [copyStatus, setCopyStatus] = useState('');
 
   useEffect(() => {
     const refresh = () => {
@@ -18,24 +26,56 @@ const ShareProgressScreen = () => {
     return () => window.removeEventListener('iron-habit-data-updated', refresh);
   }, []);
 
-  const caption = `Day ${streak}. Sober, training, and rebuilding brick by brick. #IronHabit #SoberFitness #Discipline`;
+  const captions: Record<VictoryTemplate, string> = {
+    comeback: `Day ${streak}. Sober, training, and rebuilding brick by brick. #IronHabit #SoberFitness #Comeback`,
+    discipline: `I did not negotiate with the old life today. Day ${streak} locked in. #Discipline #SoberGym #IronHabit`,
+    receipts: `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. #RecoveryTok #IronHabit`,
+  };
+  const caption = captions[template];
 
   const copyCaption = async () => {
-    await navigator.clipboard?.writeText(caption);
+    try {
+      await navigator.clipboard?.writeText(caption);
+      setCopyStatus('Caption copied.');
+    } catch {
+      setCopyStatus('Copy blocked. Press and hold the caption to copy.');
+    }
   };
 
   return (
     <div className="page stack-lg">
       <PageHeader eyebrow="Victory Card" title="Make the comeback visible.">
-        Export a clean vertical progress card and copy a simple caption for short-form content.
+        Pick a 9:16 card style, download it, and copy a caption built for sober-fitness content.
       </PageHeader>
 
-      <ShareableProgressCard data={data} streak={streak} />
+      <Card className="stack-sm">
+        <span className="tag">Card template</span>
+        <div className="template-grid">
+          {templates.map((item) => (
+            <button
+              key={item.id}
+              className={`template-option ${template === item.id ? 'selected' : ''}`}
+              onClick={() => setTemplate(item.id)}
+            >
+              <strong>{item.label}</strong>
+              <span>{item.description}</span>
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <ShareableProgressCard data={data} streak={streak} template={template} />
 
       <Card className="stack-sm">
         <h2>Caption starter</h2>
         <p className="caption-box">{caption}</p>
-        <Button variant="secondary" onClick={copyCaption}>Copy caption</Button>
+        <div className="button-row">
+          <Button variant="secondary" onClick={copyCaption}>Copy caption</Button>
+          <Button variant="ghost" onClick={() => setTemplate(template === 'comeback' ? 'discipline' : template === 'discipline' ? 'receipts' : 'comeback')}>
+            Rotate template
+          </Button>
+        </div>
+        {copyStatus && <p className="success-msg">{copyStatus}</p>}
       </Card>
     </div>
   );
