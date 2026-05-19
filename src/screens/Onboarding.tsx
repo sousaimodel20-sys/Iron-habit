@@ -104,7 +104,7 @@ const Onboarding = () => {
           <span className="phone-notch" />
           <p>Current streak</p>
           <strong>{streak}</strong>
-          <span>days locked in</span>
+          <span>{streak === 1 ? 'day locked in' : 'days locked in'}</span>
           <div className="mini-bars"><i /><i /><i /><i /></div>
         </div>
       </section>
@@ -116,22 +116,32 @@ const Onboarding = () => {
         <Stat label="victory card" value="9:16" />
       </div>
 
-      <Card className="today-grid">
-        <h2>Today’s Mission</h2>
+      <Card className="today-grid command-card">
+        <span className="tag">Today Command Center</span>
+        <h2>Do these in order. No wandering.</h2>
         <div className="mission-list">
-          <Link to="/daily-check-in"><b>01</b><span>Stay sober</span><small>Record the win before the day gets loud.</small></Link>
-          <Link to="/fitness-tracker"><b>02</b><span>Train the body</span><small>Move, lift, sweat, walk — earn momentum.</small></Link>
-          <Link to="/habit-tracker"><b>03</b><span>Stack discipline</span><small>Protect sleep, protein, water, and peace.</small></Link>
-          <Link to="/share-progress"><b>04</b><span>Claim proof</span><small>Turn the day into a victory card.</small></Link>
+          <Link to="/daily-check-in"><b>01</b><span>Lock In</span><small>Record sober status, mood, craving, and note.</small></Link>
+          <Link to="/fitness-tracker"><b>02</b><span>Train</span><small>Log movement. Walk, lift, sweat — anything counts.</small></Link>
+          <Link to="/habit-tracker"><b>03</b><span>Stack</span><small>Hit the discipline basics: water, protein, sleep, peace.</small></Link>
+          <Link to="/progress-dashboard"><b>04</b><span>Proof</span><small>See your scoreboard, charts, and next milestone.</small></Link>
+          <Link to="/share-progress"><b>05</b><span>Victory</span><small>Make the 9:16 comeback card when the day is earned.</small></Link>
+          <Link to="/craving-rescue" className="danger-mission"><b>SOS</b><span>Rescue</span><small>Craving? Start the 10-minute no-decision protocol.</small></Link>
         </div>
       </Card>
 
-      <PageHeader eyebrow="Setup" title="Make it yours">
-        Add your start date and reason why. This stays on your device with localStorage.
-      </PageHeader>
+      <details className="collapse-card card">
+        <summary>
+          <span>
+            <b>Setup & profile</b>
+            <small>Start date, why, transformation metrics</small>
+          </span>
+        </summary>
+        <div className="stack-md collapse-body">
+          <PageHeader eyebrow="Setup" title="Make it yours">
+            Add your start date and reason why. This stays on your device with localStorage.
+          </PageHeader>
 
-      <Card className="stack-md">
-        <Field label="Name or nickname">
+          <Field label="Name or nickname">
           <input value={profile.name} onChange={(e) => update('name', e.target.value)} placeholder="Joshua" />
         </Field>
         <Field label="Sobriety start date">
@@ -167,26 +177,35 @@ const Onboarding = () => {
           <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
         </div>
         {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
-      </Card>
-
-      <Card className="backup-card stack-sm">
-        <span className="tag">Progress backup</span>
-        <h2>Save the receipts outside the browser.</h2>
-        <p>Export your local Iron Habit data as a JSON backup, or restore it onto this device later.</p>
-        <div className="button-row">
-          <Button variant="secondary" onClick={exportBackup}>Download backup</Button>
-          <Button variant="ghost" onClick={copyBackup}>Copy backup JSON</Button>
-          <label className="btn btn-ghost file-restore">
-            Restore backup
-            <input
-              type="file"
-              accept="application/json,.json"
-              onChange={(event) => importBackup(event.target.files?.[0])}
-            />
-          </label>
         </div>
-        {backupStatus && <p className="success-msg">{backupStatus}</p>}
-      </Card>
+      </details>
+
+      <details className="collapse-card card backup-card">
+        <summary>
+          <span>
+            <b>Backup & restore</b>
+            <small>Export or restore local progress</small>
+          </span>
+        </summary>
+        <div className="stack-sm collapse-body">
+          <span className="tag">Progress backup</span>
+          <h2>Save the receipts outside the browser.</h2>
+          <p>Export your local Iron Habit data as a JSON backup, or restore it onto this device later.</p>
+          <div className="button-row">
+            <Button variant="secondary" onClick={exportBackup}>Download backup</Button>
+            <Button variant="ghost" onClick={copyBackup}>Copy backup JSON</Button>
+            <label className="btn btn-ghost file-restore">
+              Restore backup
+              <input
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => importBackup(event.target.files?.[0])}
+              />
+            </label>
+          </div>
+          {backupStatus && <p className="success-msg">{backupStatus}</p>}
+        </div>
+      </details>
     </div>
   );
 };

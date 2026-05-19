@@ -8,13 +8,10 @@ import ShareProgressScreen from './screens/ShareProgressScreen';
 import CravingRescue from './screens/CravingRescue';
 
 const navItems = [
-  { to: '/', label: 'Base' },
+  { to: '/', label: 'Today' },
   { to: '/daily-check-in', label: 'Lock In' },
-  { to: '/habit-tracker', label: 'Stack' },
   { to: '/fitness-tracker', label: 'Train' },
   { to: '/progress-dashboard', label: 'Proof' },
-  { to: '/share-progress', label: 'Victory' },
-  { to: '/craving-rescue', label: 'Rescue' },
 ];
 
 function App() {
