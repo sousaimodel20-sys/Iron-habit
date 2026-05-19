@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { saveData, type ActiveLoadout } from '../utils/storage';
 
 type Loadout = {
   id: string;
@@ -98,6 +99,7 @@ const TalkCoach = () => {
   const [time, setTime] = useState(times[2]);
   const [level, setLevel] = useState(levels[1]);
   const [message, setMessage] = useState('Make me a push pull legs split.');
+  const [savedMessage, setSavedMessage] = useState('');
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -116,6 +118,26 @@ const TalkCoach = () => {
     if (detectedId === 'dumbbell') return 'Dumbbell-only constraint detected. No machines needed.';
     return 'Loadout generated. Save it, run it, then log the proof.';
   }, [detectedId]);
+
+  const saveLoadout = () => {
+    const activeLoadout: ActiveLoadout = {
+      id: `${Date.now()}`,
+      templateId: loadout.id,
+      title: loadout.title,
+      label: loadout.label,
+      goal,
+      time,
+      level,
+      days: loadout.days,
+      intent: loadout.intent,
+      finisher: loadout.finisher,
+      exercises: loadout.exercises,
+      createdAt: new Date().toISOString(),
+    };
+
+    saveData({ activeLoadout });
+    setSavedMessage(`${loadout.title} saved to Train.`);
+  };
 
   return (
     <div className="page warrior-page talk-page loadout-page stack-lg">
@@ -183,6 +205,11 @@ const TalkCoach = () => {
           <b>Mission intent</b>
           <span>{loadout.intent}</span>
         </div>
+        {savedMessage && <p className="success-msg">{savedMessage}</p>}
+        <div className="hero-actions">
+          <button className="btn btn-primary" onClick={saveLoadout}>Save This Loadout</button>
+          <Link to="/fitness-tracker" className="btn btn-ghost">View in Train</Link>
+        </div>
       </section>
 
       <section className="exercise-stack" aria-label="Exercise cards">
@@ -216,6 +243,7 @@ const TalkCoach = () => {
         <span>{loadout.finisher}</span>
         <div className="hero-actions">
           <Link to="/fitness-tracker" className="btn btn-primary">Log Training</Link>
+          <button className="btn btn-secondary" onClick={saveLoadout}>Save Program</button>
           <Link to="/craving-rescue" className="btn btn-ghost">Open Rescue</Link>
         </div>
       </section>

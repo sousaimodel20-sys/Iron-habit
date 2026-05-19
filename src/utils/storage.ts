@@ -24,6 +24,34 @@ export type FitnessEntry = {
   note: string;
 };
 
+export type SavedExercise = {
+  name: string;
+  muscle: string;
+  equipment: string;
+  sets: string;
+  reps: string;
+  rest: string;
+  cue: string;
+  mistake: string;
+  swap: string;
+  icon: string;
+};
+
+export type ActiveLoadout = {
+  id: string;
+  templateId: string;
+  title: string;
+  label: string;
+  goal: string;
+  time: string;
+  level: string;
+  days: string[];
+  intent: string;
+  finisher: string;
+  exercises: SavedExercise[];
+  createdAt: string;
+};
+
 export type Profile = {
   name: string;
   sobrietyDate: string;
@@ -40,6 +68,7 @@ export type IronHabitData = {
   checkIns: Record<string, CheckIn>;
   habits: Habit[];
   fitnessEntries: FitnessEntry[];
+  activeLoadout: ActiveLoadout | null;
 };
 
 const STORAGE_KEY = 'iron-habit-data';
@@ -75,6 +104,7 @@ export const defaultData: IronHabitData = {
     },
   ],
   fitnessEntries: [],
+  activeLoadout: null,
 };
 
 export const loadData = (): IronHabitData => {
@@ -90,6 +120,7 @@ export const loadData = (): IronHabitData => {
       checkIns: parsed.checkIns || {},
       habits: parsed.habits || defaultData.habits,
       fitnessEntries: parsed.fitnessEntries || [],
+      activeLoadout: parsed.activeLoadout || null,
     };
   } catch {
     return defaultData;
@@ -115,6 +146,7 @@ export const replaceData = (data: IronHabitData) => {
     checkIns: data.checkIns || {},
     habits: data.habits || defaultData.habits,
     fitnessEntries: data.fitnessEntries || [],
+    activeLoadout: data.activeLoadout || null,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   window.dispatchEvent(new Event('iron-habit-data-updated'));
