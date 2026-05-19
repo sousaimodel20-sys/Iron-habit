@@ -224,10 +224,16 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .workout-demo { min-height: 210px; }
 .workout-session-card h1 { margin: 0; color: #fff; font-size: clamp(2.3rem, 13vw, 4.4rem); line-height: .86; }
 .workout-session-card p { margin: 0; color: #fff; font-weight: 800; }
+.workout-main-btn { min-height: 58px; font-size: 1rem; }
 .workout-prescription { margin: 0; }
 .set-tracker { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-tracker span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; border: 1px solid rgba(255,255,255,.12); color: var(--muted); background: rgba(0,0,0,.24); font-weight: 950; }
 .set-tracker span.done { color: #fff; border-color: rgba(239,68,68,.55); background: linear-gradient(135deg, #ef4444, #7f1010); box-shadow: 0 0 22px rgba(220,38,38,.28); }
+.rest-card { display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; align-items: center; min-height: 70px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 22px; background: rgba(0,0,0,.26); }
+.rest-card.active { border-color: rgba(239,68,68,.45); background: linear-gradient(135deg, rgba(127,16,16,.28), rgba(0,0,0,.32)); box-shadow: 0 0 28px rgba(220,38,38,.16); }
+.rest-card b { color: #fff; font-size: 1.5rem; line-height: .9; }
+.rest-card span { color: #d4d4d8; line-height: 1.3; font-size: .88rem; font-weight: 800; }
+.rest-card button { border: 1px solid rgba(239,68,68,.32); border-radius: 999px; padding: 9px 11px; color: #fecaca; background: rgba(127,16,16,.28); font-weight: 900; }
 .workout-form-note { border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 12px 14px; background: rgba(0,0,0,.24); }
 .workout-form-note summary { color: #fecaca; cursor: pointer; font-weight: 900; }
 .workout-form-note span { display: block; margin-top: 8px; color: #d4d4d8; font-size: .9rem; line-height: 1.35; }
@@ -242,6 +248,10 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
   .exercise-card { grid-template-columns: 1fr; }
   .exercise-demo { min-height: 132px; }
   .loadout-control-grid { grid-template-columns: 1fr; }
+  .workout-demo { min-height: 150px; }
+  .workout-nav-card { grid-template-columns: 1fr; }
+  .rest-card { grid-template-columns: 1fr; text-align: center; }
+  .rest-card button { width: 100%; min-height: 42px; }
 }
 @keyframes warrior-pulse { 0%, 100% { filter: drop-shadow(0 0 12px rgba(220,38,38,.32)); transform: scale(.992); } 50% { filter: drop-shadow(0 0 24px rgba(239,68,68,.72)); transform: scale(1.01); } }
 @keyframes xp-glow { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }

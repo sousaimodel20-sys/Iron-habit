@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card } from '../components/UI';
+import { Card } from '../components/UI';
 import { loadData, saveData, type FitnessEntry } from '../utils/storage';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -10,10 +10,19 @@ const setsAsNumber = (sets: string) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 3;
 };
 
+const restSecondsFor = (rest: string) => {
+  const lower = rest.toLowerCase();
+  if (lower.includes('min') || Number.parseInt(lower, 10) >= 90) return 90;
+  if (Number.parseInt(lower, 10) >= 60) return 60;
+  return 30;
+};
+
 const WorkoutMode = () => {
   const [data, setData] = useState(() => loadData());
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [completedSets, setCompletedSets] = useState<Record<string, number>>({});
+  const [restRemaining, setRestRemaining] = useState(0);
+  const [statusLine, setStatusLine] = useState('Lock in. Clean reps only.');
   const [finished, setFinished] = useState(false);
 
   const loadout = data.activeLoadout;
@@ -23,6 +32,22 @@ const WorkoutMode = () => {
     const dayIndex = new Date().getDay();
     return loadout.days[(dayIndex + 6) % loadout.days.length] || loadout.days[0];
   }, [loadout]);
+
+  const targetSets = exercise ? setsAsNumber(exercise.sets) : 0;
+  const doneSets = exercise ? completedSets[exercise.name] || 0 : 0;
+  const totalSets = loadout?.exercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0) || 1;
+  const allDoneSets = Object.values(completedSets).reduce((sum, count) => sum + count, 0);
+  const progress = Math.min(100, Math.round((allDoneSets / totalSets) * 100));
+
+  useEffect(() => {
+    if (restRemaining <= 0) return;
+    const timer = window.setTimeout(() => setRestRemaining((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [restRemaining]);
+
+  const displayStatus = restRemaining === 0 && statusLine.startsWith('Rest')
+    ? 'Rest over. Take the next set.'
+    : statusLine;
 
   if (!loadout || !exercise) {
     return (
@@ -37,25 +62,34 @@ const WorkoutMode = () => {
     );
   }
 
-  const targetSets = setsAsNumber(exercise.sets);
-  const doneSets = completedSets[exercise.name] || 0;
-  const totalSets = loadout.exercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0);
-  const allDoneSets = Object.values(completedSets).reduce((sum, count) => sum + count, 0);
-  const progress = Math.min(100, Math.round((allDoneSets / totalSets) * 100));
-
   const completeSet = () => {
-    setCompletedSets((current) => ({
-      ...current,
-      [exercise.name]: Math.min(targetSets, doneSets + 1),
-    }));
+    setCompletedSets((current) => {
+      const nextCount = Math.min(targetSets, (current[exercise.name] || 0) + 1);
+      const next = { ...current, [exercise.name]: nextCount };
+
+      if (nextCount >= targetSets) {
+        setRestRemaining(0);
+        setStatusLine('Exercise conquered. Move to the next station.');
+      } else {
+        const seconds = restSecondsFor(exercise.rest);
+        setRestRemaining(seconds);
+        setStatusLine(`Rest ${seconds}s. Breathe. Do not negotiate with the old life.`);
+      }
+
+      return next;
+    });
   };
 
   const nextExercise = () => {
     setExerciseIndex((current) => Math.min(loadout.exercises.length - 1, current + 1));
+    setRestRemaining(0);
+    setStatusLine('New exercise. First rep sets the tone.');
   };
 
   const previousExercise = () => {
     setExerciseIndex((current) => Math.max(0, current - 1));
+    setRestRemaining(0);
+    setStatusLine('Back one station. Clean up the work.');
   };
 
   const finishWorkout = () => {
@@ -115,9 +149,19 @@ const WorkoutMode = () => {
             <span key={index} className={index < doneSets ? 'done' : ''}>{index + 1}</span>
           ))}
         </div>
-        <Button onClick={completeSet} disabled={doneSets >= targetSets}>
+        <div className={`rest-card ${restRemaining > 0 ? 'active' : ''}`}>
+          <b>{restRemaining > 0 ? `${restRemaining}s` : `${doneSets}/${targetSets}`}</b>
+          <span>{displayStatus}</span>
+          {restRemaining > 0 && <button type="button" onClick={() => setRestRemaining(0)}>Skip Rest</button>}
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary workout-main-btn"
+          onClick={completeSet}
+          disabled={doneSets >= targetSets}
+        >
           {doneSets >= targetSets ? 'Sets Complete' : 'Complete Set'}
-        </Button>
+        </button>
         <details className="workout-form-note">
           <summary>Form warning + swap</summary>
           <span><strong>Watch:</strong> {exercise.mistake}</span>
@@ -126,11 +170,11 @@ const WorkoutMode = () => {
       </section>
 
       <section className="workout-nav-card">
-        <Button variant="ghost" onClick={previousExercise} disabled={exerciseIndex === 0}>Previous</Button>
+        <button type="button" className="btn btn-ghost" onClick={previousExercise} disabled={exerciseIndex === 0}>Previous</button>
         {exerciseIndex < loadout.exercises.length - 1 ? (
-          <Button onClick={nextExercise}>Next Exercise</Button>
+          <button type="button" className="btn btn-primary" onClick={nextExercise}>Next Exercise</button>
         ) : (
-          <Button onClick={finishWorkout}>Finish + Log Proof</Button>
+          <button type="button" className="btn btn-primary" onClick={finishWorkout}>Finish + Log Proof</button>
         )}
       </section>
     </div>
