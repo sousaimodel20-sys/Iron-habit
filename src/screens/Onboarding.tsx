@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
+import { Button, Card, Field, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, replaceData, saveData, type IronHabitData, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
@@ -8,7 +8,27 @@ const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
+  const data = loadData();
   const streak = calculateSobrietyStreak();
+  const todayKey = getTodayKey();
+  const todayCheckIn = data.checkIns[todayKey];
+  const trainedToday = data.fitnessEntries.some((entry) => entry.date === todayKey);
+  const nextStep = !todayCheckIn ? {
+    label: 'Step 1',
+    title: 'Lock in now',
+    copy: 'No shame. No spiral. Just an honest check-in. Protect today first.',
+    to: '/daily-check-in',
+  } : !trainedToday ? {
+    label: 'Step 2',
+    title: 'Move your body',
+    copy: 'Walk, lift, stretch, sweat — any clean rep counts.',
+    to: '/fitness-tracker',
+  } : {
+    label: 'Step 3',
+    title: 'Check your proof',
+    copy: 'You showed up. See the receipts and keep the chain alive.',
+    to: '/progress-dashboard',
+  };
 
 
   const update = (key: keyof Profile, value: string) => {
@@ -84,50 +104,47 @@ const Onboarding = () => {
 
   return (
     <div className="page stack-lg">
-      <section className="hero-card">
-        <div>
-          <p className="eyebrow">Sober fitness command center</p>
-          <h1>Day by day. Rep by rep. Rebuild yourself.</h1>
-          <p>
-            Iron Habit is for sober momentum: lock in today, train your body, stack discipline, and turn progress into proof.
-          </p>
-          <div className="mission-panel">
-            <span>Today’s Mission</span>
-            <strong>Stay sober • Move iron • Eat clean • Protect peace</strong>
-          </div>
+      <section className="mission-flow-card">
+        <div className="mission-status">
+          <span className="tag">Today’s mission</span>
+          <strong>{streak === 1 ? 'Day 1 protected' : `${streak} days protected`}</strong>
+          <p>Stay sober. Move your body. Keep the promise small enough to win.</p>
+        </div>
+
+        <div className="next-action-card">
+          <span>{nextStep.label}</span>
+          <h1>{nextStep.title}</h1>
+          <p>{nextStep.copy}</p>
           <div className="hero-actions">
-            <Link to="/daily-check-in" className="btn btn-primary">Lock in today</Link>
-            <Link to="/fitness-tracker" className="btn btn-secondary">Log training</Link>
+            <Link to={nextStep.to} className="btn btn-primary">Start this step</Link>
+            <Link to="/craving-rescue" className="btn btn-danger">I need Rescue</Link>
           </div>
         </div>
-        <div className="phone-preview" aria-label="Iron Habit preview card">
-          <span className="phone-notch" />
-          <p>Current streak</p>
-          <strong>{streak}</strong>
-          <span>{streak === 1 ? 'day locked in' : 'days locked in'}</span>
-          <div className="mini-bars"><i /><i /><i /><i /></div>
-        </div>
+
       </section>
 
-      <div className="stats-grid">
-        <Stat label="days undefeated" value={streak} tone="gold" />
-        <Stat label="mission" value="today" />
-        <Stat label="mindset" value="locked" />
-        <Stat label="victory card" value="9:16" />
-      </div>
-
-      <Card className="today-grid command-card">
-        <span className="tag">Today Command Center</span>
+      <Card className="today-grid command-card daily-flow">
+        <span className="tag">Daily flow</span>
         <h2>Do these in order. No wandering.</h2>
-        <div className="mission-list">
-          <Link to="/daily-check-in"><b>01</b><span>Lock In</span><small>Record sober status, mood, craving, and note.</small></Link>
-          <Link to="/fitness-tracker"><b>02</b><span>Train</span><small>Log movement. Walk, lift, sweat — anything counts.</small></Link>
-          <Link to="/habit-tracker"><b>03</b><span>Stack</span><small>Hit the discipline basics: water, protein, sleep, peace.</small></Link>
-          <Link to="/progress-dashboard"><b>04</b><span>Proof</span><small>See your scoreboard, charts, and next milestone.</small></Link>
-          <Link to="/share-progress"><b>05</b><span>Victory</span><small>Make the 9:16 comeback card when the day is earned.</small></Link>
-          <Link to="/craving-rescue" className="danger-mission"><b>SOS</b><span>Rescue</span><small>Craving? Start the 10-minute no-decision protocol.</small></Link>
+        <div className="mission-list mission-steps">
+          <Link to="/daily-check-in" className={todayCheckIn ? 'step-done' : 'step-active'}><b>{todayCheckIn ? 'DONE' : '01'}</b><span>Lock In</span><small>Record sober status, mood, craving, and one honest note.</small></Link>
+          <Link to="/fitness-tracker" className={trainedToday ? 'step-done' : todayCheckIn ? 'step-active' : ''}><b>{trainedToday ? 'DONE' : '02'}</b><span>Train</span><small>Walk, lift, stretch, sweat — anything counts.</small></Link>
+          <Link to="/habit-tracker"><b>03</b><span>Stack</span><small>Water, protein, sleep, peace. Keep the basics clean.</small></Link>
+          <Link to="/progress-dashboard"><b>04</b><span>Proof</span><small>See the receipts and your next milestone.</small></Link>
         </div>
       </Card>
+
+      <div className="support-grid">
+        <Link to="/craving-rescue" className="support-card rescue-now">
+          <b>SOS Rescue</b>
+          <span>Craving? Don’t think. Start the 10-minute protocol.</span>
+        </Link>
+        <Link to="/share-progress" className="support-card">
+          <b>Victory Card</b>
+          <span>When the day is earned, make the 9:16 comeback card.</span>
+        </Link>
+      </div>
+
 
       <details className="collapse-card card">
         <summary>
