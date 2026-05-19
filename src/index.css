@@ -227,6 +227,19 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .active-exercise-list b { color: #fff; }
 .workout-mode-page { max-width: 470px; }
 .workout-session-card, .workout-complete-card, .workout-nav-card { border: 1px solid rgba(220,38,38,.28); border-radius: 34px; background: linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); box-shadow: 0 26px 90px rgba(0,0,0,.58), 0 0 54px rgba(220,38,38,.12); }
+.routine-sheet-card, .routine-exercise-row { border: 1px solid rgba(220,38,38,.28); border-radius: 34px; background: linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); box-shadow: 0 26px 90px rgba(0,0,0,.5), 0 0 54px rgba(220,38,38,.1); }
+.routine-sheet-card { padding: 20px; }
+.routine-sheet-card h1 { margin: 10px 0 6px; color: #fff; font-size: clamp(2.2rem, 12vw, 4.4rem); line-height: .86; }
+.routine-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.routine-summary-grid span { min-height: 76px; display: grid; place-items: center; text-align: center; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(0,0,0,.24); }
+.routine-summary-grid b { color: #fff; font-size: 1.35rem; line-height: 1; }
+.routine-summary-grid small { color: #ffb4b4; text-transform: uppercase; letter-spacing: .1em; font-size: .62rem; font-weight: 950; }
+.routine-exercise-list { display: grid; gap: 12px; }
+.routine-exercise-row { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px; }
+.routine-exercise-index { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; color: #fff; background: linear-gradient(135deg, #ef4444, #7f1010); font-weight: 950; box-shadow: 0 0 24px rgba(220,38,38,.34); }
+.routine-exercise-row h2 { margin: 5px 0 11px; color: #fff; font-size: 1.35rem; line-height: 1; }
+.routine-log-card { grid-template-columns: 1fr; }
+.routine-log-card p { margin: 0; }
 .workout-session-card { padding: 18px; display: grid; gap: 15px; }
 .workout-topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #fff; }
 .workout-topline span { color: #ff6b6b; font-size: .7rem; text-transform: uppercase; letter-spacing: .16em; font-weight: 950; }

@@ -115,7 +115,7 @@ const FitnessTracker = () => {
             ))}
           </div>
           <div className="hero-actions">
-            <Link to="/workout-mode" className="btn btn-primary">Start Workout Mode</Link>
+            <Link to="/workout-mode" className="btn btn-primary">View Routine</Link>
             <Button variant="secondary" onClick={logActiveLoadout}>Quick Complete</Button>
             <Button variant="ghost" onClick={clearActiveLoadout}>Clear</Button>
           </div>
@@ -148,10 +148,10 @@ const FitnessTracker = () => {
             ))}
           </div>
         ) : (
-          <p>No completed loadout proof yet. Run Workout Mode and stack the first receipt.</p>
+          <p>No completed routine proof yet. View the routine, train it, then stack the first receipt.</p>
         )}
         <div className="hero-actions">
-          {activeLoadout && <Link to="/workout-mode" className="btn btn-primary">Run Active Loadout</Link>}
+          {activeLoadout && <Link to="/workout-mode" className="btn btn-primary">View Active Routine</Link>}
           <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
         </div>
       </Card>
