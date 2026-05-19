@@ -52,6 +52,21 @@ export type ActiveLoadout = {
   createdAt: string;
 };
 
+export type CompletedLoadout = {
+  id: string;
+  date: string;
+  title: string;
+  label: string;
+  activeDay: string;
+  durationMinutes: number;
+  intensity: string;
+  exercises: string[];
+  completedSets: number;
+  totalSets: number;
+  finisher: string;
+  proofCopy: string;
+};
+
 export type Profile = {
   name: string;
   sobrietyDate: string;
@@ -69,6 +84,8 @@ export type IronHabitData = {
   habits: Habit[];
   fitnessEntries: FitnessEntry[];
   activeLoadout: ActiveLoadout | null;
+  completedLoadouts: CompletedLoadout[];
+  latestVictoryProof: CompletedLoadout | null;
 };
 
 const STORAGE_KEY = 'iron-habit-data';
@@ -105,6 +122,8 @@ export const defaultData: IronHabitData = {
   ],
   fitnessEntries: [],
   activeLoadout: null,
+  completedLoadouts: [],
+  latestVictoryProof: null,
 };
 
 export const loadData = (): IronHabitData => {
@@ -121,6 +140,8 @@ export const loadData = (): IronHabitData => {
       habits: parsed.habits || defaultData.habits,
       fitnessEntries: parsed.fitnessEntries || [],
       activeLoadout: parsed.activeLoadout || null,
+      completedLoadouts: parsed.completedLoadouts || [],
+      latestVictoryProof: parsed.latestVictoryProof || null,
     };
   } catch {
     return defaultData;
@@ -147,6 +168,8 @@ export const replaceData = (data: IronHabitData) => {
     habits: data.habits || defaultData.habits,
     fitnessEntries: data.fitnessEntries || [],
     activeLoadout: data.activeLoadout || null,
+    completedLoadouts: data.completedLoadouts || [],
+    latestVictoryProof: data.latestVictoryProof || null,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   window.dispatchEvent(new Event('iron-habit-data-updated'));

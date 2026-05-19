@@ -239,8 +239,15 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .workout-form-note span { display: block; margin-top: 8px; color: #d4d4d8; font-size: .9rem; line-height: 1.35; }
 .workout-nav-card { padding: 14px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
 .workout-complete-card { min-height: 560px; padding: 24px; display: grid; place-items: center; align-content: center; gap: 18px; text-align: center; background: radial-gradient(circle at 50% 34%, rgba(239,68,68,.38), transparent 36%), linear-gradient(180deg, #191b22, #050506 76%); }
+.victory-complete-card { min-height: auto; overflow: hidden; background: radial-gradient(circle at 50% 20%, rgba(239,68,68,.42), transparent 34%), radial-gradient(circle at 100% 0, rgba(127,16,16,.28), transparent 36%), linear-gradient(180deg, #1b1d25, #050506 74%); }
 .workout-complete-card h1 { margin: 0; color: #fff; font-size: clamp(3.2rem, 17vw, 6rem); line-height: .82; }
 .workout-complete-card p { margin: 0; font-weight: 800; }
+.victory-proof-grid { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.victory-proof-grid span { min-height: 82px; display: grid; align-content: center; gap: 5px; padding: 12px; border-radius: 20px; border: 1px solid rgba(239,68,68,.28); background: rgba(0,0,0,.28); }
+.victory-proof-grid b { color: #fff; font-size: 1rem; line-height: 1.05; }
+.victory-proof-grid small { color: #ffb4b4; text-transform: uppercase; letter-spacing: .12em; font-size: .66rem; font-weight: 950; }
+.victory-exercise-list { width: 100%; display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; }
+.victory-exercise-list span { flex: 0 0 auto; color: #fecaca; border: 1px solid rgba(239,68,68,.28); border-radius: 999px; padding: 8px 10px; background: rgba(127,16,16,.18); font-size: .74rem; font-weight: 900; }
 .workout-progress-ring { width: 180px; aspect-ratio: 1; display: grid; place-items: center; align-content: center; border-radius: 999px; background: conic-gradient(#ef4444 0 290deg, rgba(255,255,255,.1) 290deg 360deg); box-shadow: 0 0 46px rgba(220,38,38,.42); }
 .workout-progress-ring strong { color: #fff; font-size: 3rem; line-height: .9; }
 .workout-progress-ring span { color: #fecaca; font-weight: 950; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; }
@@ -351,6 +358,12 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .craving-dot-wrap small { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); }
 .list-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .list-card p { margin-bottom: 0; }
+.proof-stack-card { border-color: rgba(239,68,68,.3); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.18), transparent 34%), linear-gradient(180deg, rgba(28,31,39,.88), rgba(8,8,10,.94)); }
+.completed-loadout-list { display: grid; gap: 10px; }
+.completed-loadout-list article { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(0,0,0,.24); }
+.completed-loadout-list article span { color: #ffb4b4; font-size: .72rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.completed-loadout-list article h3 { color: #fff; margin: 5px 0; }
+.completed-loadout-list article p { color: #d4d4d8; font-size: .9rem; }
 .scoreboard { text-align: center; padding: 34px 20px; background: radial-gradient(circle at 50% 0, rgba(246,196,83,.2), rgba(255,255,255,.06) 58%); }
 .scoreboard p { margin-bottom: 0; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; }
 .scoreboard strong { display: block; color: var(--gold); font-size: clamp(5rem, 24vw, 9rem); line-height: .85; letter-spacing: -.09em; }
@@ -420,5 +433,5 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
   .milestone-grid { grid-template-columns: repeat(2, 1fr); }
   .bottom-nav { grid-template-columns: repeat(5, 1fr); border-radius: 21px; }
   .bottom-nav a { font-size: .74rem; padding: 11px 4px; }
-  .list-card { align-items: flex-start; flex-direction: column; }
+  .list-card, .completed-loadout-list article { align-items: flex-start; flex-direction: column; display: flex; }
 }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
-import { loadData, saveData, type ActiveLoadout, type FitnessEntry } from '../utils/storage';
+import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
@@ -9,6 +9,7 @@ const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
 const FitnessTracker = () => {
   const [entries, setEntries] = useState<FitnessEntry[]>(() => loadData().fitnessEntries);
   const [activeLoadout, setActiveLoadout] = useState<ActiveLoadout | null>(() => loadData().activeLoadout);
+  const [completedLoadouts, setCompletedLoadouts] = useState<CompletedLoadout[]>(() => loadData().completedLoadouts);
   const [type, setType] = useState(activityTypes[0]);
   const [duration, setDuration] = useState(45);
   const [intensity, setIntensity] = useState(intensities[1]);
@@ -45,16 +46,37 @@ const FitnessTracker = () => {
     if (!activeLoadout) return;
 
     const minutes = Number.parseInt(activeLoadout.time, 10) || 45;
-    const entry: FitnessEntry = {
+    const intensityValue = activeLoadout.level === 'Advanced' ? 'Beast mode' : activeLoadout.level === 'Beginner' ? 'Moderate' : 'Hard';
+    const date = new Date().toISOString().slice(0, 10);
+    const totalSets = activeLoadout.exercises.reduce((sum, exercise) => sum + (Number.parseInt(exercise.sets, 10) || 3), 0);
+    const proof: CompletedLoadout = {
       id: `${Date.now()}`,
-      date: new Date().toISOString().slice(0, 10),
+      date,
+      title: activeLoadout.title,
+      label: activeLoadout.label,
+      activeDay,
+      durationMinutes: minutes,
+      intensity: intensityValue,
+      exercises: activeLoadout.exercises.map((exercise) => exercise.name),
+      completedSets: totalSets,
+      totalSets,
+      finisher: activeLoadout.finisher,
+      proofCopy: 'Quick proof logged. The new identity gets stronger.',
+    };
+    const entry: FitnessEntry = {
+      id: proof.id,
+      date,
       type: activeLoadout.label,
       durationMinutes: minutes,
-      intensity: activeLoadout.level === 'Advanced' ? 'Beast mode' : activeLoadout.level === 'Beginner' ? 'Moderate' : 'Hard',
+      intensity: intensityValue,
       note: `${activeDay}: ${activeLoadout.exercises.map((exercise) => exercise.name).join(', ')}. ${activeLoadout.finisher}`,
     };
 
-    persist([entry, ...entries]);
+    const nextEntries = [entry, ...entries];
+    const nextCompletedLoadouts = [proof, ...completedLoadouts];
+    setEntries(nextEntries);
+    setCompletedLoadouts(nextCompletedLoadouts);
+    saveData({ fitnessEntries: nextEntries, completedLoadouts: nextCompletedLoadouts, latestVictoryProof: proof });
   };
 
   const clearActiveLoadout = () => {
@@ -106,6 +128,33 @@ const FitnessTracker = () => {
           <Link to="/talk" className="btn btn-primary">Open Coach Loadouts</Link>
         </Card>
       )}
+
+      <Card className="proof-stack-card stack-md">
+        <div className="section-title-row">
+          <span>Proof Stack</span>
+          <b>{completedLoadouts.length} loadouts conquered</b>
+        </div>
+        {completedLoadouts.length > 0 ? (
+          <div className="completed-loadout-list">
+            {completedLoadouts.slice(0, 3).map((proof) => (
+              <article key={proof.id}>
+                <div>
+                  <span>{proof.date} • {proof.activeDay}</span>
+                  <h3>{proof.title}</h3>
+                  <p>{proof.durationMinutes} min • {proof.completedSets} sets • {proof.exercises.length} exercises</p>
+                </div>
+                <Link to="/share-progress" className="btn btn-ghost">Victory Card</Link>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>No completed loadout proof yet. Run Workout Mode and stack the first receipt.</p>
+        )}
+        <div className="hero-actions">
+          {activeLoadout && <Link to="/workout-mode" className="btn btn-primary">Run Active Loadout</Link>}
+          <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
+        </div>
+      </Card>
 
       <Card className="stack-md">
         <Field label="Activity">

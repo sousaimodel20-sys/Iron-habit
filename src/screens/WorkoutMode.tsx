@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
-import { loadData, saveData, type FitnessEntry } from '../utils/storage';
+import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -24,6 +24,7 @@ const WorkoutMode = () => {
   const [restRemaining, setRestRemaining] = useState(0);
   const [statusLine, setStatusLine] = useState('Lock in. Clean reps only.');
   const [finished, setFinished] = useState(false);
+  const [victoryProof, setVictoryProof] = useState<CompletedLoadout | null>(null);
 
   const loadout = data.activeLoadout;
   const exercise = loadout?.exercises[exerciseIndex];
@@ -94,30 +95,73 @@ const WorkoutMode = () => {
 
   const finishWorkout = () => {
     const minutes = Number.parseInt(loadout.time, 10) || 45;
-    const entry: FitnessEntry = {
+    const intensity = loadout.level === 'Advanced' ? 'Beast mode' : loadout.level === 'Beginner' ? 'Moderate' : 'Hard';
+    const date = today();
+    const completedSetCount = Math.max(allDoneSets, totalSets);
+    const proof: CompletedLoadout = {
       id: `${Date.now()}`,
-      date: today(),
+      date,
+      title: loadout.title,
+      label: loadout.label,
+      activeDay,
+      durationMinutes: minutes,
+      intensity,
+      exercises: loadout.exercises.map((item) => item.name),
+      completedSets: completedSetCount,
+      totalSets,
+      finisher: loadout.finisher,
+      proofCopy: 'Another vote against the old life. Proof logged. The new identity gets stronger.',
+    };
+    const entry: FitnessEntry = {
+      id: proof.id,
+      date,
       type: loadout.label,
       durationMinutes: minutes,
-      intensity: loadout.level === 'Advanced' ? 'Beast mode' : loadout.level === 'Beginner' ? 'Moderate' : 'Hard',
+      intensity,
       note: `${activeDay}: Completed guided loadout — ${loadout.exercises.map((item) => item.name).join(', ')}. ${loadout.finisher}`,
     };
-    const nextData = saveData({ fitnessEntries: [entry, ...data.fitnessEntries] });
+    const nextData = saveData({
+      fitnessEntries: [entry, ...data.fitnessEntries],
+      completedLoadouts: [proof, ...data.completedLoadouts],
+      latestVictoryProof: proof,
+    });
     setData(nextData);
+    setVictoryProof(proof);
     setFinished(true);
   };
 
   if (finished) {
+    const proof = victoryProof;
     return (
       <div className="page warrior-page workout-mode-page stack-lg">
-        <section className="workout-complete-card">
-          <span className="talk-kicker">Workout Complete</span>
+        <section className="workout-complete-card victory-complete-card">
+          <span className="talk-kicker">Workout Conquered</span>
           <h1>Proof saved.</h1>
-          <p>Another vote against the old life. Training logged to your proof stack.</p>
-          <div className="workout-progress-ring"><strong>+{Number.parseInt(loadout.time, 10) || 45}</strong><span>minutes</span></div>
+          <p>Another vote against the old life. Proof logged. The new identity gets stronger.</p>
+          {proof && (
+            <>
+              <div className="victory-proof-grid">
+                <span><b>{proof.title}</b><small>loadout</small></span>
+                <span><b>{proof.activeDay}</b><small>split</small></span>
+                <span><b>{proof.durationMinutes}</b><small>minutes</small></span>
+                <span><b>{proof.completedSets}</b><small>sets</small></span>
+              </div>
+              <div className="victory-exercise-list" aria-label="Exercises completed">
+                {proof.exercises.map((name) => <span key={name}>{name}</span>)}
+              </div>
+            </>
+          )}
+          <div className="workout-progress-ring"><strong>+{proof?.durationMinutes || Number.parseInt(loadout.time, 10) || 45}</strong><span>minutes</span></div>
           <div className="hero-actions">
-            <Link to="/fitness-tracker" className="btn btn-primary">Back to Train</Link>
-            <Link to="/share-progress" className="btn btn-ghost">Victory Card</Link>
+            <Link to="/fitness-tracker" className="btn btn-ghost">Back to Train</Link>
+            <Link to="/share-progress" className="btn btn-primary">Create Victory Card</Link>
+            <Link to="/workout-mode" className="btn btn-secondary" onClick={() => {
+              setFinished(false);
+              setExerciseIndex(0);
+              setCompletedSets({});
+              setRestRemaining(0);
+              setStatusLine('Lock in. Clean reps only.');
+            }}>Run Another Loadout</Link>
           </div>
         </section>
       </div>

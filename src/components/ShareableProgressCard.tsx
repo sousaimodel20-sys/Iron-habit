@@ -40,6 +40,7 @@ const ShareableProgressCard = ({
   const metrics = getTransformationMetrics(data, streak);
   const copy = templateCopy[template];
   const firstName = data.profile.name || 'I';
+  const workoutProof = data.latestVictoryProof;
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -60,25 +61,46 @@ const ShareableProgressCard = ({
     <section className="share-wrap">
       <div ref={cardRef} className={`share-card template-${template}`}>
         <div className="share-glow" />
-        <p className="share-kicker">{copy.kicker}</p>
-        <h2>{firstName} {copy.headline}</h2>
-        <div className="share-day">
-          <strong>{streak}</strong>
-          <span>day sober streak</span>
-        </div>
-        <div className="share-metrics">
-          <span><b>{data.habits.length}</b> habits</span>
-          <span><b>{data.fitnessEntries.length}</b> workouts</span>
-          <span><b>{totalMinutes}</b> min</span>
-        </div>
-        <div className="share-proof-strip">
-          <span>{formatMoney(metrics.moneySaved)} saved</span>
-          <span>{formatNumber(metrics.drinksSkipped)} drinks skipped</span>
-        </div>
-        <p className="share-why">{data.profile.why || 'Build a body and life I am proud of.'}</p>
+        <p className="share-kicker">{workoutProof ? 'WORKOUT VICTORY CARD' : copy.kicker}</p>
+        <h2>{workoutProof ? `${workoutProof.title} conquered.` : `${firstName} ${copy.headline}`}</h2>
+        {workoutProof ? (
+          <>
+            <div className="share-day workout-proof-day">
+              <strong>{workoutProof.completedSets}</strong>
+              <span>sets completed</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{workoutProof.durationMinutes}</b> minutes</span>
+              <span><b>{workoutProof.exercises.length}</b> exercises</span>
+              <span><b>{workoutProof.date}</b> date</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>{workoutProof.activeDay} • {workoutProof.label}</span>
+              <span>{workoutProof.proofCopy}</span>
+            </div>
+            <p className="share-why">Another vote against the old life. Proof beats promises.</p>
+          </>
+        ) : (
+          <>
+            <div className="share-day">
+              <strong>{streak}</strong>
+              <span>day sober streak</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{data.habits.length}</b> habits</span>
+              <span><b>{data.fitnessEntries.length}</b> workouts</span>
+              <span><b>{totalMinutes}</b> min</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>{formatMoney(metrics.moneySaved)} saved</span>
+              <span>{formatNumber(metrics.drinksSkipped)} drinks skipped</span>
+            </div>
+            <p className="share-why">{data.profile.why || 'Build a body and life I am proud of.'}</p>
+          </>
+        )}
         <footer>
-          <span>#{latestMood.replaceAll(' ', '')}</span>
-          <span>{copy.footer}</span>
+          <span>{workoutProof ? '#WorkoutConquered' : `#${latestMood.replaceAll(' ', '')}`}</span>
+          <span>{workoutProof ? '#IronHabitProof' : copy.footer}</span>
         </footer>
       </div>
       <Button onClick={handleDownload}>Download {template} card</Button>

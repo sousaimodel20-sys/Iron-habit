@@ -26,10 +26,17 @@ const ShareProgressScreen = () => {
     return () => window.removeEventListener('iron-habit-data-updated', refresh);
   }, []);
 
+  const workoutProof = data.latestVictoryProof;
   const captions: Record<VictoryTemplate, string> = {
-    comeback: `Day ${streak}. Sober, training, and rebuilding brick by brick. #IronHabit #SoberFitness #Comeback`,
-    discipline: `I did not negotiate with the old life today. Day ${streak} locked in. #Discipline #SoberGym #IronHabit`,
-    receipts: `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. #RecoveryTok #IronHabit`,
+    comeback: workoutProof
+      ? `${workoutProof.title} conquered: ${workoutProof.durationMinutes} min, ${workoutProof.completedSets} sets. Another vote against the old life. #IronHabit #SoberFitness #WorkoutProof`
+      : `Day ${streak}. Sober, training, and rebuilding brick by brick. #IronHabit #SoberFitness #Comeback`,
+    discipline: workoutProof
+      ? `Proof logged: ${workoutProof.activeDay}, ${workoutProof.exercises.length} exercises, ${workoutProof.completedSets} sets. I did not negotiate today. #Discipline #SoberGym #IronHabit`
+      : `I did not negotiate with the old life today. Day ${streak} locked in. #Discipline #SoberGym #IronHabit`,
+    receipts: workoutProof
+      ? `Receipts: ${workoutProof.label}, ${workoutProof.durationMinutes} minutes, ${workoutProof.completedSets} sets completed. Proof beats promises. #RecoveryTok #IronHabit`
+      : `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. #RecoveryTok #IronHabit`,
   };
   const caption = captions[template];
 
@@ -44,8 +51,10 @@ const ShareProgressScreen = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Victory Card" title="Make the comeback visible.">
-        Pick a 9:16 card style, download it, and copy a caption built for sober-fitness content.
+      <PageHeader eyebrow="Victory Card" title={workoutProof ? 'Make the workout proof visible.' : 'Make the comeback visible.'}>
+        {workoutProof
+          ? 'Your latest finished loadout is ready as a 9:16 proof card for sober-fitness content.'
+          : 'Pick a 9:16 card style, download it, and copy a caption built for sober-fitness content.'}
       </PageHeader>
 
       <Card className="stack-sm">
