@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
@@ -15,7 +15,31 @@ const DailyCheckIn = () => {
   const [note, setNote] = useState(initialCheckIn?.note || '');
   const [savedCheckIn, setSavedCheckIn] = useState<CheckIn | null>(initialCheckIn || null);
   const [streak, setStreak] = useState(calculateSobrietyStreak());
+  const [rescueActive, setRescueActive] = useState(false);
+  const [rescueSeconds, setRescueSeconds] = useState(600);
+  const profile = loadData().profile;
+  const rescueMinutes = Math.floor(rescueSeconds / 60);
+  const rescueRemainder = String(rescueSeconds % 60).padStart(2, '0');
 
+  useEffect(() => {
+    if (!rescueActive || rescueSeconds <= 0) return undefined;
+
+    const timer = window.setInterval(() => {
+      setRescueSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [rescueActive, rescueSeconds]);
+
+  const startRescue = () => {
+    setRescueSeconds(600);
+    setRescueActive(true);
+  };
+
+  const resetRescue = () => {
+    setRescueActive(false);
+    setRescueSeconds(600);
+  };
 
   const toggleHabit = (habit: string) => {
     setSelectedHabits((prev) => (prev.includes(habit) ? prev.filter((h) => h !== habit) : [...prev, habit]));
@@ -42,14 +66,33 @@ const DailyCheckIn = () => {
       </div>
 
       <Card className="rescue-card stack-sm">
-        <span className="tag danger-tag">Craving Rescue</span>
-        <h2>10 minutes. No decisions.</h2>
-        <p>Cravings lie in short bursts. Run this protocol before you do anything else.</p>
+        <div className="rescue-head">
+          <span className="tag danger-tag">Craving Rescue</span>
+          <span className="rescue-clock">{rescueMinutes}:{rescueRemainder}</span>
+        </div>
+        <h2>{rescueSeconds === 0 ? 'Urge survived. You stayed in command.' : '10 minutes. No decisions.'}</h2>
+        <p>Cravings lie in short bursts. Run the protocol before you text, buy, pour, or bargain.</p>
+
+        <div className="breath-ring" aria-label="Breathing guide">
+          <span>{rescueActive ? 'Breathe' : 'Ready'}</span>
+        </div>
+
         <div className="rescue-steps">
           <span><b>01</b> Drink cold water</span>
           <span><b>02</b> Walk outside</span>
           <span><b>03</b> Eat protein</span>
           <span><b>04</b> Text someone safe</span>
+        </div>
+
+        <div className="rescue-actions">
+          <Button onClick={startRescue}>{rescueActive ? 'Restart timer' : 'Start rescue timer'}</Button>
+          <Button variant="secondary" onClick={resetRescue}>Reset</Button>
+          <a className="btn btn-ghost" href="sms:">Text support</a>
+        </div>
+
+        <div className="reason-card">
+          <span>Remember the mission</span>
+          <strong>{profile.transformationGoal || profile.why || 'Lean, sober, strong, and consistent.'}</strong>
         </div>
         <p className="quote">“Don’t trade your future for a ten-minute feeling.”</p>
       </Card>

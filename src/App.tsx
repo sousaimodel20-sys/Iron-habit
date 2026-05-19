@@ -5,6 +5,7 @@ import HabitTracker from './screens/HabitTracker';
 import FitnessTracker from './screens/FitnessTracker';
 import ProgressDashboard from './screens/ProgressDashboard';
 import ShareProgressScreen from './screens/ShareProgressScreen';
+import CravingRescue from './screens/CravingRescue';
 
 const navItems = [
   { to: '/', label: 'Base' },
@@ -13,6 +14,7 @@ const navItems = [
   { to: '/fitness-tracker', label: 'Train' },
   { to: '/progress-dashboard', label: 'Proof' },
   { to: '/share-progress', label: 'Victory' },
+  { to: '/craving-rescue', label: 'Rescue' },
 ];
 
 function App() {
@@ -38,6 +40,7 @@ function App() {
             <Route path="/fitness-tracker" element={<FitnessTracker />} />
             <Route path="/progress-dashboard" element={<ProgressDashboard />} />
             <Route path="/share-progress" element={<ShareProgressScreen />} />
+            <Route path="/craving-rescue" element={<CravingRescue />} />
           </Routes>
         </main>
 
