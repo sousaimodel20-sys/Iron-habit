@@ -32,7 +32,7 @@ const HabitTracker = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Habit tracker" title="Design the system, not just the mood.">
+      <PageHeader eyebrow="Discipline Stack" title="Build systems stronger than urges.">
         Track the repeatable actions that make sobriety easier and confidence automatic.
       </PageHeader>
 

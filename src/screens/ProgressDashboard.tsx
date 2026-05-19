@@ -31,7 +31,7 @@ const ProgressDashboard = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Progress dashboard" title="Proof beats motivation.">
+      <PageHeader eyebrow="Proof" title="Proof beats promises.">
         See the scoreboard for sobriety, training, and daily follow-through.
       </PageHeader>
 

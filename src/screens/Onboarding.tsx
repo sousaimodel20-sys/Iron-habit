@@ -35,14 +35,18 @@ const Onboarding = () => {
     <div className="page stack-lg">
       <section className="hero-card">
         <div>
-          <p className="eyebrow">Premium habit system</p>
-          <h1>Build the version of you that alcohol could not.</h1>
+          <p className="eyebrow">Sober fitness command center</p>
+          <h1>Day by day. Rep by rep. Rebuild yourself.</h1>
           <p>
-            Iron Habit combines sobriety streaks, daily check-ins, gym discipline, and shareable wins into one mobile-first dashboard.
+            Iron Habit is for sober momentum: lock in today, train your body, stack discipline, and turn progress into proof.
           </p>
+          <div className="mission-panel">
+            <span>Today’s Mission</span>
+            <strong>Stay sober • Move iron • Eat clean • Protect peace</strong>
+          </div>
           <div className="hero-actions">
-            <Link to="/daily-check-in" className="btn btn-primary">Do today’s check-in</Link>
-            <Link to="/share-progress" className="btn btn-secondary">Create TikTok card</Link>
+            <Link to="/daily-check-in" className="btn btn-primary">Lock in today</Link>
+            <Link to="/fitness-tracker" className="btn btn-secondary">Log training</Link>
           </div>
         </div>
         <div className="phone-preview" aria-label="Iron Habit preview card">
@@ -55,10 +59,21 @@ const Onboarding = () => {
       </section>
 
       <div className="stats-grid">
-        <Stat label="sobriety days" value={streak} tone="gold" />
-        <Stat label="focus" value="1 day" />
-        <Stat label="share format" value="9:16" />
+        <Stat label="days undefeated" value={streak} tone="gold" />
+        <Stat label="mission" value="today" />
+        <Stat label="mindset" value="locked" />
+        <Stat label="victory card" value="9:16" />
       </div>
+
+      <Card className="today-grid">
+        <h2>Today’s Mission</h2>
+        <div className="mission-list">
+          <Link to="/daily-check-in"><b>01</b><span>Stay sober</span><small>Record the win before the day gets loud.</small></Link>
+          <Link to="/fitness-tracker"><b>02</b><span>Train the body</span><small>Move, lift, sweat, walk — earn momentum.</small></Link>
+          <Link to="/habit-tracker"><b>03</b><span>Stack discipline</span><small>Protect sleep, protein, water, and peace.</small></Link>
+          <Link to="/share-progress"><b>04</b><span>Claim proof</span><small>Turn the day into a victory card.</small></Link>
+        </div>
+      </Card>
 
       <PageHeader eyebrow="Setup" title="Make it yours">
         Add your start date and reason why. This stays on your device with localStorage.

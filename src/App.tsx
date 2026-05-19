@@ -7,12 +7,12 @@ import ProgressDashboard from './screens/ProgressDashboard';
 import ShareProgressScreen from './screens/ShareProgressScreen';
 
 const navItems = [
-  { to: '/', label: 'Home' },
-  { to: '/daily-check-in', label: 'Check-in' },
-  { to: '/habit-tracker', label: 'Habits' },
-  { to: '/fitness-tracker', label: 'Fitness' },
-  { to: '/progress-dashboard', label: 'Progress' },
-  { to: '/share-progress', label: 'Share' },
+  { to: '/', label: 'Base' },
+  { to: '/daily-check-in', label: 'Lock In' },
+  { to: '/habit-tracker', label: 'Stack' },
+  { to: '/fitness-tracker', label: 'Train' },
+  { to: '/progress-dashboard', label: 'Proof' },
+  { to: '/share-progress', label: 'Victory' },
 ];
 
 function App() {

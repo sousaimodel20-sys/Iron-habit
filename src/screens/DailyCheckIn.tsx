@@ -31,8 +31,8 @@ const DailyCheckIn = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Daily check-in" title="Win today, then stack it.">
-        A fast ritual for sobriety, mood, cravings, and the habits that protect your streak.
+      <PageHeader eyebrow="Lock In" title="Don’t negotiate with the old life.">
+        Record the sober win, rate the craving, and use the rescue protocol when your brain starts bargaining.
       </PageHeader>
 
       <div className="stats-grid">
@@ -40,6 +40,19 @@ const DailyCheckIn = () => {
         <Stat label="habits today" value={`${selectedHabits.length}/${defaultHabits.length}`} />
         <Stat label="craving" value={`${craving}/10`} />
       </div>
+
+      <Card className="rescue-card stack-sm">
+        <span className="tag danger-tag">Craving Rescue</span>
+        <h2>10 minutes. No decisions.</h2>
+        <p>Cravings lie in short bursts. Run this protocol before you do anything else.</p>
+        <div className="rescue-steps">
+          <span><b>01</b> Drink cold water</span>
+          <span><b>02</b> Walk outside</span>
+          <span><b>03</b> Eat protein</span>
+          <span><b>04</b> Text someone safe</span>
+        </div>
+        <p className="quote">“Don’t trade your future for a ten-minute feeling.”</p>
+      </Card>
 
       <Card className="stack-md">
         <div className="segmented">

@@ -36,7 +36,7 @@ const FitnessTracker = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Fitness tracker" title="Turn recovery into receipts.">
+      <PageHeader eyebrow="Training Log" title="Train like you’re rebuilding your life.">
         Log training sessions and show proof that your new habits are changing your body and mind.
       </PageHeader>
 

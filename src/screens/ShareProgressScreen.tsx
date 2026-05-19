@@ -26,7 +26,7 @@ const ShareProgressScreen = () => {
 
   return (
     <div className="page stack-lg">
-      <PageHeader eyebrow="Share progress" title="Make the win TikTok-ready.">
+      <PageHeader eyebrow="Victory Card" title="Make the comeback visible.">
         Export a clean vertical progress card and copy a simple caption for short-form content.
       </PageHeader>
 

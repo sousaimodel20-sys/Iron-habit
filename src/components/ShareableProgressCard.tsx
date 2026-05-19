@@ -29,7 +29,7 @@ const ShareableProgressCard = ({ data, streak }: { data: IronHabitData; streak: 
       <div ref={cardRef} className="share-card">
         <div className="share-glow" />
         <p className="share-kicker">IRON HABIT</p>
-        <h2>{data.profile.name || 'I'} chose discipline today.</h2>
+        <h2>{data.profile.name || 'I'} stayed sober and showed up.</h2>
         <div className="share-day">
           <strong>{streak}</strong>
           <span>day sober streak</span>
