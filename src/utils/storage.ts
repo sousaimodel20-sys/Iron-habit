@@ -107,6 +107,20 @@ export const saveData = (updates: Partial<IronHabitData>) => {
   return merged;
 };
 
+export const replaceData = (data: IronHabitData) => {
+  const merged: IronHabitData = {
+    ...defaultData,
+    ...data,
+    profile: { ...defaultData.profile, ...(data.profile || {}) },
+    checkIns: data.checkIns || {},
+    habits: data.habits || defaultData.habits,
+    fitnessEntries: data.fitnessEntries || [],
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+  window.dispatchEvent(new Event('iron-habit-data-updated'));
+  return merged;
+};
+
 export const resetData = () => {
   localStorage.removeItem(STORAGE_KEY);
   window.dispatchEvent(new Event('iron-habit-data-updated'));

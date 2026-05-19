@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
-import { getTodayKey, loadData, saveData, type Profile } from '../utils/storage';
+import { getTodayKey, loadData, replaceData, saveData, type IronHabitData, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
   const [saved, setSaved] = useState(false);
+  const [backupStatus, setBackupStatus] = useState('');
   const streak = calculateSobrietyStreak();
 
 
@@ -29,6 +30,56 @@ const Onboarding = () => {
     setProfile(next);
     saveData({ profile: next });
     setSaved(true);
+  };
+
+  const makeBackupJson = () => {
+    const data = loadData();
+    return JSON.stringify({
+      app: 'iron-habit',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data,
+    }, null, 2);
+  };
+
+  const exportBackup = () => {
+    const blob = new Blob([makeBackupJson()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `iron-habit-backup-${getTodayKey()}.json`;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setBackupStatus('Backup downloaded. Keep it somewhere safe.');
+  };
+
+  const copyBackup = async () => {
+    try {
+      await navigator.clipboard?.writeText(makeBackupJson());
+      setBackupStatus('Backup JSON copied. Paste it into Notes or a file.');
+    } catch {
+      setBackupStatus('Copy blocked. Use Download backup instead.');
+    }
+  };
+
+  const importBackup = async (file?: File) => {
+    if (!file) return;
+
+    try {
+      const raw = await file.text();
+      const parsed = JSON.parse(raw) as { data?: IronHabitData } | IronHabitData;
+      const incoming = 'data' in parsed && parsed.data ? parsed.data : parsed;
+      const next = replaceData(incoming as IronHabitData);
+      setProfile(next.profile);
+      setSaved(true);
+      setBackupStatus('Backup restored. Progress is back on this device.');
+    } catch {
+      setBackupStatus('Restore failed. Choose a valid Iron Habit backup file.');
+    }
   };
 
   return (
@@ -116,6 +167,25 @@ const Onboarding = () => {
           <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
         </div>
         {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
+      </Card>
+
+      <Card className="backup-card stack-sm">
+        <span className="tag">Progress backup</span>
+        <h2>Save the receipts outside the browser.</h2>
+        <p>Export your local Iron Habit data as a JSON backup, or restore it onto this device later.</p>
+        <div className="button-row">
+          <Button variant="secondary" onClick={exportBackup}>Download backup</Button>
+          <Button variant="ghost" onClick={copyBackup}>Copy backup JSON</Button>
+          <label className="btn btn-ghost file-restore">
+            Restore backup
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={(event) => importBackup(event.target.files?.[0])}
+            />
+          </label>
+        </div>
+        {backupStatus && <p className="success-msg">{backupStatus}</p>}
       </Card>
     </div>
   );
