@@ -40,11 +40,12 @@ button { cursor: pointer; }
 .screen-frame { animation: rise .3s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-.bottom-nav { position: relative; z-index: 1; width: min(94vw, 540px); margin: 28px auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 7px; border: 1px solid rgba(220,38,38,.34); border-radius: 24px; background: rgba(5,5,7,.9); backdrop-filter: blur(20px); box-shadow: 0 18px 70px rgba(220,38,38,.16), var(--shadow); }
-.bottom-nav a { text-align: center; color: #a1a1aa; font-size: .68rem; padding: 12px 4px; border-radius: 17px; }
+.bottom-nav { position: relative; z-index: 20; width: min(94vw, 540px); margin: 44px auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 8px; border: 1px solid rgba(220,38,38,.34); border-radius: 28px; background: rgba(5,5,7,.9); backdrop-filter: blur(20px); box-shadow: 0 18px 70px rgba(220,38,38,.16), var(--shadow); }
+.bottom-nav a { position: relative; min-height: 54px; display: grid; place-items: center; text-align: center; color: #a1a1aa; font-size: .68rem; padding: 10px 4px; border-radius: 18px; }
 .bottom-nav a.active { color: #fff; background: linear-gradient(135deg, #ef4444, #7f1010); font-weight: 900; box-shadow: 0 0 28px rgba(220,38,38,.34); }
-.bottom-nav a[href="/talk"] { color: #fecaca; font-weight: 900; }
-.bottom-nav a[href="/talk"].active { border: 1px solid rgba(248,113,113,.6); box-shadow: 0 0 36px rgba(239,68,68,.58); }
+.bottom-nav a.center-talk { min-height: 68px; margin-top: -28px; border-radius: 999px; color: #fff; font-weight: 950; background: radial-gradient(circle at 50% 25%, rgba(255,255,255,.22), transparent 34%), linear-gradient(135deg, #ef4444, #7f1010); border: 1px solid rgba(248,113,113,.62); box-shadow: 0 0 34px rgba(239,68,68,.58), 0 18px 60px rgba(0,0,0,.44); }
+.bottom-nav a.center-talk.active { box-shadow: 0 0 44px rgba(239,68,68,.78), 0 18px 70px rgba(127,16,16,.55); }
+.talk-nav-orb { display: block; width: 16px; height: 16px; margin-bottom: -2px; border-radius: 999px; color: transparent; background: #fff; box-shadow: 0 0 16px rgba(255,255,255,.85); }
 
 .page { width: min(100%, 760px); margin: 0 auto; }
 .stack-sm > * + * { margin-top: 10px; }
@@ -178,6 +179,16 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .loadout-orb span::before { content: ''; position: static; width: 54px; height: 12px; transform: none; border-radius: 999px; background: #fff; box-shadow: 0 24px 0 #fff, 0 -24px 0 #fff; }
 .loadout-orb span::after { display: none; }
 .loadout-console { display: grid; gap: 12px; padding: 20px; border: 1px solid rgba(220,38,38,.28); border-radius: 30px; background: linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); box-shadow: 0 26px 90px rgba(0,0,0,.48), 0 0 44px rgba(220,38,38,.1); }
+.command-console { border-color: rgba(239,68,68,.42); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.96), rgba(6,6,8,.98)); }
+.command-actions { margin-top: 0; }
+.command-actions .btn { flex: 1 1 130px; }
+.command-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.command-chip-grid button { border: 1px solid rgba(239,68,68,.28); color: #fecaca; background: rgba(127,16,16,.18); border-radius: 999px; padding: 9px 11px; font-size: .78rem; font-weight: 900; }
+.command-reply { margin: 0; padding: 12px 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.26); color: #fff; font-weight: 800; }
+.meetings-page { padding-bottom: 34px; }
+.meetings-search-card { border-color: rgba(239,68,68,.32); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 36%), linear-gradient(180deg, rgba(28,31,39,.92), rgba(8,8,10,.94)); }
+.meetings-note { margin: 0; color: var(--muted); font-size: .88rem; }
+.meetings-grid { grid-template-columns: 1fr; }
 .loadout-console label { color: #fff; font-weight: 950; }
 .loadout-console textarea { min-height: 96px; border-color: rgba(239,68,68,.24); background: rgba(0,0,0,.38); }
 .loadout-control-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }

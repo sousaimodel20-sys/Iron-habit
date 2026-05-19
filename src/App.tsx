@@ -8,13 +8,14 @@ import ShareProgressScreen from './screens/ShareProgressScreen';
 import CravingRescue from './screens/CravingRescue';
 import TalkCoach from './screens/TalkCoach';
 import WorkoutMode from './screens/WorkoutMode';
+import Meetings from './screens/Meetings';
 
 const navItems = [
-  { to: '/', label: 'Home' },
+  { to: '/', label: 'Today' },
+  { to: '/meetings', label: 'Meetings' },
+  { to: '/talk', label: 'Talk', center: true },
   { to: '/fitness-tracker', label: 'Train' },
-  { to: '/daily-check-in', label: 'Check-In' },
-  { to: '/talk', label: 'Talk' },
-  { to: '/progress-dashboard', label: 'Profile' },
+  { to: '/profile', label: 'Proof' },
 ];
 
 function AppLayout() {
@@ -39,6 +40,7 @@ function AppLayout() {
           <Route path="/daily-check-in" element={<DailyCheckIn />} />
           <Route path="/habit-tracker" element={<HabitTracker />} />
           <Route path="/fitness-tracker" element={<FitnessTracker />} />
+          <Route path="/meetings" element={<Meetings />} />
           <Route path="/progress-dashboard" element={<ProgressDashboard />} />
           <Route path="/profile" element={<ProgressDashboard />} />
           <Route path="/share-progress" element={<ShareProgressScreen />} />
@@ -52,14 +54,15 @@ function AppLayout() {
       <nav className="bottom-nav" aria-label="Primary navigation">
         {navItems.map((item) => {
           const trainActive = item.to === '/fitness-tracker' && location.pathname === '/workout-mode';
-          const profileActive = item.to === '/progress-dashboard' && location.pathname === '/profile';
+          const proofActive = item.to === '/profile' && ['/profile', '/progress-dashboard', '/share-progress'].includes(location.pathname);
           return (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
-              className={({ isActive }) => (isActive || trainActive || profileActive ? 'active' : '')}
+              className={({ isActive }) => `${item.center ? 'center-talk' : ''} ${isActive || trainActive || proofActive ? 'active' : ''}`.trim()}
             >
+              {item.center && <span className="talk-nav-orb" aria-hidden="true">●</span>}
               {item.label}
             </NavLink>
           );

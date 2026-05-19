@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { saveData, type ActiveLoadout } from '../utils/storage';
+import { Link, useNavigate } from 'react-router-dom';
+import { loadData, saveData, type ActiveLoadout } from '../utils/storage';
 
 type Loadout = {
   id: string;
@@ -92,14 +92,25 @@ const loadouts: Loadout[] = [
 const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
+const quickCommands = [
+  'I need a meeting',
+  'Build me a workout',
+  'Start my workout',
+  'I’m craving',
+  'Show my proof',
+  'Make a Victory Card',
+  'Log check-in',
+];
 
 const TalkCoach = () => {
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState('ppl');
   const [goal, setGoal] = useState(goals[0]);
   const [time, setTime] = useState(times[2]);
   const [level, setLevel] = useState(levels[1]);
-  const [message, setMessage] = useState('Make me a push pull legs split.');
+  const [message, setMessage] = useState('Tell Iron Habit what you need.');
   const [savedMessage, setSavedMessage] = useState('');
+  const [commandReply, setCommandReply] = useState('Talk is your command layer. Ask for meetings, workouts, rescue, proof, or check-in.');
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -139,26 +150,97 @@ const TalkCoach = () => {
     setSavedMessage(`${loadout.title} saved to Train.`);
   };
 
+  const handleCommand = (rawCommand = message) => {
+    const command = rawCommand.toLowerCase();
+    setMessage(rawCommand);
+
+    if (/(meeting|meetings|aa|na|group|support)/.test(command)) {
+      setCommandReply('Opening Meetings. Human support beats white-knuckling.');
+      navigate('/meetings');
+      return;
+    }
+
+    if (/(start|begin).*(workout|training|lift)|workout.*(start|begin)/.test(command)) {
+      const activeLoadout = loadData().activeLoadout;
+      if (activeLoadout) {
+        setCommandReply('Opening Workout Mode. Clean reps. No bargaining.');
+        navigate('/workout-mode');
+      } else {
+        setCommandReply('No active loadout yet. Building your workout loadout first.');
+        setSelectedId('ppl');
+        setMessage('Build me a workout');
+      }
+      return;
+    }
+
+    if (/(workout|training|lift|ppl|push|pull|legs|arnold|dumbbell|split)/.test(command)) {
+      const nextId = command.includes('arnold') ? 'arnold' : command.includes('dumbbell') ? 'dumbbell' : command.includes('crav') ? 'craving' : 'ppl';
+      setSelectedId(nextId);
+      setCommandReply('Building your workout loadout. Save it, run it, then log proof.');
+      return;
+    }
+
+    if (/(craving|urge|relapse|drink|emergency)/.test(command)) {
+      setCommandReply('Opening Rescue. Ten minutes. No bargaining.');
+      navigate('/rescue');
+      return;
+    }
+
+    if (/(victory|share|card)/.test(command)) {
+      setCommandReply('Opening Victory Card. Make the proof visible.');
+      navigate('/share-progress');
+      return;
+    }
+
+    if (/(proof|progress|streak|stats)/.test(command)) {
+      setCommandReply('Showing proof. Receipts beat promises.');
+      navigate('/profile');
+      return;
+    }
+
+    if (/(check.?in|mood|sober today)/.test(command)) {
+      setCommandReply('Opening check-in. Log the win before the day gets loud.');
+      navigate('/daily-check-in');
+      return;
+    }
+
+    setCommandReply('I can route you to meetings, rescue, workouts, check-in, proof, or Victory Cards. Try a quick command.');
+  };
+
   return (
     <div className="page warrior-page talk-page loadout-page stack-lg">
       <section className="talk-hero loadout-hero">
         <div className="talk-orb loadout-orb" aria-label="Coach Loadouts">
           <span />
         </div>
-        <span className="talk-kicker">Coach Loadouts</span>
-        <h1>Generate your training split.</h1>
-        <p>Ask for PPL, Arnold, dumbbells only, or a craving killer. Iron Habit turns it into visual workout cards.</p>
+        <span className="talk-kicker">Talk Command</span>
+        <h1>Tell Iron Habit what you need.</h1>
+        <p>Meetings, workouts, rescue, check-ins, proof, and Victory Cards. Talk routes the app for you.</p>
       </section>
 
-      <section className="loadout-console">
-        <label htmlFor="coach-message">Ask Coach</label>
+      <section className="loadout-console command-console">
+        <label htmlFor="coach-message">Command Iron Habit</label>
         <textarea
           id="coach-message"
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           rows={3}
-          placeholder="Example: Make me an Arnold split with dumbbells only."
+          placeholder="Example: I need a meeting, build me a workout, I’m craving..."
         />
+        <div className="hero-actions command-actions">
+          <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Command</button>
+          <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+        </div>
+        <div className="command-chip-grid" aria-label="Quick commands">
+          {quickCommands.map((command) => (
+            <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
+          ))}
+        </div>
+        <p className="command-reply">{commandReply}</p>
+      </section>
+
+      <section className="loadout-console">
+        <label>Coach Loadout settings</label>
         <div className="loadout-control-grid">
           <select value={goal} onChange={(event) => setGoal(event.target.value)} aria-label="Goal">
             {goals.map((item) => <option key={item}>{item}</option>)}
