@@ -156,6 +156,21 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .scoreboard strong { display: block; color: var(--gold); font-size: clamp(5rem, 24vw, 9rem); line-height: .85; letter-spacing: -.09em; }
 .scoreboard span { display: block; font-weight: 900; font-size: 1.2rem; }
 .scoreboard small { display: block; margin-top: 12px; color: var(--muted); }
+.next-milestone-card { background: linear-gradient(145deg, rgba(246,196,83,.16), rgba(34,197,94,.08) 46%, rgba(255,255,255,.055)); }
+.next-target-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.next-target-head h2 { margin-bottom: 4px; }
+.next-target-head p { margin-bottom: 0; }
+.next-target-head strong { color: var(--gold); font-size: clamp(2rem, 10vw, 4rem); line-height: .9; letter-spacing: -.07em; }
+.target-progress { height: 13px; overflow: hidden; border-radius: 999px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.1); }
+.target-progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--green)); box-shadow: 0 0 26px rgba(34,197,94,.22); }
+.milestone-timeline { display: grid; gap: 10px; }
+.timeline-step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 20px; background: rgba(0,0,0,.22); }
+.timeline-step > span { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); font-weight: 950; }
+.timeline-step strong { display: block; color: #fff; }
+.timeline-step small { color: var(--muted); line-height: 1.35; }
+.timeline-step.achieved { border-color: rgba(246,196,83,.34); background: rgba(246,196,83,.09); }
+.timeline-step.achieved > span { color: #111; background: linear-gradient(135deg, var(--gold), var(--orange)); }
+.timeline-step.current { border-color: rgba(34,197,94,.42); box-shadow: 0 0 0 3px rgba(34,197,94,.08); }
 .milestone-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .milestone { min-height: 82px; display: grid; place-items: center; text-align: center; border-radius: 22px; border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,.045); }
 .milestone span { color: var(--muted); }

@@ -6,6 +6,16 @@ import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
+const milestonePlan = [
+  { days: 3, title: 'First wall broken', reward: 'Cravings lost the first round.' },
+  { days: 7, title: 'One clean week', reward: 'Sleep, skin, and discipline start changing.' },
+  { days: 14, title: 'Two-week lock', reward: 'Momentum becomes identity.' },
+  { days: 30, title: '30-day proof', reward: 'You are not trying — you are becoming.' },
+  { days: 60, title: 'New baseline', reward: 'Old routines lose their grip.' },
+  { days: 90, title: 'Transformation block', reward: 'Body, mind, and schedule look different.' },
+  { days: 180, title: 'Half-year iron', reward: 'The comeback is visible.' },
+  { days: 365, title: 'One-year legacy', reward: 'A full sober year of proof.' },
+];
 const dayMs = 24 * 60 * 60 * 1000;
 
 const getDateKey = (offset: number) => {
@@ -43,6 +53,10 @@ const ProgressDashboard = () => {
   const soberCheckIns = checkIns.filter((entry) => entry.sober).length;
   const completionRate = getCompletionRate();
   const nextMilestone = milestones.find((days) => days > streak) || 365;
+  const nextMilestonePlan = milestonePlan.find((item) => item.days > streak) || milestonePlan.at(-1)!;
+  const previousMilestone = [...milestones].reverse().find((days) => days <= streak) || 0;
+  const milestoneSpan = Math.max(1, nextMilestonePlan.days - previousMilestone);
+  const milestoneProgress = Math.min(100, Math.round(((streak - previousMilestone) / milestoneSpan) * 100));
   const metrics = getTransformationMetrics(data, streak);
 
   const weeklyTraining = useMemo(() => {
@@ -96,6 +110,41 @@ const ProgressDashboard = () => {
         <span>days of Iron Habit</span>
         <small>{Math.max(0, nextMilestone - streak)} days until the next badge</small>
       </div>
+
+      <Card className="next-milestone-card stack-sm">
+        <span className="tag">Next Target</span>
+        <div className="next-target-head">
+          <div>
+            <h2>{nextMilestonePlan.days} days — {nextMilestonePlan.title}</h2>
+            <p>{nextMilestonePlan.reward}</p>
+          </div>
+          <strong>{milestoneProgress}%</strong>
+        </div>
+        <div className="target-progress" aria-label="Progress to next milestone">
+          <i style={{ width: `${milestoneProgress}%` }} />
+        </div>
+        <small>{Math.max(0, nextMilestonePlan.days - streak)} sober days left. Stack today, not forever.</small>
+      </Card>
+
+      <Card className="stack-sm">
+        <span className="tag">Milestone Timeline</span>
+        <h2>The comeback map.</h2>
+        <div className="milestone-timeline">
+          {milestonePlan.map((item) => {
+            const achieved = streak >= item.days;
+            const current = !achieved && item.days === nextMilestonePlan.days;
+            return (
+              <div key={item.days} className={`timeline-step ${achieved ? 'achieved' : ''} ${current ? 'current' : ''}`}>
+                <span>{achieved ? '✓' : item.days}</span>
+                <div>
+                  <strong>{item.title}</strong>
+                  <small>{item.reward}</small>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       <div className="stats-grid">
         <Stat label="sober check-ins" value={soberCheckIns} tone="gold" />
