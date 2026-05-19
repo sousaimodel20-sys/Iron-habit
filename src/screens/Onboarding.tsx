@@ -1,35 +1,29 @@
-import { useState } from 'react';
+import { type CSSProperties, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Field, PageHeader } from '../components/UI';
+import { Button, Field, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, replaceData, saveData, type IronHabitData, type Profile } from '../utils/storage';
-import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
   const data = loadData();
-  const streak = calculateSobrietyStreak();
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const trainedToday = data.fitnessEntries.some((entry) => entry.date === todayKey);
-  const nextStep = !todayCheckIn ? {
-    label: 'Step 1',
-    title: 'Lock in now',
-    copy: 'No shame. No spiral. Just an honest check-in. Protect today first.',
-    to: '/daily-check-in',
-  } : !trainedToday ? {
-    label: 'Step 2',
-    title: 'Move your body',
-    copy: 'Walk, lift, stretch, sweat — any clean rep counts.',
-    to: '/fitness-tracker',
-  } : {
-    label: 'Step 3',
-    title: 'Check your proof',
-    copy: 'You showed up. See the receipts and keep the chain alive.',
-    to: '/progress-dashboard',
-  };
+  const displayDay = 47;
+  const xp = 3450;
+  const xpMax = 5000;
+  const xpPercent = Math.round((xp / xpMax) * 100);
+  const craving = todayCheckIn?.craving ?? 2;
+  const moodStability = todayCheckIn ? 'Stable' : 'Locked';
 
+  const missions = [
+    { label: 'Workout Goal', detail: 'Push Day', done: trainedToday, to: '/fitness-tracker' },
+    { label: 'Recovery Goal', detail: '10-minute check-in', done: Boolean(todayCheckIn), to: '/daily-check-in' },
+    { label: 'Hydration Goal', detail: '6 / 8 glasses', done: false, to: '/habit-tracker' },
+    { label: 'Journal Goal', detail: 'Write 10 minutes', done: Boolean(todayCheckIn?.note), to: '/daily-check-in' },
+  ];
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -45,7 +39,7 @@ const Onboarding = () => {
     const next = {
       ...profile,
       sobrietyDate: profile.sobrietyDate || getTodayKey(),
-      why: profile.why || 'I want discipline, health, and freedom.',
+      why: profile.why || 'Discipline today. Freedom tomorrow.',
     };
     setProfile(next);
     saveData({ profile: next });
@@ -103,50 +97,82 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="page stack-lg">
-      <section className="mission-flow-card">
-        <div className="mission-status">
-          <span className="tag">Today’s mission</span>
-          <strong>{streak === 1 ? 'Day 1 protected' : `${streak} days protected`}</strong>
-          <p>Stay sober. Move your body. Keep the promise small enough to win.</p>
+    <div className="page warrior-page stack-lg">
+      <section className="warrior-hero">
+        <div className="warrior-topline">
+          <span>Warrior Mode</span>
+          <b>Live Combat Dashboard</b>
         </div>
 
-        <div className="next-action-card">
-          <span>{nextStep.label}</span>
-          <h1>{nextStep.title}</h1>
-          <p>{nextStep.copy}</p>
-          <div className="hero-actions">
-            <Link to={nextStep.to} className="btn btn-primary">Start this step</Link>
-            <Link to="/craving-rescue" className="btn btn-danger">I need Rescue</Link>
+        <div className="warrior-ring-wrap">
+          <div className="warrior-ring" style={{ '--ring-progress': `${displayDay * 5}deg` } as CSSProperties}>
+            <div className="helmet-core" aria-label="warrior emblem">
+              <span className="helmet-plume" />
+              <span className="helmet-face">Λ</span>
+            </div>
           </div>
         </div>
 
+        <div className="warrior-day-copy">
+          <span>DAY {displayDay}</span>
+          <h1>SOBER</h1>
+          <p>Discipline today. Freedom tomorrow.</p>
+        </div>
       </section>
 
-      <Card className="today-grid command-card daily-flow">
-        <span className="tag">Daily flow</span>
-        <h2>Do these in order. No wandering.</h2>
-        <div className="mission-list mission-steps">
-          <Link to="/daily-check-in" className={todayCheckIn ? 'step-done' : 'step-active'}><b>{todayCheckIn ? 'DONE' : '01'}</b><span>Lock In</span><small>Record sober status, mood, craving, and one honest note.</small></Link>
-          <Link to="/fitness-tracker" className={trainedToday ? 'step-done' : todayCheckIn ? 'step-active' : ''}><b>{trainedToday ? 'DONE' : '02'}</b><span>Train</span><small>Walk, lift, stretch, sweat — anything counts.</small></Link>
-          <Link to="/habit-tracker"><b>03</b><span>Stack</span><small>Water, protein, sleep, peace. Keep the basics clean.</small></Link>
-          <Link to="/progress-dashboard"><b>04</b><span>Proof</span><small>See the receipts and your next milestone.</small></Link>
+      <section className="xp-card">
+        <div className="xp-head">
+          <span>XP SYSTEM</span>
+          <strong>LEVEL 12</strong>
         </div>
-      </Card>
+        <div className="xp-bar" aria-label="XP progress">
+          <i style={{ width: `${xpPercent}%` }} />
+        </div>
+        <div className="xp-foot">
+          <b>{xp.toLocaleString()} / {xpMax.toLocaleString()} XP</b>
+          <span>Every sober day levels up your character.</span>
+        </div>
+      </section>
 
-      <div className="support-grid">
-        <Link to="/craving-rescue" className="support-card rescue-now">
-          <b>SOS Rescue</b>
-          <span>Craving? Don’t think. Start the 10-minute protocol.</span>
-        </Link>
-        <Link to="/share-progress" className="support-card">
-          <b>Victory Card</b>
-          <span>When the day is earned, make the 9:16 comeback card.</span>
-        </Link>
-      </div>
+      <section className="warrior-stats-grid">
+        <div><span>Sober Streak</span><strong>{displayDay} days</strong></div>
+        <div><span>Workout Streak</span><strong>15 days</strong></div>
+        <div><span>Mood Stability</span><strong>{moodStability}</strong></div>
+        <div><span>Craving Level</span><strong>{craving}/10</strong></div>
+      </section>
 
+      <section className="missions-card">
+        <div className="section-title-row">
+          <span>Today’s Missions</span>
+          <b>{missions.filter((mission) => mission.done).length}/{missions.length}</b>
+        </div>
+        <div className="warrior-mission-list">
+          {missions.map((mission) => (
+            <Link to={mission.to} key={mission.label} className={mission.done ? 'mission-complete' : ''}>
+              <span className="mission-checkbox">{mission.done ? '✓' : ''}</span>
+              <span>
+                <b>{mission.label}</b>
+                <small>{mission.detail}</small>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-      <details className="collapse-card card">
+      <section className="boss-card">
+        <div>
+          <span>Weekly Boss Battle</span>
+          <h2>Beat Last Week</h2>
+          <p>Outwork the old version. Win the week before it wins you.</p>
+        </div>
+        <div className="boss-progress">
+          <strong>64%</strong>
+          <div><i /></div>
+          <small>4 / 7 battles cleared</small>
+        </div>
+      </section>
+
+      <details className="collapse-card card warrior-collapse">
         <summary>
           <span>
             <b>Setup & profile</b>
@@ -159,45 +185,45 @@ const Onboarding = () => {
           </PageHeader>
 
           <Field label="Name or nickname">
-          <input value={profile.name} onChange={(e) => update('name', e.target.value)} placeholder="Joshua" />
-        </Field>
-        <Field label="Sobriety start date">
-          <input type="date" value={profile.sobrietyDate} onChange={(e) => update('sobrietyDate', e.target.value)} />
-        </Field>
-        <Field label="Your why">
-          <textarea value={profile.why} onChange={(e) => update('why', e.target.value)} rows={4} />
-        </Field>
-        <Field label="Main focus">
-          <select value={profile.focus} onChange={(e) => update('focus', e.target.value)}>
-            <option value="sobriety-strength-discipline">Sobriety + strength + discipline</option>
-            <option value="mental-clarity">Mental clarity</option>
-            <option value="fitness-transformation">Fitness transformation</option>
-            <option value="new-life">New life build</option>
-          </select>
-        </Field>
-        <div className="metric-input-grid">
-          <Field label="Old average drink cost">
-            <input inputMode="decimal" value={profile.averageDrinkCost} onChange={(e) => update('averageDrinkCost', e.target.value)} placeholder="8" />
+            <input value={profile.name} onChange={(e) => update('name', e.target.value)} placeholder="Joshua" />
           </Field>
-          <Field label="Old drinks per drinking day">
-            <input inputMode="decimal" value={profile.drinksPerDay} onChange={(e) => update('drinksPerDay', e.target.value)} placeholder="4" />
+          <Field label="Sobriety start date">
+            <input type="date" value={profile.sobrietyDate} onChange={(e) => update('sobrietyDate', e.target.value)} />
           </Field>
-          <Field label="Calories per drink">
-            <input inputMode="numeric" value={profile.caloriesPerDrink} onChange={(e) => update('caloriesPerDrink', e.target.value)} placeholder="150" />
+          <Field label="Your why">
+            <textarea value={profile.why} onChange={(e) => update('why', e.target.value)} rows={4} />
           </Field>
-        </div>
-        <Field label="Transformation goal">
-          <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
-        </Field>
-        <div className="button-row">
-          <Button onClick={handleSave}>Save profile</Button>
-          <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
-        </div>
-        {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
+          <Field label="Main focus">
+            <select value={profile.focus} onChange={(e) => update('focus', e.target.value)}>
+              <option value="sobriety-strength-discipline">Sobriety + strength + discipline</option>
+              <option value="mental-clarity">Mental clarity</option>
+              <option value="fitness-transformation">Fitness transformation</option>
+              <option value="new-life">New life build</option>
+            </select>
+          </Field>
+          <div className="metric-input-grid">
+            <Field label="Old average drink cost">
+              <input inputMode="decimal" value={profile.averageDrinkCost} onChange={(e) => update('averageDrinkCost', e.target.value)} placeholder="8" />
+            </Field>
+            <Field label="Old drinks per drinking day">
+              <input inputMode="decimal" value={profile.drinksPerDay} onChange={(e) => update('drinksPerDay', e.target.value)} placeholder="4" />
+            </Field>
+            <Field label="Calories per drink">
+              <input inputMode="numeric" value={profile.caloriesPerDrink} onChange={(e) => update('caloriesPerDrink', e.target.value)} placeholder="150" />
+            </Field>
+          </div>
+          <Field label="Transformation goal">
+            <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
+          </Field>
+          <div className="button-row">
+            <Button onClick={handleSave}>Save profile</Button>
+            <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
+          </div>
+          {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
         </div>
       </details>
 
-      <details className="collapse-card card backup-card">
+      <details className="collapse-card card backup-card warrior-collapse">
         <summary>
           <span>
             <b>Backup & restore</b>

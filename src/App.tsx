@@ -8,10 +8,11 @@ import ShareProgressScreen from './screens/ShareProgressScreen';
 import CravingRescue from './screens/CravingRescue';
 
 const navItems = [
-  { to: '/', label: 'Today' },
-  { to: '/daily-check-in', label: 'Lock In' },
+  { to: '/', label: 'Home' },
   { to: '/fitness-tracker', label: 'Train' },
-  { to: '/progress-dashboard', label: 'Proof' },
+  { to: '/daily-check-in', label: 'Check-In' },
+  { to: '/share-progress', label: 'Community' },
+  { to: '/progress-dashboard', label: 'Profile' },
 ];
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
               <small>Sober • Strong • Consistent</small>
             </span>
           </NavLink>
-          <span className="live-pill">Live MVP</span>
+          <span className="live-pill">Beta Access</span>
         </header>
 
         <main className="screen-frame">
