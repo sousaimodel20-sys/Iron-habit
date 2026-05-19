@@ -6,12 +6,13 @@ import FitnessTracker from './screens/FitnessTracker';
 import ProgressDashboard from './screens/ProgressDashboard';
 import ShareProgressScreen from './screens/ShareProgressScreen';
 import CravingRescue from './screens/CravingRescue';
+import TalkCoach from './screens/TalkCoach';
 
 const navItems = [
   { to: '/', label: 'Home' },
   { to: '/fitness-tracker', label: 'Train' },
   { to: '/daily-check-in', label: 'Check-In' },
-  { to: '/share-progress', label: 'Community' },
+  { to: '/talk', label: 'Talk' },
   { to: '/progress-dashboard', label: 'Profile' },
 ];
 
@@ -39,6 +40,7 @@ function App() {
             <Route path="/progress-dashboard" element={<ProgressDashboard />} />
             <Route path="/share-progress" element={<ShareProgressScreen />} />
             <Route path="/craving-rescue" element={<CravingRescue />} />
+            <Route path="/talk" element={<TalkCoach />} />
           </Routes>
         </main>
 
