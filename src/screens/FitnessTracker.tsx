@@ -1,90 +1,83 @@
-import { useState, useEffect } from 'react';
-import { saveData, loadData } from '../utils/storage';
-import { Button, Card } from '../components/UI';
+import { useMemo, useState } from 'react';
+import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
+import { loadData, saveData, type FitnessEntry } from '../utils/storage';
 
-interface FitnessEntry {
-  id: string;
-  date: string;
-  type: string;
-  durationMinutes: number;
-}
-
-const activityTypes = ['Walking', 'Running', 'Cycling', 'Gym', 'Yoga'];
+const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
+const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
 
 const FitnessTracker = () => {
-  const [fitnessEntries, setFitnessEntries] = useState<FitnessEntry[]>([]);
-  const [selectedType, setSelectedType] = useState(activityTypes[0]);
-  const [duration, setDuration] = useState<number>(30);
+  const [entries, setEntries] = useState<FitnessEntry[]>(() => loadData().fitnessEntries);
+  const [type, setType] = useState(activityTypes[0]);
+  const [duration, setDuration] = useState(45);
+  const [intensity, setIntensity] = useState(intensities[1]);
+  const [note, setNote] = useState('');
 
-  useEffect(() => {
-    const data = loadData();
-    if (data.fitnessEntries) {
-      setFitnessEntries(data.fitnessEntries);
-    }
-  }, []);
+
+  const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
+  const thisWeek = useMemo(() => entries.slice(0, 7).length, [entries]);
+
+  const persist = (next: FitnessEntry[]) => {
+    setEntries(next);
+    saveData({ fitnessEntries: next });
+  };
 
   const addEntry = () => {
     const entry: FitnessEntry = {
-      id: Date.now().toString(),
+      id: `${Date.now()}`,
       date: new Date().toISOString().slice(0, 10),
-      type: selectedType,
-      durationMinutes: duration,
+      type,
+      durationMinutes: Math.max(1, duration),
+      intensity,
+      note: note.trim(),
     };
-
-    const updatedEntries = [...fitnessEntries, entry];
-    setFitnessEntries(updatedEntries);
-    saveData({ fitnessEntries: updatedEntries });
-  };
-
-  const deleteEntry = (id: string) => {
-    const updatedEntries = fitnessEntries.filter((e) => e.id !== id);
-    setFitnessEntries(updatedEntries);
-    saveData({ fitnessEntries: updatedEntries });
+    persist([entry, ...entries]);
+    setNote('');
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Fitness Tracker</h1>
-      <Card>
-        <div className="mb-4">
-          <label className="block mb-2 font-semibold">Activity Type</label>
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            {activityTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
+    <div className="page stack-lg">
+      <PageHeader eyebrow="Fitness tracker" title="Turn recovery into receipts.">
+        Log training sessions and show proof that your new habits are changing your body and mind.
+      </PageHeader>
+
+      <div className="stats-grid">
+        <Stat label="sessions" value={entries.length} />
+        <Stat label="minutes" value={totalMinutes} tone="gold" />
+        <Stat label="recent logs" value={thisWeek} />
+      </div>
+
+      <Card className="stack-md">
+        <Field label="Activity">
+          <select value={type} onChange={(e) => setType(e.target.value)}>
+            {activityTypes.map((item) => <option key={item}>{item}</option>)}
           </select>
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2 font-semibold">Duration (minutes)</label>
-          <input
-            type="number"
-            min={1}
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <Button onClick={addEntry}>Add Entry</Button>
+        </Field>
+        <Field label="Duration minutes">
+          <input type="number" min={1} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+        </Field>
+        <Field label="Intensity">
+          <select value={intensity} onChange={(e) => setIntensity(e.target.value)}>
+            {intensities.map((item) => <option key={item}>{item}</option>)}
+          </select>
+        </Field>
+        <Field label="Session note">
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="Push day. Felt strong. No cravings after." />
+        </Field>
+        <Button onClick={addEntry}>Log workout</Button>
       </Card>
-      <ul className="mt-6">
-        {fitnessEntries.map((entry) => (
-          <li
-            key={entry.id}
-            className="mb-2 flex justify-between items-center p-2 border rounded"
-          >
+
+      <section className="list-stack">
+        {entries.map((entry) => (
+          <Card key={entry.id} className="list-card">
             <div>
-              {entry.date}: {entry.type} for {entry.durationMinutes} min
+              <span className="tag">{entry.date} • {entry.intensity}</span>
+              <h3>{entry.type} — {entry.durationMinutes} min</h3>
+              {entry.note && <p>{entry.note}</p>}
             </div>
-            <Button onClick={() => deleteEntry(entry.id)}>Delete</Button>
-          </li>
+            <Button variant="ghost" onClick={() => persist(entries.filter((item) => item.id !== entry.id))}>Remove</Button>
+          </Card>
         ))}
-      </ul>
+      </section>
     </div>
   );
 };

@@ -1,44 +1,66 @@
-import { useState, useEffect } from 'react';
-import { loadData } from '../utils/storage';
+import { useEffect, useMemo, useState } from 'react';
 import MilestoneBadge from '../components/MilestoneBadge';
-import { calculateSobrietyStreak } from '../utils/streaks';
-import { Card } from '../components/UI';
+import { Card, PageHeader, Stat } from '../components/UI';
+import { loadData, type IronHabitData } from '../utils/storage';
+import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 
-const milestones = [
-  { title: '3 Days', days: 3 },
-  { title: '7 Days', days: 7 },
-  { title: '30 Days', days: 30 },
-  { title: '90 Days', days: 90 },
-];
+const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 
 const ProgressDashboard = () => {
-  const [streak, setStreak] = useState(0);
-  const [habits, setHabits] = useState([]);
-  const [fitnessEntries, setFitnessEntries] = useState([]);
+  const [data, setData] = useState<IronHabitData>(loadData());
+  const [streak, setStreak] = useState(calculateSobrietyStreak());
 
   useEffect(() => {
-    const data = loadData();
-    setHabits(data.habits || []);
-    setFitnessEntries(data.fitnessEntries || []);
-    setStreak(calculateSobrietyStreak());
+    const refresh = () => {
+      setData(loadData());
+      setStreak(calculateSobrietyStreak());
+    };
+    refresh();
+    window.addEventListener('iron-habit-data-updated', refresh);
+    return () => window.removeEventListener('iron-habit-data-updated', refresh);
   }, []);
 
-  // Calculate habit completion count
-  const habitCompletionCount = habits.length;
-  const fitnessActivityCount = fitnessEntries.length;
+  const totalMinutes = useMemo(
+    () => data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0),
+    [data.fitnessEntries],
+  );
+  const checkIns = Object.values(data.checkIns);
+  const soberCheckIns = checkIns.filter((entry) => entry.sober).length;
+  const completionRate = getCompletionRate();
+  const nextMilestone = milestones.find((days) => days > streak) || 365;
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Progress Dashboard</h1>
+    <div className="page stack-lg">
+      <PageHeader eyebrow="Progress dashboard" title="Proof beats motivation.">
+        See the scoreboard for sobriety, training, and daily follow-through.
+      </PageHeader>
+
+      <div className="scoreboard card">
+        <p>{data.profile.name ? `${data.profile.name}'s streak` : 'Current streak'}</p>
+        <strong>{streak}</strong>
+        <span>days of Iron Habit</span>
+        <small>{Math.max(0, nextMilestone - streak)} days until the next badge</small>
+      </div>
+
+      <div className="stats-grid">
+        <Stat label="sober check-ins" value={soberCheckIns} tone="gold" />
+        <Stat label="active habits" value={data.habits.length} />
+        <Stat label="training min" value={totalMinutes} />
+        <Stat label="completion" value={`${completionRate}%`} />
+      </div>
+
       <Card>
-        <p className="mb-2 font-semibold">Sobriety Streak: {streak} day{streak !== 1 ? 's' : ''}</p>
-        <p className="mb-2">Total Habits Tracked: {habitCompletionCount}</p>
-        <p className="mb-2">Total Fitness Activities Logged: {fitnessActivityCount}</p>
-        <div className="flex flex-wrap justify-center">
-          {milestones.map(({ title, days }) => (
-            <MilestoneBadge key={days} title={title} achieved={streak >= days} />
+        <h2>Milestones</h2>
+        <div className="milestone-grid">
+          {milestones.map((days) => (
+            <MilestoneBadge key={days} title={`${days} days`} achieved={streak >= days} />
           ))}
         </div>
+      </Card>
+
+      <Card className="stack-sm">
+        <h2>Your why</h2>
+        <p className="quote">“{data.profile.why || 'Build a body and life I am proud of.'}”</p>
       </Card>
     </div>
   );

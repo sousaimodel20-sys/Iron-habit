@@ -1,114 +1,80 @@
-// Daily Check-In component
-import { useState, useEffect } from 'react';
-import { saveData, loadData } from '../utils/storage';
-import { Button, Card } from '../components/UI';
+import { useState } from 'react';
+import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
+import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
-interface CheckInData {
-  date: string;
-  sober: boolean;
-  habitsCompleted: string[];
-}
-
-const allHabits = ['No alcohol', 'Exercise', 'Read', 'Meditate'];
+const defaultHabits = ['No alcohol', 'Gym / movement', 'Protein meal', 'Meditation', 'Read / learn', 'Sleep routine'];
 
 const DailyCheckIn = () => {
-  const [checkInData, setCheckInData] = useState<CheckInData | null>(null);
-  const [selectedHabits, setSelectedHabits] = useState<string[]>([]);
-  const [sober, setSober] = useState<boolean>(true);
-  const [streak, setStreak] = useState<number>(0);
+  const today = getTodayKey();
+  const initialCheckIn = loadData().checkIns[today];
+  const [selectedHabits, setSelectedHabits] = useState<string[]>(initialCheckIn?.habitsCompleted || []);
+  const [sober, setSober] = useState(initialCheckIn?.sober ?? true);
+  const [mood, setMood] = useState(initialCheckIn?.mood || 'Focused');
+  const [craving, setCraving] = useState(initialCheckIn?.craving || 1);
+  const [note, setNote] = useState(initialCheckIn?.note || '');
+  const [savedCheckIn, setSavedCheckIn] = useState<CheckIn | null>(initialCheckIn || null);
+  const [streak, setStreak] = useState(calculateSobrietyStreak());
 
-  useEffect(() => {
-    const data = loadData();
-    const today = new Date().toISOString().slice(0, 10);
-    if (data.checkIns && data.checkIns[today]) {
-      setCheckInData(data.checkIns[today]);
-      setSelectedHabits(data.checkIns[today].habitsCompleted || []);
-      setSober(data.checkIns[today].sober);
-    }
-    const currentStreak = calculateSobrietyStreak();
-    setStreak(currentStreak);
-  }, []);
-
-  const today = new Date().toISOString().slice(0, 10);
 
   const toggleHabit = (habit: string) => {
-    setSelectedHabits((prev) =>
-      prev.includes(habit) ? prev.filter((h) => h !== habit) : [...prev, habit]
-    );
+    setSelectedHabits((prev) => (prev.includes(habit) ? prev.filter((h) => h !== habit) : [...prev, habit]));
   };
 
   const handleSave = () => {
     const data = loadData();
-    if (!data.checkIns) data.checkIns = {};
-    data.checkIns[today] = { date: today, sober, habitsCompleted: selectedHabits };
-    saveData(data);
-    setCheckInData(data.checkIns[today]);
-    alert('Daily check-in saved!');
-    const currentStreak = calculateSobrietyStreak();
-    setStreak(currentStreak);
+    const entry: CheckIn = { date: today, sober, mood, craving, note, habitsCompleted: selectedHabits };
+    const next = saveData({ checkIns: { ...data.checkIns, [today]: entry } });
+    setSavedCheckIn(next.checkIns[today]);
+    setStreak(calculateSobrietyStreak());
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Daily Check-In</h1>
-      <p className="font-semibold mb-2">Current Sobriety Streak: {streak} day{streak !== 1 ? 's' : ''}</p>
-      <Card>
-        <div className="mb-4">
-          <label className="font-semibold">Sober Today?</label>
-          <div>
-            <label className="mr-4">
-              <input
-                type="radio"
-                name="sober"
-                checked={sober === true}
-                onChange={() => setSober(true)}
-              />{' '}
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="sober"
-                checked={sober === false}
-                onChange={() => setSober(false)}
-              />{' '}
-              No
-            </label>
-          </div>
+    <div className="page stack-lg">
+      <PageHeader eyebrow="Daily check-in" title="Win today, then stack it.">
+        A fast ritual for sobriety, mood, cravings, and the habits that protect your streak.
+      </PageHeader>
+
+      <div className="stats-grid">
+        <Stat label="current streak" value={`${streak}d`} tone="gold" />
+        <Stat label="habits today" value={`${selectedHabits.length}/${defaultHabits.length}`} />
+        <Stat label="craving" value={`${craving}/10`} />
+      </div>
+
+      <Card className="stack-md">
+        <div className="segmented">
+          <button className={sober ? 'active' : ''} onClick={() => setSober(true)}>Sober today</button>
+          <button className={!sober ? 'active danger' : ''} onClick={() => setSober(false)}>Reset / slipped</button>
         </div>
-        <div className="mb-4">
-          <label className="font-semibold">Habits Completed</label>
-          <div className="flex flex-wrap">
-            {allHabits.map((habit) => (
-              <label
-                key={habit}
-                className={`mr-4 mb-2 px-3 py-1 rounded border cursor-pointer ${
-                  selectedHabits.includes(habit) ? 'bg-blue-600 text-white' : 'bg-gray-200'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="hidden"
-                  checked={selectedHabits.includes(habit)}
-                  onChange={() => toggleHabit(habit)}
-                />
-                {habit}
-              </label>
+
+        <Field label="Mood">
+          <select value={mood} onChange={(e) => setMood(e.target.value)}>
+            {['Focused', 'Strong', 'Calm', 'Restless', 'Low', 'Grateful'].map((item) => <option key={item}>{item}</option>)}
+          </select>
+        </Field>
+
+        <Field label={`Craving level: ${craving}/10`}>
+          <input type="range" min="0" max="10" value={craving} onChange={(e) => setCraving(Number(e.target.value))} />
+        </Field>
+
+        <div>
+          <span className="field-title">Protective habits completed</span>
+          <div className="chip-grid">
+            {defaultHabits.map((habit) => (
+              <button key={habit} className={`chip ${selectedHabits.includes(habit) ? 'selected' : ''}`} onClick={() => toggleHabit(habit)}>
+                {selectedHabits.includes(habit) ? '✓ ' : ''}{habit}
+              </button>
             ))}
           </div>
         </div>
-        <Button onClick={handleSave}>Save Check-In</Button>
+
+        <Field label="Note to future you">
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="What helped today? What are you proud of?" rows={4} />
+        </Field>
+
+        <Button onClick={handleSave}>Save today’s win</Button>
+        {savedCheckIn && <p className="success-msg">Saved for {savedCheckIn.date}. Keep the chain alive.</p>}
       </Card>
-      {checkInData && (
-        <div className="mt-6 p-4 bg-green-100 rounded">
-          <p>
-            Check-in for <strong>{checkInData.date}</strong> saved.
-          </p>
-          <p>Sober Today: {checkInData.sober ? 'Yes' : 'No'}</p>
-          <p>Habits completed: {checkInData.habitsCompleted.join(', ') || 'None'}</p>
-        </div>
-      )}
     </div>
   );
 };

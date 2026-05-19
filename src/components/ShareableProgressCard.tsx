@@ -1,40 +1,53 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { Card } from '../components/UI';
+import { Button } from './UI';
+import type { IronHabitData } from '../utils/storage';
 
-const ShareableProgressCard = ({ streak, habitsCount, fitnessCount }: { streak: number; habitsCount: number; fitnessCount: number }) => {
+const ShareableProgressCard = ({ data, streak }: { data: IronHabitData; streak: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState('');
+  const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
+  const latestMood = Object.values(data.checkIns).at(-1)?.mood || 'Locked in';
 
-  const handleDownload = () => {
-    if (cardRef.current === null) {
-      return;
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    try {
+      const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = 'iron-habit-progress.png';
+      link.href = dataUrl;
+      link.click();
+      setStatus('Progress card downloaded.');
+    } catch (err) {
+      console.error('Failed to generate image', err);
+      setStatus('Download failed. Try screenshotting the card.');
     }
-
-    toPng(cardRef.current)
-      .then((dataUrl: string) => {
-        const link = document.createElement('a');
-        link.download = 'iron-habit-progress.png';
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err: any) => {
-        console.error('Failed to generate image', err);
-      });
   };
 
   return (
-    <Card ref={cardRef} className="p-6 bg-gradient-to-r from-blue-500 to-teal-400 text-white text-center">
-      <h2 className="text-xl font-bold mb-2">My Iron Habit Progress</h2>
-      <p className="mb-1">Sobriety Streak: {streak} day{streak !== 1 ? 's' : ''}</p>
-      <p className="mb-1">Habits Tracked: {habitsCount}</p>
-      <p className="mb-4">Fitness Activities Logged: {fitnessCount}</p>
-      <button
-        onClick={handleDownload}
-        className="px-4 py-2 bg-white text-blue-600 font-semibold rounded hover:bg-gray-200 transition"
-      >
-        Download Progress Card
-      </button>
-    </Card>
+    <section className="share-wrap">
+      <div ref={cardRef} className="share-card">
+        <div className="share-glow" />
+        <p className="share-kicker">IRON HABIT</p>
+        <h2>{data.profile.name || 'I'} chose discipline today.</h2>
+        <div className="share-day">
+          <strong>{streak}</strong>
+          <span>day sober streak</span>
+        </div>
+        <div className="share-metrics">
+          <span><b>{data.habits.length}</b> habits</span>
+          <span><b>{data.fitnessEntries.length}</b> workouts</span>
+          <span><b>{totalMinutes}</b> min</span>
+        </div>
+        <p className="share-why">{data.profile.why || 'Build a body and life I am proud of.'}</p>
+        <footer>
+          <span>#{latestMood.replaceAll(' ', '')}</span>
+          <span>#SoberFitness</span>
+        </footer>
+      </div>
+      <Button onClick={handleDownload}>Download 9:16 progress card</Button>
+      {status && <p className="success-msg">{status}</p>}
+    </section>
   );
 };
 

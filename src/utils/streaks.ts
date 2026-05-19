@@ -1,34 +1,43 @@
-// Calculate sobriety streak based on daily check-ins
 import { loadData } from './storage';
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const toDateKey = (date: Date) => date.toISOString().slice(0, 10);
+
+export const daysBetween = (start: string, end = toDateKey(new Date())) => {
+  const startDate = new Date(`${start}T00:00:00`);
+  const endDate = new Date(`${end}T00:00:00`);
+  return Math.max(0, Math.floor((endDate.getTime() - startDate.getTime()) / MS_PER_DAY) + 1);
+};
 
 export const calculateSobrietyStreak = () => {
   const data = loadData();
-  if (!data.checkIns) return 0;
-
-  const dates = Object.keys(data.checkIns).sort((a, b) => (a < b ? 1 : -1));
+  const today = new Date();
   let streak = 0;
-  let currentDate = new Date();
 
-  for (const d of dates) {
-    const checkInDate = new Date(d);
-    // Calculate difference in days
-    const diffTime = currentDate.getTime() - checkInDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  for (let offset = 0; offset < 3660; offset += 1) {
+    const cursor = new Date(today);
+    cursor.setDate(today.getDate() - offset);
+    const key = toDateKey(cursor);
+    const checkIn = data.checkIns[key];
 
-    if (diffDays > streak) {
-      // If there is a gap in days, streak is broken
+    if (!checkIn) {
+      if (offset === 0) continue;
       break;
     }
 
-    if (data.checkIns[d].sober) {
-      streak += 1;
-    } else {
-      break;
-    }
-
-    // Move to the previous day
-    currentDate.setDate(currentDate.getDate() - 1);
+    if (!checkIn.sober) break;
+    streak += 1;
   }
 
-  return streak;
+  const profileDays = data.profile.sobrietyDate ? daysBetween(data.profile.sobrietyDate) : 0;
+  return Math.max(streak, profileDays);
+};
+
+export const getCompletionRate = () => {
+  const data = loadData();
+  const checkIns = Object.values(data.checkIns);
+  if (!checkIns.length) return 0;
+  const completed = checkIns.filter((entry) => entry.sober && entry.habitsCompleted.length > 0).length;
+  return Math.round((completed / checkIns.length) * 100);
 };
