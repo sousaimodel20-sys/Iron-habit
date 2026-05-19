@@ -93,7 +93,8 @@ const FitnessTracker = () => {
             ))}
           </div>
           <div className="hero-actions">
-            <Button onClick={logActiveLoadout}>Complete Today’s Loadout</Button>
+            <Link to="/workout-mode" className="btn btn-primary">Start Workout Mode</Link>
+            <Button variant="secondary" onClick={logActiveLoadout}>Quick Complete</Button>
             <Button variant="ghost" onClick={clearActiveLoadout}>Clear</Button>
           </div>
         </Card>
