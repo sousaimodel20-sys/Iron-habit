@@ -40,8 +40,10 @@ function AppLayout() {
           <Route path="/habit-tracker" element={<HabitTracker />} />
           <Route path="/fitness-tracker" element={<FitnessTracker />} />
           <Route path="/progress-dashboard" element={<ProgressDashboard />} />
+          <Route path="/profile" element={<ProgressDashboard />} />
           <Route path="/share-progress" element={<ShareProgressScreen />} />
           <Route path="/craving-rescue" element={<CravingRescue />} />
+          <Route path="/rescue" element={<CravingRescue />} />
           <Route path="/talk" element={<TalkCoach />} />
           <Route path="/workout-mode" element={<WorkoutMode />} />
         </Routes>
@@ -50,12 +52,13 @@ function AppLayout() {
       <nav className="bottom-nav" aria-label="Primary navigation">
         {navItems.map((item) => {
           const trainActive = item.to === '/fitness-tracker' && location.pathname === '/workout-mode';
+          const profileActive = item.to === '/progress-dashboard' && location.pathname === '/profile';
           return (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
-              className={({ isActive }) => (isActive || trainActive ? 'active' : '')}
+              className={({ isActive }) => (isActive || trainActive || profileActive ? 'active' : '')}
             >
               {item.label}
             </NavLink>

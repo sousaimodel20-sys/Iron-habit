@@ -84,6 +84,7 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .next-action-card p { margin-bottom: 0; font-size: 1.02rem; }
 .next-action-card .hero-actions .btn { flex: 1 1 150px; }
 .daily-flow { background: linear-gradient(145deg, rgba(246,196,83,.11), rgba(255,255,255,.055)); }
+.first-user-card { border-color: rgba(239,68,68,.42); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.22), transparent 38%), linear-gradient(145deg, rgba(127,16,16,.2), rgba(255,255,255,.055)); }
 .mission-steps a.step-active { border-color: rgba(246,196,83,.68); background: rgba(246,196,83,.13); box-shadow: 0 0 0 3px rgba(246,196,83,.08); }
 .mission-steps a.step-done { border-color: rgba(34,197,94,.42); background: rgba(34,197,94,.11); }
 .mission-steps a.step-done b { color: #86efac; }

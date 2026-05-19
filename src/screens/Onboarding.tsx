@@ -2,6 +2,7 @@ import { type CSSProperties, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, replaceData, saveData, type IronHabitData, type Profile } from '../utils/storage';
+import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
@@ -11,18 +12,32 @@ const Onboarding = () => {
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const trainedToday = data.fitnessEntries.some((entry) => entry.date === todayKey);
-  const displayDay = 47;
-  const xp = 3450;
+  const activeLoadout = data.activeLoadout;
+  const latestProof = data.latestVictoryProof;
+  const needsSetup = !profile.name && Object.keys(data.checkIns).length === 0;
+  const displayDay = Math.max(1, calculateSobrietyStreak());
+  const workoutDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
+  const xp = Math.min(5000, (displayDay * 75) + (data.fitnessEntries.length * 120) + (Object.keys(data.checkIns).length * 80));
   const xpMax = 5000;
   const xpPercent = Math.round((xp / xpMax) * 100);
   const craving = todayCheckIn?.craving ?? 2;
   const moodStability = todayCheckIn ? 'Stable' : 'Locked';
 
   const missions = [
-    { label: 'Workout Goal', detail: 'Push Day', done: trainedToday, to: '/fitness-tracker' },
+    {
+      label: 'Workout Goal',
+      detail: activeLoadout ? `Run ${activeLoadout.title}` : 'Generate Coach Loadout',
+      done: trainedToday,
+      to: activeLoadout ? '/workout-mode' : '/talk',
+    },
     { label: 'Recovery Goal', detail: '10-minute check-in', done: Boolean(todayCheckIn), to: '/daily-check-in' },
-    { label: 'Hydration Goal', detail: '6 / 8 glasses', done: false, to: '/habit-tracker' },
-    { label: 'Journal Goal', detail: 'Write 10 minutes', done: Boolean(todayCheckIn?.note), to: '/daily-check-in' },
+    {
+      label: 'Proof Goal',
+      detail: latestProof ? 'Create Victory Card' : 'Stack first proof',
+      done: Boolean(latestProof?.date === todayKey),
+      to: latestProof ? '/share-progress' : '/fitness-tracker',
+    },
+    { label: 'Emergency Plan', detail: 'Rescue one tap away', done: false, to: '/rescue' },
   ];
 
   const update = (key: keyof Profile, value: string) => {
@@ -120,6 +135,29 @@ const Onboarding = () => {
         </div>
       </section>
 
+      {needsSetup && (
+        <section className="card first-user-card stack-sm">
+          <span className="tag danger-tag">First launch</span>
+          <h2>Lock your baseline before the app asks more from you.</h2>
+          <p>Set name, sober start date, goal, and why. Then run today’s check-in and generate your first Coach Loadout.</p>
+          <div className="hero-actions">
+            <a href="#setup-profile" className="btn btn-primary">Set baseline</a>
+            <Link to="/daily-check-in" className="btn btn-secondary">First check-in</Link>
+          </div>
+        </section>
+      )}
+
+      <section className="card command-card stack-sm">
+        <span className="tag">Next Best Move</span>
+        <h2>{activeLoadout ? `Run ${activeLoadout.title}` : 'Generate your first training loadout.'}</h2>
+        <p>{activeLoadout ? 'Start Workout Mode, finish the session, and turn it into proof.' : 'Ask Coach for PPL, Arnold, dumbbells only, or craving killer. Then save it to Train.'}</p>
+        <div className="hero-actions">
+          <Link to={activeLoadout ? '/workout-mode' : '/talk'} className="btn btn-primary">{activeLoadout ? 'Start Workout Mode' : 'Open Coach Loadouts'}</Link>
+          <Link to="/rescue" className="btn btn-danger">Craving Rescue</Link>
+          {latestProof && <Link to="/share-progress" className="btn btn-ghost">Victory Card</Link>}
+        </div>
+      </section>
+
       <section className="xp-card">
         <div className="xp-head">
           <span>XP SYSTEM</span>
@@ -135,8 +173,8 @@ const Onboarding = () => {
       </section>
 
       <section className="warrior-stats-grid">
-        <div><span>Sober Streak</span><strong>{displayDay} days</strong></div>
-        <div><span>Workout Streak</span><strong>15 days</strong></div>
+        <div><span>Sober Streak</span><strong>{displayDay} {displayDay === 1 ? 'day' : 'days'}</strong></div>
+        <div><span>Workout Days</span><strong>{workoutDays}</strong></div>
         <div><span>Mood Stability</span><strong>{moodStability}</strong></div>
         <div><span>Craving Level</span><strong>{craving}/10</strong></div>
       </section>
@@ -172,7 +210,7 @@ const Onboarding = () => {
         </div>
       </section>
 
-      <details className="collapse-card card warrior-collapse">
+      <details id="setup-profile" className="collapse-card card warrior-collapse" open={needsSetup}>
         <summary>
           <span>
             <b>Setup & profile</b>
