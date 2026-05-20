@@ -4,6 +4,7 @@ import { Card, PageHeader, Stat } from '../components/UI';
 import { loadData, type IronHabitData } from '../utils/storage';
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
+import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 const milestonePlan = [
@@ -58,6 +59,7 @@ const ProgressDashboard = () => {
   const milestoneSpan = Math.max(1, nextMilestonePlan.days - previousMilestone);
   const milestoneProgress = Math.min(100, Math.round(((streak - previousMilestone) / milestoneSpan) * 100));
   const metrics = getTransformationMetrics(data, streak);
+  const macroTargets = calculateMacroTargets(data.bodyProfile);
 
   const weeklyTraining = useMemo(() => {
     const days = getRecentDays(7);
@@ -163,6 +165,24 @@ const ProgressDashboard = () => {
           <div><strong>{metrics.trainingHours}h</strong><span>training time banked</span></div>
         </div>
         <p className="quote">“{data.profile.transformationGoal || 'Lean, sober, strong, and consistent.'}”</p>
+      </Card>
+
+      <Card className="body-target-card stack-sm">
+        <span className="tag">Body Targets</span>
+        <h2>{macroTargets ? `Macros for ${macroTargets.goalLabel}.` : 'Tell Talk your body stats.'}</h2>
+        {macroTargets ? (
+          <>
+            <div className="proof-grid mini-proof macro-grid">
+              <div><strong>{macroTargets.targetCalories}</strong><span>daily calories</span></div>
+              <div><strong>{macroTargets.proteinGrams}g</strong><span>protein</span></div>
+              <div><strong>{macroTargets.carbGrams}g</strong><span>carbs</span></div>
+              <div><strong>{macroTargets.fatGrams}g</strong><span>fat</span></div>
+            </div>
+            <p>{data.bodyProfile.weightLbs} lb • {formatHeight(data.bodyProfile.heightInches)} • maintenance ~{macroTargets.maintenanceCalories} cal.</p>
+          </>
+        ) : (
+          <p>Use Talk: “I’m 200 lb, 5'10, 30, male, cut fat, train 5 days.” Iron Habit will calculate calories, protein, carbs, and fat.</p>
+        )}
       </Card>
 
       <Card className="stack-sm">

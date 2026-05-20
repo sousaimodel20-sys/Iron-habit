@@ -78,8 +78,22 @@ export type Profile = {
   transformationGoal: string;
 };
 
+export type BodyProfile = {
+  sex: string;
+  age: string;
+  heightInches: string;
+  weightLbs: string;
+  goalWeightLbs: string;
+  activityLevel: string;
+  trainingDaysPerWeek: string;
+  bodyGoal: string;
+  pace: string;
+  updatedAt: string;
+};
+
 export type IronHabitData = {
   profile: Profile;
+  bodyProfile: BodyProfile;
   checkIns: Record<string, CheckIn>;
   habits: Habit[];
   fitnessEntries: FitnessEntry[];
@@ -102,6 +116,18 @@ export const defaultData: IronHabitData = {
     drinksPerDay: '4',
     caloriesPerDrink: '150',
     transformationGoal: 'Lean, sober, strong, and consistent.',
+  },
+  bodyProfile: {
+    sex: '',
+    age: '',
+    heightInches: '',
+    weightLbs: '',
+    goalWeightLbs: '',
+    activityLevel: 'moderate',
+    trainingDaysPerWeek: '4',
+    bodyGoal: 'recomposition',
+    pace: 'steady',
+    updatedAt: '',
   },
   checkIns: {},
   habits: [
@@ -136,6 +162,7 @@ export const loadData = (): IronHabitData => {
 
     return {
       profile: { ...defaultData.profile, ...(parsed.profile || {}) },
+      bodyProfile: { ...defaultData.bodyProfile, ...(parsed.bodyProfile || {}) },
       checkIns: parsed.checkIns || {},
       habits: parsed.habits || defaultData.habits,
       fitnessEntries: parsed.fitnessEntries || [],
@@ -149,10 +176,12 @@ export const loadData = (): IronHabitData => {
 };
 
 export const saveData = (updates: Partial<IronHabitData>) => {
+  const current = loadData();
   const merged: IronHabitData = {
-    ...loadData(),
+    ...current,
     ...updates,
-    profile: { ...loadData().profile, ...(updates.profile || {}) },
+    profile: { ...current.profile, ...(updates.profile || {}) },
+    bodyProfile: { ...current.bodyProfile, ...(updates.bodyProfile || {}) },
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   window.dispatchEvent(new Event('iron-habit-data-updated'));
@@ -164,6 +193,7 @@ export const replaceData = (data: IronHabitData) => {
     ...defaultData,
     ...data,
     profile: { ...defaultData.profile, ...(data.profile || {}) },
+    bodyProfile: { ...defaultData.bodyProfile, ...(data.bodyProfile || {}) },
     checkIns: data.checkIns || {},
     habits: data.habits || defaultData.habits,
     fitnessEntries: data.fitnessEntries || [],

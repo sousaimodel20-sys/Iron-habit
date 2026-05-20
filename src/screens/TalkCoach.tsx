@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loadData, saveData, type ActiveLoadout } from '../utils/storage';
+import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
+import { loadData, saveData, type ActiveLoadout, type BodyProfile } from '../utils/storage';
 
 type Loadout = {
   id: string;
@@ -100,7 +101,58 @@ const quickCommands = [
   'Show my proof',
   'Make a Victory Card',
   'Log check-in',
+  'Log body stats',
+  'Set fat loss macros',
 ];
+
+const parseHeightInches = (command: string) => {
+  const feetMatch = command.match(/(\d)\s*(?:ft|foot|feet|'|’)(?:\s*(\d{1,2})\s*(?:in|inch|inches|"|”)?\b)?/i);
+  if (feetMatch) return String((Number(feetMatch[1]) * 12) + Number(feetMatch[2] || 0));
+  const inchesMatch = command.match(/(\d{2,3})\s*(?:in|inch|inches)\b/i);
+  return inchesMatch?.[1];
+};
+
+const parseBodyProfileFromCommand = (rawCommand: string, current: BodyProfile): BodyProfile => {
+  const command = rawCommand.toLowerCase();
+  const weight = command.match(/(?:weigh|weight|i'?m|im|am)?\s*(\d{2,3})\s*(?:lb|lbs|pounds)\b/i)?.[1];
+  const goalWeight = command.match(/(?:goal weight|target weight|to)\s*(\d{2,3})\s*(?:lb|lbs|pounds)\b/i)?.[1];
+  const age = command.match(/(?:age|i'?m|im|am)\s*(\d{2})\s*(?:years old|yo|y\/o|years)?\b/i)?.[1]
+    || command.match(/(?:^|,|\s)(\d{2})(?:\s*(?:years old|yo|y\/o|years))?(?=,|$|\s)/i)?.[1];
+  const trainingDays = command.match(/(?:train|training|lift|lifting|gym)\s*(\d)\s*(?:days|x|times)?/i)?.[1];
+  const height = parseHeightInches(command);
+  const sex = /\b(female|woman|girl)\b/.test(command) ? 'female' : /\b(male|man|guy|boy)\b/.test(command) ? 'male' : current.sex;
+  const bodyGoal = /(cut|fat loss|lose fat|burn fat|shred)/.test(command)
+    ? 'cut-fat'
+    : /(bulk|build muscle|gain muscle|muscle gain|lean bulk)/.test(command)
+      ? 'build-muscle'
+      : /(maintain|maintenance)/.test(command)
+        ? 'maintain'
+        : /(recomp|recomposition)/.test(command)
+          ? 'recomposition'
+          : current.bodyGoal;
+  const pace = /(aggressive|fast|hard cut)/.test(command) ? 'aggressive' : /(lean bulk|bulk)/.test(command) ? 'lean' : current.pace || 'steady';
+  const activityLevel = /(sedentary|desk job)/.test(command)
+    ? 'sedentary'
+    : /(light|walk)/.test(command)
+      ? 'light'
+      : /(very active|active job|labor|labour|athlete)/.test(command)
+        ? 'active'
+        : current.activityLevel || 'moderate';
+
+  return {
+    ...current,
+    sex,
+    age: age || current.age,
+    heightInches: height || current.heightInches,
+    weightLbs: weight || current.weightLbs,
+    goalWeightLbs: goalWeight || current.goalWeightLbs,
+    trainingDaysPerWeek: trainingDays || current.trainingDaysPerWeek,
+    bodyGoal,
+    pace,
+    activityLevel,
+    updatedAt: new Date().toISOString(),
+  };
+};
 
 const TalkCoach = () => {
   const navigate = useNavigate();
@@ -111,6 +163,8 @@ const TalkCoach = () => {
   const [message, setMessage] = useState('Tell Iron Habit what you need.');
   const [savedMessage, setSavedMessage] = useState('');
   const [commandReply, setCommandReply] = useState('Talk is your command layer. Ask for meetings, workouts, rescue, proof, or check-in.');
+  const [bodyProfile, setBodyProfile] = useState(() => loadData().bodyProfile);
+  const macroTargets = useMemo(() => calculateMacroTargets(bodyProfile), [bodyProfile]);
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -153,6 +207,19 @@ const TalkCoach = () => {
   const handleCommand = (rawCommand = message) => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
+
+    if (/(body|weight|weigh|height|macro|calorie|protein|carb|fat loss|cut|bulk|recomp)/.test(command)) {
+      const nextProfile = parseBodyProfileFromCommand(rawCommand, loadData().bodyProfile);
+      const targets = calculateMacroTargets(nextProfile);
+      saveData({ bodyProfile: nextProfile });
+      setBodyProfile(nextProfile);
+      if (targets) {
+        setCommandReply(`Body logged. Target ${targets.targetCalories} cal • ${targets.proteinGrams}g protein • ${targets.carbGrams}g carbs • ${targets.fatGrams}g fat for ${targets.goalLabel}.`);
+      } else {
+        setCommandReply('Body log started. Tell me weight, height, age, sex, goal, and training days to calculate macros. Example: 200 lb, 5\'10, 30, male, cut fat, train 5 days.');
+      }
+      return;
+    }
 
     if (/(meeting|meetings|aa|na|group|support)/.test(command)) {
       setCommandReply('Opening Meetings. Human support beats white-knuckling.');
@@ -225,7 +292,7 @@ const TalkCoach = () => {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           rows={3}
-          placeholder="Example: I need a meeting, build me a workout, I’m craving..."
+          placeholder="Example: I’m 200 lb, 5'10, 30, male, cut fat, train 5 days"
         />
         <div className="hero-actions command-actions">
           <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Command</button>
@@ -237,6 +304,26 @@ const TalkCoach = () => {
           ))}
         </div>
         <p className="command-reply">{commandReply}</p>
+      </section>
+
+      <section className="coach-card body-target-card stack-sm">
+        <div className="coach-head">
+          <span>Body + Macro Targets</span>
+          <b>{bodyProfile.bodyGoal.replace('-', ' ')}</b>
+        </div>
+        {macroTargets ? (
+          <>
+            <div className="proof-grid mini-proof macro-grid">
+              <div><strong>{macroTargets.targetCalories}</strong><span>daily calories</span></div>
+              <div><strong>{macroTargets.proteinGrams}g</strong><span>protein</span></div>
+              <div><strong>{macroTargets.carbGrams}g</strong><span>carbs</span></div>
+              <div><strong>{macroTargets.fatGrams}g</strong><span>fat</span></div>
+            </div>
+            <p>{bodyProfile.weightLbs} lb • {formatHeight(bodyProfile.heightInches)} • maintenance ~{macroTargets.maintenanceCalories} cal. Talk can update this anytime.</p>
+          </>
+        ) : (
+          <p>Tell Talk your body stats to unlock calories and macros: “I’m 200 lb, 5'10, 30, male, cut fat, train 5 days.”</p>
+        )}
       </section>
 
       <section className="loadout-console">
