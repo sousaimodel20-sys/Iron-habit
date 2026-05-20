@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { loadData, saveData, type ActiveLoadout, type BodyProfile } from '../utils/storage';
+import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
 
 type Loadout = {
   id: string;
@@ -101,6 +101,8 @@ const quickCommands = [
   'Show my proof',
   'Make a Victory Card',
   'Log check-in',
+  'I trained today',
+  'Next best move',
   'Log body stats',
   'Set fat loss macros',
 ];
@@ -151,6 +153,51 @@ const parseBodyProfileFromCommand = (rawCommand: string, current: BodyProfile): 
     pace,
     activityLevel,
     updatedAt: new Date().toISOString(),
+  };
+};
+
+const parseCravingLevel = (command: string, fallback = 2) => {
+  const match = command.match(/(?:craving|urge|crave)\D*(10|[0-9])/i) || command.match(/\b(10|[0-9])\s*\/\s*10\b/);
+  return match ? Math.max(0, Math.min(10, Number(match[1]))) : fallback;
+};
+
+const parseDurationMinutes = (command: string, fallback = 45) => {
+  const match = command.match(/(\d{1,3})\s*(?:min|minutes|mins)\b/i);
+  return match ? Math.max(1, Number(match[1])) : fallback;
+};
+
+const inferMood = (command: string) => {
+  if (/(low|sad|depressed|tired|rough)/.test(command)) return 'Low';
+  if (/(restless|anxious|antsy|stressed)/.test(command)) return 'Restless';
+  if (/(calm|peaceful)/.test(command)) return 'Calm';
+  if (/(grateful|thankful)/.test(command)) return 'Grateful';
+  if (/(strong|good|great|locked)/.test(command)) return 'Strong';
+  return 'Focused';
+};
+
+const makeCheckInFromCommand = (rawCommand: string, sober: boolean): CheckIn => {
+  const command = rawCommand.toLowerCase();
+  return {
+    date: getTodayKey(),
+    sober,
+    mood: inferMood(command),
+    craving: parseCravingLevel(command, sober ? 2 : 8),
+    note: rawCommand,
+    habitsCompleted: sober ? ['No alcohol'] : [],
+  };
+};
+
+const makeTrainingEntryFromCommand = (rawCommand: string): FitnessEntry => {
+  const command = rawCommand.toLowerCase();
+  const type = /(walk|steps)/.test(command) ? 'Walk' : /(run|jog)/.test(command) ? 'Run' : /(mobility|stretch)/.test(command) ? 'Mobility' : 'Gym';
+  const intensity = /(hard|heavy|beast|intense)/.test(command) ? 'Hard' : /(easy|light)/.test(command) ? 'Easy' : 'Moderate';
+  return {
+    id: `${Date.now()}`,
+    date: getTodayKey(),
+    type,
+    durationMinutes: parseDurationMinutes(command, 45),
+    intensity,
+    note: rawCommand,
   };
 };
 
@@ -208,6 +255,59 @@ const TalkCoach = () => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
 
+    if (/(next best|what should i do|next move|today'?s move)/.test(command)) {
+      const data = loadData();
+      const today = getTodayKey();
+      if (!data.checkIns[today]) {
+        setCommandReply('Next move: log today’s check-in. Opening it now.');
+        navigate('/daily-check-in');
+      } else if (!data.fitnessEntries.some((entry) => entry.date === today)) {
+        setCommandReply(data.activeLoadout ? 'Next move: run today’s routine. Opening Train.' : 'Next move: generate a workout loadout. Build one here, then save it.');
+        if (data.activeLoadout) navigate('/fitness-tracker');
+      } else {
+        setCommandReply('Next move: show proof and make the win visible. Opening Proof.');
+        navigate('/profile');
+      }
+      return;
+    }
+
+    if (/(slipped|relapsed|drank|reset sober|reset streak)/.test(command)) {
+      const data = loadData();
+      const entry = makeCheckInFromCommand(rawCommand, false);
+      saveData({ checkIns: { ...data.checkIns, [entry.date]: entry } });
+      setCommandReply('Slip logged without shame. Open Rescue, reset the next decision, and get back in command.');
+      navigate('/rescue');
+      return;
+    }
+
+    if (/(trained|worked out|workout done|lifted|gym done|log workout|log training)/.test(command) && /(check.?in|mood|sober today|still sober|craving|urge|crave)/.test(command)) {
+      const data = loadData();
+      const checkIn = makeCheckInFromCommand(rawCommand, true);
+      const training = makeTrainingEntryFromCommand(rawCommand);
+      saveData({
+        checkIns: { ...data.checkIns, [checkIn.date]: checkIn },
+        fitnessEntries: [training, ...data.fitnessEntries],
+      });
+      setCommandReply(`Saved both: sober check-in craving ${checkIn.craving}/10 + ${training.durationMinutes} min ${training.type}.`);
+      return;
+    }
+
+    if (/(check.?in|mood|sober today|log today|still sober)/.test(command)) {
+      const data = loadData();
+      const entry = makeCheckInFromCommand(rawCommand, true);
+      saveData({ checkIns: { ...data.checkIns, [entry.date]: entry } });
+      setCommandReply(`Check-in saved: ${entry.mood}, craving ${entry.craving}/10, sober today.`);
+      return;
+    }
+
+    if (/(trained|worked out|workout done|lifted|gym done|log workout|log training)/.test(command)) {
+      const data = loadData();
+      const entry = makeTrainingEntryFromCommand(rawCommand);
+      saveData({ fitnessEntries: [entry, ...data.fitnessEntries] });
+      setCommandReply(`Training logged: ${entry.type}, ${entry.durationMinutes} min, ${entry.intensity}. Proof stacked.`);
+      return;
+    }
+
     if (/(body|weight|weigh|height|macro|calorie|protein|carb|fat loss|cut|bulk|recomp)/.test(command)) {
       const nextProfile = parseBodyProfileFromCommand(rawCommand, loadData().bodyProfile);
       const targets = calculateMacroTargets(nextProfile);
@@ -248,7 +348,23 @@ const TalkCoach = () => {
     }
 
     if (/(craving|urge|relapse|drink|emergency)/.test(command)) {
-      setCommandReply('Opening Rescue. Ten minutes. No bargaining.');
+      const data = loadData();
+      const today = getTodayKey();
+      const existing = data.checkIns[today];
+      const cravingLevel = parseCravingLevel(command, existing?.craving ?? 7);
+      saveData({
+        checkIns: {
+          ...data.checkIns,
+          [today]: {
+            ...(existing || makeCheckInFromCommand(rawCommand, true)),
+            date: today,
+            sober: existing?.sober ?? true,
+            craving: cravingLevel,
+            note: existing?.note ? `${existing.note}\n${rawCommand}` : rawCommand,
+          },
+        },
+      });
+      setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue. Ten minutes. No bargaining.`);
       navigate('/rescue');
       return;
     }
@@ -282,7 +398,7 @@ const TalkCoach = () => {
         </div>
         <span className="talk-kicker">Talk Command</span>
         <h1>Tell Iron Habit what you need.</h1>
-        <p>Meetings, workouts, rescue, check-ins, proof, and Victory Cards. Talk routes the app for you.</p>
+        <p>Meetings, workouts, rescue, check-ins, proof, macros, and training logs. Talk routes and saves for you.</p>
       </section>
 
       <section className="loadout-console command-console">
@@ -292,7 +408,7 @@ const TalkCoach = () => {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           rows={3}
-          placeholder="Example: I’m 200 lb, 5'10, 30, male, cut fat, train 5 days"
+          placeholder="Example: I trained 45 min hard, still sober craving 2/10, or I’m 200 lb, 5'10, 30, male, cut fat"
         />
         <div className="hero-actions command-actions">
           <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Command</button>
