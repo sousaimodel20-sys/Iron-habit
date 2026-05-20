@@ -180,6 +180,10 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .loadout-orb span::after { display: none; }
 .loadout-console { display: grid; gap: 12px; padding: 20px; border: 1px solid rgba(220,38,38,.28); border-radius: 30px; background: linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); box-shadow: 0 26px 90px rgba(0,0,0,.48), 0 0 44px rgba(220,38,38,.1); }
 .command-console { border-color: rgba(239,68,68,.42); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.96), rgba(6,6,8,.98)); }
+.command-mission-card { border-color: rgba(239,68,68,.42); background: radial-gradient(circle at 0 0, rgba(239,68,68,.2), transparent 42%), linear-gradient(180deg, rgba(28,31,39,.96), rgba(6,6,8,.98)); }
+.command-mission-card h2 { margin: 8px 0 8px; color: #fff; font-size: clamp(1.75rem, 9vw, 2.55rem); line-height: .95; letter-spacing: -.06em; }
+.command-mission-card p { margin-bottom: 0; color: #d4d4d8; }
+.mission-label { color: #ff6b6b; text-transform: uppercase; letter-spacing: .16em; font-size: .7rem; font-weight: 950; }
 .command-actions { margin-top: 0; }
 .command-actions .btn { flex: 1 1 130px; }
 .command-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }

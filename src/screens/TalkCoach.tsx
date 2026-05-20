@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
@@ -240,11 +240,32 @@ const TalkCoach = () => {
   const [savedMessage, setSavedMessage] = useState('');
   const [commandReply, setCommandReply] = useState('Talk is your command layer. Ask for meetings, workouts, rescue, proof, or check-in.');
   const [bodyProfile, setBodyProfile] = useState(() => loadData().bodyProfile);
+  const [dataSnapshot, setDataSnapshot] = useState(() => loadData());
   const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<WebSpeechRecognition | null>(null);
   const macroTargets = useMemo(() => calculateMacroTargets(bodyProfile), [bodyProfile]);
   const voiceSupported = typeof window !== 'undefined' && Boolean((window as VoiceWindow).SpeechRecognition || (window as VoiceWindow).webkitSpeechRecognition);
+
+  useEffect(() => {
+    const refreshData = () => setDataSnapshot(loadData());
+    refreshData();
+    window.addEventListener('iron-habit-data-updated', refreshData);
+    window.addEventListener('storage', refreshData);
+    return () => {
+      window.removeEventListener('iron-habit-data-updated', refreshData);
+      window.removeEventListener('storage', refreshData);
+    };
+  }, []);
+
+  const todayKey = getTodayKey();
+  const todaysCheckIn = dataSnapshot.checkIns[todayKey];
+  const trainedToday = dataSnapshot.fitnessEntries.some((entry) => entry.date === todayKey);
+  const todaysMission = !todaysCheckIn
+    ? { label: 'First move', title: 'Log today’s check-in', detail: 'Lock in mood, craving level, and sober status before the day gets loud.', command: 'Next best move' }
+    : !trainedToday
+      ? { label: 'Next rep', title: dataSnapshot.activeLoadout ? 'Run today’s workout' : 'Build and save a workout', detail: dataSnapshot.activeLoadout ? dataSnapshot.activeLoadout.title : 'Generate a loadout so Train knows what to run.', command: 'Next best move' }
+      : { label: 'Proof', title: 'Show the win', detail: 'Check-in and training are stacked. Turn it into proof or a Victory Card.', command: 'Show my proof' };
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -480,6 +501,20 @@ const TalkCoach = () => {
         <span className="talk-kicker">Talk Command</span>
         <h1>Talk to Iron Habit.</h1>
         <p>Tap voice or type. Meetings, workouts, rescue, check-ins, proof, macros, and training logs route from here.</p>
+      </section>
+
+      <section className="coach-card command-mission-card">
+        <div className="coach-head">
+          <span>Today’s command stack</span>
+          <b>{todaysCheckIn ? 'Check-in done' : 'Check-in open'} • {trainedToday ? 'Training done' : 'Training open'}</b>
+        </div>
+        <span className="mission-label">{todaysMission.label}</span>
+        <h2>{todaysMission.title}</h2>
+        <p>{todaysMission.detail}</p>
+        <div className="hero-actions command-actions">
+          <button className="btn btn-primary" type="button" onClick={() => handleCommand(todaysMission.command)}>Do Next Move</button>
+          <button className="btn btn-secondary" type="button" onClick={() => handleCommand('I trained today')}>Log Training</button>
+        </div>
       </section>
 
       <section className="loadout-console command-console">
