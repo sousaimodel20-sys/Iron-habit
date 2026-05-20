@@ -1,7 +1,36 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
+
+type WebSpeechRecognitionResultEvent = {
+  results: {
+    [index: number]: {
+      [index: number]: { transcript: string };
+    };
+  };
+};
+
+type WebSpeechRecognitionErrorEvent = { error: string };
+
+type WebSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: WebSpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((event: WebSpeechRecognitionResultEvent) => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type WebSpeechRecognitionConstructor = new () => WebSpeechRecognition;
+
+type VoiceWindow = Window & {
+  SpeechRecognition?: WebSpeechRecognitionConstructor;
+  webkitSpeechRecognition?: WebSpeechRecognitionConstructor;
+};
 
 type Loadout = {
   id: string;
@@ -211,7 +240,11 @@ const TalkCoach = () => {
   const [savedMessage, setSavedMessage] = useState('');
   const [commandReply, setCommandReply] = useState('Talk is your command layer. Ask for meetings, workouts, rescue, proof, or check-in.');
   const [bodyProfile, setBodyProfile] = useState(() => loadData().bodyProfile);
+  const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef<WebSpeechRecognition | null>(null);
   const macroTargets = useMemo(() => calculateMacroTargets(bodyProfile), [bodyProfile]);
+  const voiceSupported = typeof window !== 'undefined' && Boolean((window as VoiceWindow).SpeechRecognition || (window as VoiceWindow).webkitSpeechRecognition);
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -390,6 +423,54 @@ const TalkCoach = () => {
     setCommandReply('I can route you to meetings, rescue, workouts, check-in, proof, or Victory Cards. Try a quick command.');
   };
 
+  const startVoiceCommand = () => {
+    if (!voiceSupported) {
+      setVoiceStatus('Voice is not supported in this browser yet. Type the command and run it.');
+      return;
+    }
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      setVoiceStatus('Voice stopped.');
+      return;
+    }
+
+    const voiceWindow = window as VoiceWindow;
+    const Recognition = voiceWindow.SpeechRecognition || voiceWindow.webkitSpeechRecognition;
+    if (!Recognition) return;
+
+    const recognition = new Recognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognition.onstart = () => {
+      setListening(true);
+      setVoiceStatus('Listening. Say: “I trained 45 minutes” or “I’m craving 8/10.”');
+    };
+    recognition.onend = () => setListening(false);
+    recognition.onerror = (event) => {
+      setListening(false);
+      setVoiceStatus(`Voice blocked or failed: ${event.error}. Typed command still works.`);
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0]?.[0]?.transcript.trim();
+      if (!transcript) {
+        setVoiceStatus('I did not catch that. Try again or type it.');
+        return;
+      }
+      setVoiceStatus(`Heard: “${transcript}”`);
+      handleCommand(transcript);
+    };
+
+    recognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch {
+      setVoiceStatus('Voice could not start. Type the command and run it.');
+    }
+  };
+
   return (
     <div className="page warrior-page talk-page loadout-page stack-lg">
       <section className="talk-hero loadout-hero">
@@ -397,8 +478,8 @@ const TalkCoach = () => {
           <span />
         </div>
         <span className="talk-kicker">Talk Command</span>
-        <h1>Tell Iron Habit what you need.</h1>
-        <p>Meetings, workouts, rescue, check-ins, proof, macros, and training logs. Talk routes and saves for you.</p>
+        <h1>Talk to Iron Habit.</h1>
+        <p>Tap voice or type. Meetings, workouts, rescue, check-ins, proof, macros, and training logs route from here.</p>
       </section>
 
       <section className="loadout-console command-console">
@@ -411,9 +492,13 @@ const TalkCoach = () => {
           placeholder="Example: I trained 45 min hard, still sober craving 2/10, or I’m 200 lb, 5'10, 30, male, cut fat"
         />
         <div className="hero-actions command-actions">
-          <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Command</button>
+          <button className={`btn ${listening ? 'btn-danger' : 'btn-secondary'} voice-command-btn`} type="button" onClick={startVoiceCommand}>
+            {listening ? 'Listening… tap to stop' : '🎙 Talk Command'}
+          </button>
+          <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Typed Command</button>
           <Link to="/rescue" className="btn btn-danger">Rescue</Link>
         </div>
+        <p className="voice-status">{voiceStatus}</p>
         <div className="command-chip-grid" aria-label="Quick commands">
           {quickCommands.map((command) => (
             <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
