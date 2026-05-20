@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import MilestoneBadge from '../components/MilestoneBadge';
 import { Card, PageHeader, Stat } from '../components/UI';
 import { loadData, type IronHabitData } from '../utils/storage';
@@ -93,6 +94,13 @@ const ProgressDashboard = () => {
   const weeklyAverageCraving = Math.round(
     cravingTrend.reduce((sum, day) => sum + day.craving, 0) / Math.max(1, cravingTrend.filter((day) => day.craving > 0).length),
   );
+  const weeklyMinutes = weeklyTraining.reduce((sum, day) => sum + day.minutes, 0);
+  const weeklyWorkoutDays = weeklyTraining.filter((day) => day.minutes > 0).length;
+  const weeklyCheckIns = getRecentDays(7).filter((date) => data.checkIns[date]).length;
+  const weeklySoberDays = getRecentDays(7).filter((date) => data.checkIns[date]?.sober).length;
+  const weeklyHabitBlocks = getRecentDays(7).reduce((sum, date) => sum + (data.checkIns[date]?.habitsCompleted.length || 0), 0);
+  const weeklyLoadouts = data.completedLoadouts.filter((proof) => getRecentDays(7).includes(proof.date)).length;
+  const latestProof = data.latestVictoryProof || data.completedLoadouts[0] || null;
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const soberRate = checkIns.length ? Math.round((soberCheckIns / checkIns.length) * 100) : 0;
   const firstCheckIn = checkIns
@@ -148,6 +156,49 @@ const ProgressDashboard = () => {
         </div>
       </Card>
 
+      <Card className="weekly-proof-card stack-md">
+        <div className="section-title-row">
+          <span>Weekly Proof</span>
+          <b>{weeklyWorkoutDays}/7 training days</b>
+        </div>
+        <h2>This week’s receipts.</h2>
+        <div className="proof-grid mini-proof">
+          <div><strong>{weeklySoberDays}</strong><span>sober days checked</span></div>
+          <div><strong>{weeklyCheckIns}</strong><span>check-ins logged</span></div>
+          <div><strong>{weeklyMinutes}m</strong><span>training minutes</span></div>
+          <div><strong>{weeklyHabitBlocks}</strong><span>habit blocks stacked</span></div>
+        </div>
+        <p>{weeklyLoadouts > 0 ? `${weeklyLoadouts} routine conquest${weeklyLoadouts === 1 ? '' : 's'} logged this week. Proof is stacking.` : 'No routine conquest logged this week yet. Finish one session and make the receipt visible.'}</p>
+      </Card>
+
+      {latestProof ? (
+        <Card className="proof-stack-card stack-md">
+          <div className="section-title-row">
+            <span>Latest Proof</span>
+            <b>{latestProof.date}</b>
+          </div>
+          <h2>{latestProof.title}</h2>
+          <p>{latestProof.activeDay} • {latestProof.durationMinutes} min • {latestProof.completedSets}/{latestProof.totalSets} sets • {latestProof.exercises.length} exercises conquered.</p>
+          <div className="victory-exercise-list">
+            {latestProof.exercises.slice(0, 5).map((exercise) => <span key={exercise}>{exercise}</span>)}
+          </div>
+          <div className="hero-actions">
+            <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
+            <Link to="/fitness-tracker" className="btn btn-secondary">See Train Log</Link>
+          </div>
+        </Card>
+      ) : (
+        <Card className="proof-stack-card stack-md">
+          <span className="tag">Latest Proof</span>
+          <h2>No workout receipt yet.</h2>
+          <p>Generate a Coach Loadout, finish the Routine Sheet, then come back here for a Victory Card.</p>
+          <div className="hero-actions">
+            <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
+            <Link to="/fitness-tracker" className="btn btn-secondary">Open Train</Link>
+          </div>
+        </Card>
+      )}
+
       <div className="stats-grid">
         <Stat label="sober check-ins" value={soberCheckIns} tone="gold" />
         <Stat label="active habits" value={data.habits.length} />
@@ -168,7 +219,10 @@ const ProgressDashboard = () => {
       </Card>
 
       <Card className="body-target-card stack-sm">
-        <span className="tag">Body Targets</span>
+        <div className="section-title-row">
+          <span>Body Targets</span>
+          <b>{macroTargets ? `${data.bodyProfile.trainingDaysPerWeek || '4'} training days/week` : 'Baseline needed'}</b>
+        </div>
         <h2>{macroTargets ? `Macros for ${macroTargets.goalLabel}.` : 'Tell Talk your body stats.'}</h2>
         {macroTargets ? (
           <>
@@ -178,10 +232,20 @@ const ProgressDashboard = () => {
               <div><strong>{macroTargets.carbGrams}g</strong><span>carbs</span></div>
               <div><strong>{macroTargets.fatGrams}g</strong><span>fat</span></div>
             </div>
-            <p>{data.bodyProfile.weightLbs} lb • {formatHeight(data.bodyProfile.heightInches)} • maintenance ~{macroTargets.maintenanceCalories} cal.</p>
+            <p>{data.bodyProfile.weightLbs} lb → {data.bodyProfile.goalWeightLbs || 'goal TBD'} lb • {formatHeight(data.bodyProfile.heightInches)} • maintenance ~{macroTargets.maintenanceCalories} cal.</p>
+            <div className="hero-actions">
+              <Link to="/talk" className="btn btn-secondary">Update in Talk</Link>
+              <Link to="/setup-profile" className="btn btn-ghost">Edit baseline</Link>
+            </div>
           </>
         ) : (
-          <p>Use Talk: “I’m 200 lb, 5'10, 30, male, cut fat, train 5 days.” Iron Habit will calculate calories, protein, carbs, and fat.</p>
+          <>
+            <p>Use Talk: “I’m 200 lb, 5'10, 30, male, cut fat, train 5 days.” Iron Habit will calculate calories, protein, carbs, and fat.</p>
+            <div className="hero-actions">
+              <Link to="/talk" className="btn btn-primary">Tell Talk Stats</Link>
+              <Link to="/setup-profile" className="btn btn-secondary">Open Setup</Link>
+            </div>
+          </>
         )}
       </Card>
 
@@ -244,6 +308,10 @@ const ProgressDashboard = () => {
       <Card className="stack-sm">
         <h2>Your why</h2>
         <p className="quote">“{data.profile.why || 'Build a body and life I am proud of.'}”</p>
+        <div className="hero-actions">
+          <Link to="/share-progress" className="btn btn-primary">Create Victory Card</Link>
+          <Link to="/fitness-tracker" className="btn btn-secondary">Stack More Proof</Link>
+        </div>
       </Card>
     </div>
   );
