@@ -1,11 +1,13 @@
 import { type CSSProperties, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
-import { getTodayKey, loadData, replaceData, saveData, type IronHabitData, type Profile } from '../utils/storage';
+import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
+import { getTodayKey, loadData, replaceData, saveData, type BodyProfile, type IronHabitData, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
+  const [bodyProfile, setBodyProfile] = useState<BodyProfile>(loadData().bodyProfile);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
   const data = loadData();
@@ -22,6 +24,7 @@ const Onboarding = () => {
   const xpPercent = Math.round((xp / xpMax) * 100);
   const craving = todayCheckIn?.craving ?? 2;
   const moodStability = todayCheckIn ? 'Stable' : 'Locked';
+  const macroTargets = calculateMacroTargets(bodyProfile);
 
   const missions = [
     {
@@ -45,8 +48,13 @@ const Onboarding = () => {
     setProfile((current) => ({ ...current, [key]: value }));
   };
 
+  const updateBody = (key: keyof BodyProfile, value: string) => {
+    setSaved(false);
+    setBodyProfile((current) => ({ ...current, [key]: value, updatedAt: new Date().toISOString() }));
+  };
+
   const handleSave = () => {
-    saveData({ profile });
+    saveData({ profile, bodyProfile });
     setSaved(true);
   };
 
@@ -57,7 +65,7 @@ const Onboarding = () => {
       why: profile.why || 'Discipline today. Freedom tomorrow.',
     };
     setProfile(next);
-    saveData({ profile: next });
+    saveData({ profile: next, bodyProfile });
     setSaved(true);
   };
 
@@ -104,6 +112,7 @@ const Onboarding = () => {
       const incoming = 'data' in parsed && parsed.data ? parsed.data : parsed;
       const next = replaceData(incoming as IronHabitData);
       setProfile(next.profile);
+      setBodyProfile(next.bodyProfile);
       setSaved(true);
       setBackupStatus('Backup restored. Progress is back on this device.');
     } catch {
@@ -218,8 +227,8 @@ const Onboarding = () => {
           </span>
         </summary>
         <div className="stack-md collapse-body">
-          <PageHeader eyebrow="Setup" title="Make it yours">
-            Add your start date and reason why. This stays on your device with localStorage.
+          <PageHeader eyebrow="Setup" title="Lock your sober-fitness baseline">
+            Save start date, why, body stats, and goal so Talk, Train, and Proof can personalize the next move.
           </PageHeader>
 
           <Field label="Name or nickname">
@@ -253,6 +262,67 @@ const Onboarding = () => {
           <Field label="Transformation goal">
             <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
           </Field>
+
+          <div className="metric-input-grid">
+            <Field label="Current weight">
+              <input inputMode="decimal" value={bodyProfile.weightLbs} onChange={(e) => updateBody('weightLbs', e.target.value)} placeholder="200" />
+            </Field>
+            <Field label="Goal weight">
+              <input inputMode="decimal" value={bodyProfile.goalWeightLbs} onChange={(e) => updateBody('goalWeightLbs', e.target.value)} placeholder="185" />
+            </Field>
+            <Field label="Age">
+              <input inputMode="numeric" value={bodyProfile.age} onChange={(e) => updateBody('age', e.target.value)} placeholder="30" />
+            </Field>
+            <Field label="Height inches">
+              <input inputMode="numeric" value={bodyProfile.heightInches} onChange={(e) => updateBody('heightInches', e.target.value)} placeholder="70" />
+            </Field>
+            <Field label="Sex">
+              <select value={bodyProfile.sex} onChange={(e) => updateBody('sex', e.target.value)}>
+                <option value="">Choose</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </Field>
+            <Field label="Training days/week">
+              <input inputMode="numeric" value={bodyProfile.trainingDaysPerWeek} onChange={(e) => updateBody('trainingDaysPerWeek', e.target.value)} placeholder="5" />
+            </Field>
+          </div>
+
+          <div className="metric-input-grid">
+            <Field label="Body goal">
+              <select value={bodyProfile.bodyGoal} onChange={(e) => updateBody('bodyGoal', e.target.value)}>
+                <option value="recomposition">Recomposition</option>
+                <option value="cut-fat">Cut fat</option>
+                <option value="build-muscle">Build muscle</option>
+                <option value="maintain">Maintain</option>
+              </select>
+            </Field>
+            <Field label="Activity level">
+              <select value={bodyProfile.activityLevel} onChange={(e) => updateBody('activityLevel', e.target.value)}>
+                <option value="sedentary">Sedentary</option>
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="active">Active</option>
+                <option value="athlete">Athlete</option>
+              </select>
+            </Field>
+            <Field label="Pace">
+              <select value={bodyProfile.pace} onChange={(e) => updateBody('pace', e.target.value)}>
+                <option value="steady">Steady</option>
+                <option value="aggressive">Aggressive</option>
+                <option value="lean">Lean gain</option>
+              </select>
+            </Field>
+          </div>
+
+          <div className="card body-target-card stack-sm">
+            <span className="tag">Baseline preview</span>
+            {macroTargets ? (
+              <p>{bodyProfile.weightLbs} lb • {formatHeight(bodyProfile.heightInches)} • {macroTargets.targetCalories} cal • {macroTargets.proteinGrams}g protein.</p>
+            ) : (
+              <p>Add weight, height, age, and sex here — or tell Talk: “I’m 200 lb, 5'10, 30, male, cut fat.”</p>
+            )}
+          </div>
           <div className="button-row">
             <Button onClick={handleSave}>Save profile</Button>
             <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
