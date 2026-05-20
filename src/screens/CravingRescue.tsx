@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
-import { loadData } from '../utils/storage';
+import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 
 const protocol = [
+  'Put the drink plan on pause. Say: “I only need to win ten minutes.”',
   'Cold water. Slow sips. Bring your body back online.',
   'Box breathing: inhale 4, hold 4, exhale 6.',
   'Walk outside or change rooms. Break the loop.',
@@ -10,10 +12,17 @@ const protocol = [
   'Text someone safe: “I’m riding out a craving.”',
 ];
 
+const appendNote = (current: string, next: string) => [current, next].filter(Boolean).join(' | ');
+
 const CravingRescue = () => {
   const [secondsLeft, setSecondsLeft] = useState(600);
   const [running, setRunning] = useState(false);
-  const profile = loadData().profile;
+  const [mode, setMode] = useState<'steady' | 'emergency' | 'slip'>('steady');
+  const [status, setStatus] = useState('');
+  const data = loadData();
+  const profile = data.profile;
+  const todayKey = getTodayKey();
+  const todayCheckIn = data.checkIns[todayKey];
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = String(secondsLeft % 60).padStart(2, '0');
 
@@ -27,25 +36,79 @@ const CravingRescue = () => {
     return () => window.clearInterval(timer);
   }, [running, secondsLeft]);
 
+  const saveRescueCheckIn = (updates: Partial<CheckIn>, message: string) => {
+    const current = loadData();
+    const existing = current.checkIns[todayKey];
+    const nextCheckIn: CheckIn = {
+      date: todayKey,
+      sober: updates.sober ?? existing?.sober ?? true,
+      mood: updates.mood ?? existing?.mood ?? 'Fighting',
+      craving: updates.craving ?? existing?.craving ?? 8,
+      habitsCompleted: updates.habitsCompleted ?? existing?.habitsCompleted ?? [],
+      note: appendNote(existing?.note || '', updates.note || ''),
+    };
+
+    saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
+    setStatus(message);
+  };
+
   const start = () => {
     setSecondsLeft(600);
     setRunning(true);
+    setStatus('Ten-minute rescue started. Do not negotiate until the clock hits zero.');
+  };
+
+  const startEmergency = () => {
+    setMode('emergency');
+    setSecondsLeft(600);
+    setRunning(true);
+    saveRescueCheckIn(
+      { sober: todayCheckIn?.sober ?? true, mood: 'Emergency rescue', craving: 10, note: 'Emergency rescue started: I am about to drink.' },
+      'Emergency state saved. Win the next ten minutes only.',
+    );
+  };
+
+  const logRescueWin = () => {
+    setRunning(false);
+    saveRescueCheckIn(
+      { sober: true, mood: 'Rescue win', craving: Math.min(todayCheckIn?.craving ?? 3, 3), note: 'Rescue win logged: craving wave passed without drinking.' },
+      'Rescue win logged. Proof beats the old loop.',
+    );
+  };
+
+  const logSlip = () => {
+    setMode('slip');
+    setRunning(false);
+    saveRescueCheckIn(
+      { sober: false, mood: 'Restarting', craving: 6, note: 'Slip logged without shame. Restart plan opened.' },
+      'Slip logged. No shame spiral — restart the next right action.',
+    );
+  };
+
+  const setRestartDate = () => {
+    const current = loadData();
+    saveData({ profile: { ...current.profile, sobrietyDate: todayKey } });
+    setStatus('Comeback restart date set to today. The next right action starts now.');
   };
 
   const reset = () => {
     setRunning(false);
     setSecondsLeft(600);
+    setMode('steady');
+    setStatus('');
   };
 
   return (
-    <div className="page stack-lg">
-      <PageHeader eyebrow="Rescue" title="Craving protocol. No bargaining.">
-        Ten minutes to interrupt the old pattern and protect the comeback you are building.
+    <div className="page rescue-page stack-lg">
+      <PageHeader eyebrow="Rescue" title={mode === 'emergency' ? 'Do not drink for ten minutes.' : mode === 'slip' ? 'No shame. Restart clean.' : 'Craving protocol. No bargaining.'}>
+        {mode === 'slip'
+          ? 'A slip is data, not identity. Stop the spiral, reset the environment, and stack the next right action.'
+          : 'Ten minutes to interrupt the old pattern and protect the comeback you are building.'}
       </PageHeader>
 
-      <Card className="rescue-card stack-md">
+      <Card className={`rescue-card emergency-rescue-card stack-md ${mode === 'emergency' ? 'is-emergency' : ''}`}>
         <div className="rescue-head">
-          <span className="tag danger-tag">Emergency lock-in</span>
+          <span className="tag danger-tag">{mode === 'emergency' ? 'I am about to drink' : 'Emergency lock-in'}</span>
           <span className="rescue-clock">{minutes}:{seconds}</span>
         </div>
 
@@ -53,17 +116,41 @@ const CravingRescue = () => {
           <span>{secondsLeft === 0 ? 'Clear' : running ? 'Breathe' : 'Start'}</span>
         </div>
 
-        <div className="rescue-actions">
+        <div className="rescue-actions primary-rescue-actions">
+          <Button variant="danger" onClick={startEmergency}>I’m about to drink</Button>
           <Button onClick={start}>{running ? 'Restart 10 minutes' : 'Start 10-minute rescue'}</Button>
-          <Button variant="secondary" onClick={reset}>Reset</Button>
           <a className="btn btn-ghost" href="sms:?body=I%27m%20riding%20out%20a%20craving.%20Can%20you%20check%20in%20with%20me%3F">Text support</a>
         </div>
 
-        {secondsLeft === 0 && <p className="success-msg">You made it through the wave. Log the win on Lock In.</p>}
+        <div className="rescue-actions">
+          <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
+          <Button variant="ghost" onClick={logSlip}>I slipped — restart</Button>
+          <Button variant="secondary" onClick={reset}>Reset timer</Button>
+        </div>
+
+        {secondsLeft === 0 && <p className="success-msg">You made it through the wave. Log the rescue win.</p>}
+        {status && <p className="success-msg">{status}</p>}
       </Card>
 
+      {mode === 'slip' && (
+        <Card className="slip-restart-card stack-md">
+          <span className="tag danger-tag">Shame-free restart</span>
+          <h2>The rule: stop the bleed.</h2>
+          <div className="rescue-steps">
+            <span><b>01</b>Pour it out or leave the location.</span>
+            <span><b>02</b>Drink water and eat real food.</span>
+            <span><b>03</b>Text one safe person the truth.</span>
+            <span><b>04</b>Set the next 24-hour comeback.</span>
+          </div>
+          <div className="rescue-actions">
+            <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
+            <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+          </div>
+        </Card>
+      )}
+
       <Card className="stack-sm">
-        <span className="tag">Rescue steps</span>
+        <span className="tag">10-minute protocol</span>
         <div className="rescue-steps">
           {protocol.map((step, index) => (
             <span key={step}><b>{String(index + 1).padStart(2, '0')}</b>{step}</span>

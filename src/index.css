@@ -346,6 +346,10 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .mission-list a.danger-mission { border-color: rgba(239,68,68,.32); background: rgba(239,68,68,.1); }
 .mission-list a.danger-mission b { color: #fecaca; }
 .rescue-card { background: radial-gradient(circle at top right, rgba(239,68,68,.24), rgba(255,255,255,.07) 52%); border-color: rgba(239,68,68,.24); }
+.emergency-rescue-card.is-emergency { border-color: rgba(239,68,68,.72); background: radial-gradient(circle at 50% 20%, rgba(239,68,68,.42), transparent 36%), linear-gradient(180deg, rgba(127,16,16,.34), rgba(8,8,10,.96)); box-shadow: 0 0 60px rgba(239,68,68,.24), var(--shadow); }
+.primary-rescue-actions .btn-danger { flex-basis: 100%; min-height: 58px; font-size: 1rem; }
+.slip-restart-card { border-color: rgba(239,68,68,.42); background: linear-gradient(145deg, rgba(127,16,16,.2), rgba(255,255,255,.055)); }
+.rescue-page { padding-bottom: 34px; }
 .rescue-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .rescue-clock { color: var(--gold); font-size: clamp(2.5rem, 16vw, 4.8rem); line-height: .85; font-weight: 950; letter-spacing: -.08em; }
 .breath-ring { width: 160px; height: 160px; margin: 4px auto 12px; display: grid; place-items: center; border: 1px solid rgba(246,196,83,.35); border-radius: 999px; background: radial-gradient(circle, rgba(246,196,83,.22), rgba(239,68,68,.08) 62%, rgba(0,0,0,.22)); animation: breathe 4s ease-in-out infinite; }
