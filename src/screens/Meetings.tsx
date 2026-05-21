@@ -1,57 +1,113 @@
-import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
 
-const supportCards = [
+const defaultSearch = 'Vancouver, BC';
+
+const buildSearchUrl = (query: string, type: 'aa' | 'na' | 'smart' | 'maps') => {
+  const location = query.trim() || defaultSearch;
+  const terms = {
+    aa: `${location} AA meetings`,
+    na: `${location} NA meetings`,
+    smart: `${location} SMART Recovery meetings`,
+    maps: `${location} recovery meetings`,
+  }[type];
+
+  return type === 'maps'
+    ? `https://www.google.com/maps/search/${encodeURIComponent(terms)}`
+    : `https://www.google.com/search?q=${encodeURIComponent(terms)}`;
+};
+
+const buildSupportCards = (query: string) => [
   {
     title: 'AA meetings',
     body: 'Alcohol recovery rooms. Start here when you need sober voices around you.',
+    cta: 'Search AA',
+    href: buildSearchUrl(query, 'aa'),
   },
   {
     title: 'NA meetings',
     body: 'Recovery support for substance cravings, isolation, and old-pattern thinking.',
+    cta: 'Search NA',
+    href: buildSearchUrl(query, 'na'),
   },
   {
-    title: 'Recovery groups',
-    body: 'SMART, peer support, church/community groups, or any room that keeps you alive and honest.',
+    title: 'SMART Recovery',
+    body: 'Practical tools, peer support, and structured recovery groups if you want another lane besides AA/NA.',
+    cta: 'Search SMART',
+    href: buildSearchUrl(query, 'smart'),
   },
 ];
 
-const Meetings = () => (
-  <div className="page warrior-page meetings-page stack-lg">
-    <PageHeader eyebrow="Meetings" title="Find human support before the old life gets a vote.">
-      Search by city or postal code. Live map search is coming next; for now this keeps the recovery lane obvious and one tap away.
-    </PageHeader>
+const Meetings = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get('q') || defaultSearch);
 
-    <section className="meetings-search-card card stack-md">
-      <span className="tag danger-tag">Support locator</span>
-      <Field label="City or postal code">
-        <input placeholder="Vancouver, BC or V6B" />
-      </Field>
-      <div className="hero-actions">
-        <button className="btn btn-primary" type="button">Find meetings near me</button>
-        <Link to="/rescue" className="btn btn-danger">Open Rescue now</Link>
-      </div>
-      <p className="meetings-note">MVP note: meeting search is a guided placeholder until we connect a free recovery meeting directory or location source.</p>
-    </section>
+  const supportCards = useMemo(() => buildSupportCards(query), [query]);
+  const mapsUrl = useMemo(() => buildSearchUrl(query, 'maps'), [query]);
+  const helperLabel = query.trim() ? `Searching around ${query.trim()}.` : `Searching around ${defaultSearch}.`;
 
-    <section className="support-grid meetings-grid" aria-label="Recovery support options">
-      {supportCards.map((card) => (
-        <article className="support-card" key={card.title}>
-          <b>{card.title}</b>
-          <span>{card.body}</span>
-        </article>
-      ))}
-    </section>
+  const runSearch = () => {
+    const cleanQuery = query.trim() || defaultSearch;
+    setQuery(cleanQuery);
+    setSearchParams({ q: cleanQuery });
+    window.open(buildSearchUrl(cleanQuery, 'maps'), '_blank', 'noopener,noreferrer');
+  };
 
-    <section className="safety-card stack-sm">
-      <b>If the urge is loud, do not browse alone.</b>
-      <span>Open Rescue, text someone safe, or tell Talk: “I’m craving.” Human support beats white-knuckling.</span>
-      <div className="hero-actions">
-        <Link to="/talk" className="btn btn-secondary">Talk to Coach</Link>
-        <a className="btn btn-ghost" href="sms:?body=I’m riding out a craving and need support for the next 10 minutes.">Text support</a>
-      </div>
-    </section>
-  </div>
-);
+  return (
+    <div className="page warrior-page meetings-page stack-lg">
+      <PageHeader eyebrow="Meetings" title="Find human support before the old life gets a vote.">
+        Search by city or postal code, then jump straight into AA, NA, SMART Recovery, or map-based meeting results.
+      </PageHeader>
+
+      <section className="meetings-search-card card stack-md">
+        <span className="tag danger-tag">Support locator</span>
+        <Field label="City or postal code">
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Vancouver, BC or V6B" />
+        </Field>
+        <p className="meetings-note">{helperLabel} Open the map first, then use the room type below that feels safest right now.</p>
+        <div className="hero-actions">
+          <button className="btn btn-primary" type="button" onClick={runSearch}>Find meetings near me</button>
+          <a className="btn btn-secondary" href={mapsUrl} target="_blank" rel="noreferrer">Open meeting map</a>
+          <Link to="/rescue" className="btn btn-danger">Open Rescue now</Link>
+        </div>
+        <div className="split-strip" aria-label="Quick location ideas">
+          {['Vancouver, BC', 'Burnaby, BC', 'Surrey, BC', 'Richmond, BC'].map((location) => (
+            <button
+              key={location}
+              className="meeting-chip"
+              type="button"
+              onClick={() => {
+                setQuery(location);
+                setSearchParams({ q: location });
+              }}
+            >
+              {location}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="support-grid meetings-grid" aria-label="Recovery support options">
+        {supportCards.map((card) => (
+          <article className="support-card" key={card.title}>
+            <b>{card.title}</b>
+            <span>{card.body}</span>
+            <a className="btn btn-ghost" href={card.href} target="_blank" rel="noreferrer">{card.cta}</a>
+          </article>
+        ))}
+      </section>
+
+      <section className="safety-card stack-sm">
+        <b>If the urge is loud, do not browse alone.</b>
+        <span>Open Rescue, text someone safe, or tell Talk: “Find meetings in Vancouver” or “I’m craving.” Human support beats white-knuckling.</span>
+        <div className="hero-actions">
+          <Link to="/talk" className="btn btn-secondary">Talk to Coach</Link>
+          <a className="btn btn-ghost" href="sms:?body=I’m riding out a craving and need support for the next 10 minutes.">Text support</a>
+        </div>
+      </section>
+    </div>
+  );
+};
 
 export default Meetings;

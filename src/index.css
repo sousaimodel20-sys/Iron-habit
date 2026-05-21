@@ -207,6 +207,8 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .meetings-search-card { border-color: rgba(239,68,68,.32); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 36%), linear-gradient(180deg, rgba(28,31,39,.92), rgba(8,8,10,.94)); }
 .meetings-note { margin: 0; color: var(--muted); font-size: .88rem; }
 .meetings-grid { grid-template-columns: 1fr; }
+.meeting-chip { flex: 0 0 auto; border: 1px solid rgba(239,68,68,.28); border-radius: 999px; padding: 9px 11px; color: #fecaca; background: rgba(127,16,16,.18); font-size: .76rem; font-weight: 900; }
+.meeting-chip:hover { transform: translateY(-1px); }
 .loadout-console label { color: #fff; font-weight: 950; }
 .loadout-console textarea { min-height: 96px; border-color: rgba(239,68,68,.24); background: rgba(0,0,0,.38); }
 .loadout-control-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }

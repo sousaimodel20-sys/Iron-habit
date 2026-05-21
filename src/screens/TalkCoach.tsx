@@ -198,6 +198,12 @@ const parseDurationMinutes = (command: string, fallback = 45) => {
   return match ? Math.max(1, Number(match[1])) : fallback;
 };
 
+const extractMeetingLocation = (command: string) => {
+  const locationMatch = command.match(/(?:meetings?|aa|na|support|group)(?:\s+(?:near|in|around|at))\s+(.+)/i)
+    || command.match(/(?:find|show|need|open)\s+(?:me\s+)?(?:meetings?|aa|na|support|group)(?:\s+(?:near|in|around|at))?\s+(.+)/i);
+  return locationMatch?.[1]?.trim().replace(/[.?!]+$/, '');
+};
+
 const inferMood = (command: string) => {
   if (/(low|sad|depressed|tired|rough)/.test(command)) return 'Low';
   if (/(restless|anxious|antsy|stressed)/.test(command)) return 'Restless';
@@ -398,8 +404,11 @@ const TalkCoach = () => {
     }
 
     if (/(meeting|meetings|aa|na|group|support)/.test(command)) {
-      setCommandReply('Opening Meetings. Human support beats white-knuckling.');
-      navigate('/meetings');
+      const location = extractMeetingLocation(rawCommand);
+      setCommandReply(location
+        ? `Opening Meetings for ${location}. Human support beats white-knuckling.`
+        : 'Opening Meetings. Human support beats white-knuckling.');
+      navigate(location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings');
       return;
     }
 
