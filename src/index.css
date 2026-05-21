@@ -448,7 +448,10 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .milestone.achieved { color: #111; border-color: transparent; background: linear-gradient(135deg, var(--gold), var(--orange)); }
 .milestone.achieved span { color: #111; }
 .quote { color: #fff; font-size: 1.1rem; }
-.caption-box { border: 1px dashed rgba(246,196,83,.35); background: rgba(246,196,83,.08); padding: 14px; border-radius: 18px; color: #fff; }
+.caption-box { border: 1px dashed rgba(239,68,68,.42); background: rgba(127,16,16,.18); padding: 14px; border-radius: 18px; color: #fff; }
+.victory-proof-brief, .victory-next-card { border-color: rgba(239,68,68,.38); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.22), transparent 40%), linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); }
+.victory-proof-brief h2, .victory-next-card h2 { color: #fff; font-size: clamp(1.6rem, 8vw, 2.45rem); line-height: .94; letter-spacing: -.06em; }
+.victory-proof-brief .hero-actions .btn, .victory-next-card .hero-actions .btn { flex: 1 1 140px; }
 
 .share-wrap { display: grid; gap: 14px; justify-items: center; }
 .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }

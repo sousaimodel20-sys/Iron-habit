@@ -57,6 +57,25 @@ const ShareProgressScreen = () => {
           : 'Pick a 9:16 card style, download it, and copy a caption built for sober-fitness content.'}
       </PageHeader>
 
+      <Card className="victory-proof-brief stack-sm">
+        <span className="tag danger-tag">Share-ready proof</span>
+        {workoutProof ? (
+          <>
+            <h2>{workoutProof.title}</h2>
+            <p>{workoutProof.activeDay} • {workoutProof.durationMinutes} minutes • {workoutProof.completedSets}/{workoutProof.totalSets} sets completed. This is the receipt.</p>
+          </>
+        ) : (
+          <>
+            <h2>Build the next receipt.</h2>
+            <p>No workout proof saved yet. Run Workout Mode, finish the set checklist, then come back for a stronger card.</p>
+          </>
+        )}
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
+          <a className="btn btn-secondary" href="#caption-starter">Caption</a>
+        </div>
+      </Card>
+
       <Card className="stack-sm">
         <span className="tag">Card template</span>
         <div className="template-grid">
@@ -73,9 +92,11 @@ const ShareProgressScreen = () => {
         </div>
       </Card>
 
-      <ShareableProgressCard data={data} streak={streak} template={template} />
+      <div id="victory-card-preview">
+        <ShareableProgressCard data={data} streak={streak} template={template} />
+      </div>
 
-      <Card className="stack-sm">
+      <Card id="caption-starter" className="stack-sm">
         <h2>Caption starter</h2>
         <p className="caption-box">{caption}</p>
         <div className="button-row">
@@ -85,6 +106,16 @@ const ShareProgressScreen = () => {
           </Button>
         </div>
         {copyStatus && <p className="success-msg">{copyStatus}</p>}
+      </Card>
+
+      <Card className="stack-sm victory-next-card">
+        <span className="tag">Next proof loop</span>
+        <h2>Stack another receipt.</h2>
+        <p>The app now has the full loop: mission, train, proof, victory card, and rescue if the old pattern pulls.</p>
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="/fitness-tracker">Open Train</a>
+          <a className="btn btn-danger" href="/rescue">Open Rescue</a>
+        </div>
       </Card>
     </div>
   );

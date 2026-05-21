@@ -22,9 +22,9 @@ export const Button = ({
   </button>
 );
 
-export const Card = React.forwardRef<HTMLDivElement, { children: React.ReactNode; className?: string }>(
-  ({ children, className = '' }, ref) => (
-    <div ref={ref} className={`card ${className}`}>
+export const Card = React.forwardRef<HTMLDivElement, { children: React.ReactNode; className?: string; id?: string }>(
+  ({ children, className = '', id }, ref) => (
+    <div ref={ref} id={id} className={`card ${className}`}>
       {children}
     </div>
   ),

@@ -2,7 +2,7 @@ import { type CSSProperties, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { getTodayKey, loadData, replaceData, saveData, type BodyProfile, type IronHabitData, type Profile } from '../utils/storage';
+import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type IronHabitData, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
@@ -52,8 +52,10 @@ const Onboarding = () => {
       done: Boolean(latestProof?.date === todayKey),
       to: latestProof ? '/share-progress' : '/fitness-tracker',
     },
-    { label: 'Emergency Plan', detail: 'Rescue one tap away', done: false, to: '/rescue' },
+    { label: 'Emergency Plan', detail: craving >= 7 ? 'Open Rescue now' : 'Rescue one tap away', done: craving < 4, to: '/rescue' },
   ];
+  const weeklyBossCleared = missions.filter((mission) => mission.done).length;
+  const weeklyBossPercent = Math.round((weeklyBossCleared / missions.length) * 100);
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -79,6 +81,54 @@ const Onboarding = () => {
     setProfile(next);
     saveData({ profile: next, bodyProfile });
     setSaved(true);
+  };
+
+  const loadDemoBaseline = () => {
+    const demoProfile: Profile = {
+      ...profile,
+      name: profile.name || 'Iron Warrior',
+      sobrietyDate: profile.sobrietyDate || getTodayKey(),
+      why: profile.why || 'Discipline today. Freedom tomorrow.',
+      focus: profile.focus || 'sobriety-strength-discipline',
+      transformationGoal: profile.transformationGoal || 'Lean, sober, strong, and consistent.',
+    };
+    const demoBodyProfile: BodyProfile = {
+      ...bodyProfile,
+      sex: bodyProfile.sex || 'male',
+      age: bodyProfile.age || '30',
+      heightInches: bodyProfile.heightInches || '70',
+      weightLbs: bodyProfile.weightLbs || '200',
+      goalWeightLbs: bodyProfile.goalWeightLbs || '185',
+      activityLevel: bodyProfile.activityLevel || 'active',
+      trainingDaysPerWeek: bodyProfile.trainingDaysPerWeek || '5',
+      bodyGoal: bodyProfile.bodyGoal || 'recomposition',
+      pace: bodyProfile.pace || 'steady',
+      updatedAt: new Date().toISOString(),
+    };
+    const demoLoadout: ActiveLoadout = {
+      id: `demo-loadout-${Date.now()}`,
+      templateId: 'ppl',
+      title: '20-Min Sober Strength Loadout',
+      label: 'Push Pull Legs',
+      goal: 'Build muscle and stay locked in',
+      time: '20 min',
+      level: 'Intermediate',
+      days: ['Push', 'Pull', 'Legs'],
+      intent: 'Demo-ready sober strength routine',
+      finisher: '2-minute incline walk breathing reset',
+      createdAt: new Date().toISOString(),
+      exercises: [
+        { name: 'Incline Dumbbell Press', muscle: 'Chest', equipment: 'Dumbbells', sets: '2', reps: '8–10', rest: '90 sec', cue: 'Shoulders packed, press with control.', mistake: 'Do not bounce or flare elbows hard.', swap: 'Push-ups or machine press.', icon: '▲' },
+        { name: 'Lat Pulldown', muscle: 'Back', equipment: 'Cable', sets: '2', reps: '10–12', rest: '75 sec', cue: 'Pull elbows to ribs.', mistake: 'Do not turn it into a curl.', swap: 'Assisted pull-up or row.', icon: '↓' },
+        { name: 'Goblet Squat', muscle: 'Legs', equipment: 'Dumbbell', sets: '2', reps: '10–12', rest: '75 sec', cue: 'Brace, sit between the hips.', mistake: 'Do not collapse knees in.', swap: 'Leg press.', icon: '◆' },
+      ],
+    };
+
+    setProfile(demoProfile);
+    setBodyProfile(demoBodyProfile);
+    saveData({ profile: demoProfile, bodyProfile: demoBodyProfile, activeLoadout: demoLoadout });
+    setSaved(true);
+    setBackupStatus('Demo baseline loaded. Open Train or Workout Mode to show the full proof loop.');
   };
 
   const makeBackupJson = () => {
@@ -163,7 +213,8 @@ const Onboarding = () => {
           <p>Set name, sober start date, goal, and why. Then run today’s check-in and generate your first Coach Loadout.</p>
           <div className="hero-actions">
             <a href="#setup-profile" className="btn btn-primary">Set baseline</a>
-            <Link to="/daily-check-in" className="btn btn-secondary">First check-in</Link>
+            <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
+            <Link to="/daily-check-in" className="btn btn-ghost">First check-in</Link>
           </div>
         </section>
       )}
@@ -238,9 +289,9 @@ const Onboarding = () => {
           <p>Outwork the old version. Win the week before it wins you.</p>
         </div>
         <div className="boss-progress">
-          <strong>64%</strong>
-          <div><i /></div>
-          <small>4 / 7 battles cleared</small>
+          <strong>{weeklyBossPercent}%</strong>
+          <div><i style={{ width: `${weeklyBossPercent}%` }} /></div>
+          <small>{weeklyBossCleared} / {missions.length} battles cleared</small>
         </div>
       </section>
 
@@ -350,6 +401,7 @@ const Onboarding = () => {
           </div>
           <div className="button-row">
             <Button onClick={handleSave}>Save profile</Button>
+            <Button variant="secondary" onClick={loadDemoBaseline}>Load demo mode</Button>
             <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
           </div>
           {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
