@@ -130,7 +130,10 @@ const quickCommands = [
   'Show my proof',
   'Make a Victory Card',
   'Log check-in',
-  'I trained today',
+  'I trained 45 min hard',
+  'Still sober craving 2/10 and I trained 45 min hard',
+  'I survived a craving',
+  'I slipped but I’m restarting today',
   'Next best move',
   'Log body stats',
   'Set fat loss macros',
@@ -145,8 +148,8 @@ const parseHeightInches = (command: string) => {
 
 const parseBodyProfileFromCommand = (rawCommand: string, current: BodyProfile): BodyProfile => {
   const command = rawCommand.toLowerCase();
-  const weight = command.match(/(?:weigh|weight|i'?m|im|am)?\s*(\d{2,3})\s*(?:lb|lbs|pounds)\b/i)?.[1];
-  const goalWeight = command.match(/(?:goal weight|target weight|to)\s*(\d{2,3})\s*(?:lb|lbs|pounds)\b/i)?.[1];
+  const weight = command.match(/(?:weigh|weight|i'?m|im|am)\s*(\d{2,3})\s*(?:lb|lbs|pounds)?\b/i)?.[1];
+  const goalWeight = command.match(/(?:goal weight|target weight|goal|target|to)\s*(\d{2,3})\s*(?:lb|lbs|pounds)?\b/i)?.[1];
   const age = command.match(/(?:age|i'?m|im|am)\s*(\d{2})\s*(?:years old|yo|y\/o|years)?\b/i)?.[1]
     || command.match(/(?:^|,|\s)(\d{2})(?:\s*(?:years old|yo|y\/o|years))?(?=,|$|\s)/i)?.[1];
   const trainingDays = command.match(/(?:train|training|lift|lifting|gym)\s*(\d)\s*(?:days|x|times)?/i)?.[1];
@@ -229,6 +232,8 @@ const makeTrainingEntryFromCommand = (rawCommand: string): FitnessEntry => {
     note: rawCommand,
   };
 };
+
+const appendCommandNote = (existingNote: string | undefined, rawCommand: string) => [existingNote, rawCommand].filter(Boolean).join('\n');
 
 const TalkCoach = () => {
   const navigate = useNavigate();
@@ -325,10 +330,27 @@ const TalkCoach = () => {
       return;
     }
 
+    if (/(survived|made it through|beat|handled|got through).*(craving|urge)|craving.*(passed|over|survived)/.test(command)) {
+      const data = loadData();
+      const today = getTodayKey();
+      const existing = data.checkIns[today];
+      const entry: CheckIn = {
+        date: today,
+        sober: true,
+        mood: 'Rescue win',
+        craving: Math.min(existing?.craving ?? 3, 3),
+        habitsCompleted: Array.from(new Set([...(existing?.habitsCompleted || []), 'No alcohol', 'Craving rescue'])),
+        note: appendCommandNote(existing?.note, rawCommand),
+      };
+      saveData({ checkIns: { ...data.checkIns, [today]: entry } });
+      setCommandReply('Rescue win saved. Craving wave survived, sober proof stacked.');
+      return;
+    }
+
     if (/(slipped|relapsed|drank|reset sober|reset streak)/.test(command)) {
       const data = loadData();
       const entry = makeCheckInFromCommand(rawCommand, false);
-      saveData({ checkIns: { ...data.checkIns, [entry.date]: entry } });
+      saveData({ checkIns: { ...data.checkIns, [entry.date]: { ...entry, note: appendCommandNote(data.checkIns[entry.date]?.note, rawCommand) } } });
       setCommandReply('Slip logged without shame. Open Rescue, reset the next decision, and get back in command.');
       navigate('/rescue');
       return;
