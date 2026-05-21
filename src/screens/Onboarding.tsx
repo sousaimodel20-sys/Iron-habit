@@ -25,6 +25,18 @@ const Onboarding = () => {
   const craving = todayCheckIn?.craving ?? 2;
   const moodStability = todayCheckIn ? 'Stable' : 'Locked';
   const macroTargets = calculateMacroTargets(bodyProfile);
+  const missionSteps = [
+    { label: 'Check in', done: Boolean(todayCheckIn), to: '/daily-check-in' },
+    { label: 'Train', done: trainedToday, to: activeLoadout ? '/workout-mode' : '/talk' },
+    { label: 'Proof', done: Boolean(latestProof?.date === todayKey), to: latestProof ? '/share-progress' : '/profile' },
+  ];
+  const primaryMission = !todayCheckIn
+    ? { title: 'Lock today’s check-in', detail: `Day ${displayDay}: name the mood, rate the craving, and protect the streak first.`, to: '/daily-check-in', cta: 'Start Check-In' }
+    : !trainedToday
+      ? { title: activeLoadout ? `Run ${activeLoadout.title}` : 'Build today’s training loadout', detail: activeLoadout ? 'Open Workout Mode, finish the session, then log the proof.' : 'Let Talk generate the workout, then save it to Train.', to: activeLoadout ? '/workout-mode' : '/talk', cta: activeLoadout ? 'Start Workout' : 'Build Workout' }
+      : { title: 'Turn today into proof', detail: 'Training and check-in are stacked. Make the win visible with Proof or a Victory Card.', to: latestProof ? '/share-progress' : '/profile', cta: latestProof ? 'Make Victory Card' : 'Show Proof' };
+  const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
+  const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
 
   const missions = [
     {
@@ -156,14 +168,27 @@ const Onboarding = () => {
         </section>
       )}
 
-      <section className="card command-card stack-sm">
-        <span className="tag">Next Best Move</span>
-        <h2>{activeLoadout ? `Run ${activeLoadout.title}` : 'Generate your first training loadout.'}</h2>
-        <p>{activeLoadout ? 'Start Workout Mode, finish the session, and turn it into proof.' : 'Ask Coach for PPL, Arnold, dumbbells only, or craving killer. Then save it to Train.'}</p>
+      <section className="card command-card sober-mission-card stack-sm">
+        <span className="tag">Sober Strength Mission</span>
+        <h2>{primaryMission.title}</h2>
+        <p>{primaryMission.detail}</p>
+        <div className="mission-step-strip" aria-label="Daily mission steps">
+          {missionSteps.map((step) => (
+            <Link to={step.to} key={step.label} className={step.done ? 'step-done' : ''}>
+              <b>{step.done ? '✓' : '•'}</b>
+              <span>{step.label}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mission-brief-grid">
+          <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
+          <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
+          <div><span>Proof action</span><strong>{latestProof?.date === todayKey ? 'Victory Card ready' : 'Log visible proof'}</strong></div>
+        </div>
         <div className="hero-actions">
-          <Link to={activeLoadout ? '/workout-mode' : '/talk'} className="btn btn-primary">{activeLoadout ? 'Start Workout Mode' : 'Open Coach Loadouts'}</Link>
-          <Link to="/rescue" className="btn btn-danger">Craving Rescue</Link>
-          {latestProof && <Link to="/share-progress" className="btn btn-ghost">Victory Card</Link>}
+          <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
+          <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
+          <Link to="/rescue" className="btn btn-danger">Rescue</Link>
         </div>
       </section>
 
