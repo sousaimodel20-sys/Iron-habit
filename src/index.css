@@ -252,6 +252,13 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .routine-summary-grid span { min-height: 76px; display: grid; place-items: center; text-align: center; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(0,0,0,.24); }
 .routine-summary-grid b { color: #fff; font-size: 1.35rem; line-height: 1; }
 .routine-summary-grid small { color: #ffb4b4; text-transform: uppercase; letter-spacing: .1em; font-size: .62rem; font-weight: 950; }
+.workout-progress-card { display: grid; gap: 9px; margin-top: 12px; padding: 13px; border: 1px solid rgba(239,68,68,.26); border-radius: 20px; background: rgba(0,0,0,.24); }
+.workout-progress-card div { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.workout-progress-card span { color: #ffb4b4; text-transform: uppercase; letter-spacing: .12em; font-size: .68rem; font-weight: 950; }
+.workout-progress-card b { color: #fff; }
+.workout-progress-card i { height: 10px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.1); }
+.workout-progress-card em { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7f1010, #ef4444, #f97373); box-shadow: 0 0 24px rgba(239,68,68,.58); }
+.workout-progress-card p { margin: 0; color: #d4d4d8; font-size: .9rem; }
 .routine-exercise-list { display: grid; gap: 12px; }
 .routine-exercise-row { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px; }
 .routine-exercise-index { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; color: #fff; background: linear-gradient(135deg, #ef4444, #7f1010); font-weight: 950; box-shadow: 0 0 24px rgba(220,38,38,.34); }
@@ -269,6 +276,9 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .workout-session-card p { margin: 0; color: #fff; font-weight: 800; }
 .workout-main-btn { min-height: 58px; font-size: 1rem; }
 .workout-prescription { margin: 0; }
+.set-check-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.set-check { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; color: #d4d4d8; background: rgba(0,0,0,.26); font-weight: 950; }
+.set-check.done { color: #fff; border-color: rgba(34,197,94,.48); background: linear-gradient(135deg, #22c55e, #166534); box-shadow: 0 0 22px rgba(34,197,94,.25); }
 .set-tracker { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-tracker span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; border: 1px solid rgba(255,255,255,.12); color: var(--muted); background: rgba(0,0,0,.24); font-weight: 950; }
 .set-tracker span.done { color: #fff; border-color: rgba(239,68,68,.55); background: linear-gradient(135deg, #ef4444, #7f1010); box-shadow: 0 0 22px rgba(220,38,38,.28); }

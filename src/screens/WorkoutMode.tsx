@@ -16,6 +16,7 @@ const WorkoutMode = () => {
   const [victoryProof, setVictoryProof] = useState<CompletedLoadout | null>(null);
 
   const loadout = data.activeLoadout;
+  const [setProof, setSetProof] = useState<Record<string, number>>({});
   const activeDay = useMemo(() => {
     if (!loadout) return '';
     const dayIndex = new Date().getDay();
@@ -36,6 +37,16 @@ const WorkoutMode = () => {
   }
 
   const totalSets = loadout.exercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0);
+  const completedSets = loadout.exercises.reduce((sum, item) => sum + Math.min(setProof[item.name] || 0, setsAsNumber(item.sets)), 0);
+  const progressPercent = Math.round((completedSets / totalSets) * 100);
+  const allSetsDone = completedSets >= totalSets;
+
+  const toggleSet = (exerciseName: string, setNumber: number) => {
+    setSetProof((current) => {
+      const currentDone = current[exerciseName] || 0;
+      return { ...current, [exerciseName]: currentDone >= setNumber ? setNumber - 1 : setNumber };
+    });
+  };
 
   const logRoutineComplete = () => {
     const minutes = Number.parseInt(loadout.time, 10) || 45;
@@ -50,7 +61,7 @@ const WorkoutMode = () => {
       durationMinutes: minutes,
       intensity,
       exercises: loadout.exercises.map((item) => item.name),
-      completedSets: totalSets,
+      completedSets: allSetsDone ? totalSets : Math.max(completedSets, totalSets),
       totalSets,
       finisher: loadout.finisher,
       proofCopy: 'Routine completed. Proof logged. Receipts beat promises.',
@@ -123,8 +134,13 @@ const WorkoutMode = () => {
 
         <div className="routine-summary-grid">
           <span><b>{loadout.exercises.length}</b><small>exercises</small></span>
-          <span><b>{totalSets}</b><small>total sets</small></span>
+          <span><b>{completedSets}/{totalSets}</b><small>sets done</small></span>
           <span><b>{loadout.time}</b><small>target time</small></span>
+        </div>
+        <div className="workout-progress-card" aria-label="Workout progress">
+          <div><span>Workout proof</span><b>{progressPercent}%</b></div>
+          <i><em style={{ width: `${progressPercent}%` }} /></i>
+          <p>{allSetsDone ? 'All sets checked. Finish and make the Victory Card.' : 'Tap each set as you complete it. Finish unlocks when the work is checked.'}</p>
         </div>
       </section>
 
@@ -139,6 +155,22 @@ const WorkoutMode = () => {
                 <b>{exercise.sets}<small>sets</small></b>
                 <b>{exercise.reps}<small>reps</small></b>
                 <b>{exercise.rest}<small>rest</small></b>
+              </div>
+              <div className="set-check-grid" aria-label={`${exercise.name} set checklist`}>
+                {Array.from({ length: setsAsNumber(exercise.sets) }, (_, setIndex) => {
+                  const setNumber = setIndex + 1;
+                  const done = (setProof[exercise.name] || 0) >= setNumber;
+                  return (
+                    <button
+                      key={`${exercise.name}-set-${setNumber}`}
+                      type="button"
+                      className={done ? 'set-check done' : 'set-check'}
+                      onClick={() => toggleSet(exercise.name, setNumber)}
+                    >
+                      {done ? '✓' : setNumber}
+                    </button>
+                  );
+                })}
               </div>
               <details className="workout-form-note">
                 <summary>Form cue + swap</summary>
@@ -155,9 +187,9 @@ const WorkoutMode = () => {
         <div>
           <span className="tag">Finish</span>
           <h2>Done with the routine?</h2>
-          <p>Log it once. No set-by-set babysitting.</p>
+          <p>{allSetsDone ? 'All sets checked. Proof is ready for the Victory Card.' : `${totalSets - completedSets} sets left. Check them off to unlock proof.`}</p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={logRoutineComplete}>Log Routine Complete</button>
+        <button type="button" className="btn btn-primary" onClick={logRoutineComplete} disabled={!allSetsDone}>Finish + Make Proof</button>
       </Card>
     </div>
   );
