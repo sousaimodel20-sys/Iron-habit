@@ -21,6 +21,7 @@ const CravingRescue = () => {
   const [status, setStatus] = useState('');
   const data = loadData();
   const profile = data.profile;
+  const supportLocation = profile.supportLocation || 'Vancouver, BC';
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const minutes = Math.floor(secondsLeft / 60);
@@ -123,6 +124,10 @@ const CravingRescue = () => {
         </div>
 
         <div className="rescue-actions">
+          <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
+        </div>
+
+        <div className="rescue-actions">
           <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
           <Button variant="ghost" onClick={logSlip}>I slipped — restart</Button>
           <Button variant="secondary" onClick={reset}>Reset timer</Button>
@@ -161,6 +166,7 @@ const CravingRescue = () => {
       <Card className="reason-card">
         <span>Reason to stay in command</span>
         <strong>{profile.transformationGoal || profile.why || 'Lean, sober, strong, and consistent.'}</strong>
+        <small className="rescue-support-note">Support base locked to {supportLocation}. Update it from Meetings if you need a different area.</small>
       </Card>
     </div>
   );

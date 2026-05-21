@@ -405,10 +405,14 @@ const TalkCoach = () => {
 
     if (/(meeting|meetings|aa|na|group|support)/.test(command)) {
       const location = extractMeetingLocation(rawCommand);
+      const savedLocation = loadData().profile.supportLocation;
+      const nextLocation = location || savedLocation;
       setCommandReply(location
         ? `Opening Meetings for ${location}. Human support beats white-knuckling.`
-        : 'Opening Meetings. Human support beats white-knuckling.');
-      navigate(location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings');
+        : savedLocation
+          ? `Opening Meetings for your saved support base: ${savedLocation}. Human support beats white-knuckling.`
+          : 'Opening Meetings. Human support beats white-knuckling.');
+      navigate(nextLocation ? `/meetings?q=${encodeURIComponent(nextLocation)}` : '/meetings');
       return;
     }
 

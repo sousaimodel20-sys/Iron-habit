@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
+import { loadData, saveData } from '../utils/storage';
 
 const defaultSearch = 'Vancouver, BC';
 
@@ -41,14 +42,22 @@ const buildSupportCards = (query: string) => [
 
 const Meetings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(() => searchParams.get('q') || defaultSearch);
+  const savedSupportLocation = loadData().profile.supportLocation;
+  const [query, setQuery] = useState(() => searchParams.get('q') || savedSupportLocation || defaultSearch);
 
   const supportCards = useMemo(() => buildSupportCards(query), [query]);
   const mapsUrl = useMemo(() => buildSearchUrl(query, 'maps'), [query]);
   const helperLabel = query.trim() ? `Searching around ${query.trim()}.` : `Searching around ${defaultSearch}.`;
 
+  const saveSupportLocation = (location: string) => {
+    const cleanLocation = location.trim() || defaultSearch;
+    const current = loadData();
+    saveData({ profile: { ...current.profile, supportLocation: cleanLocation } });
+    return cleanLocation;
+  };
+
   const runSearch = () => {
-    const cleanQuery = query.trim() || defaultSearch;
+    const cleanQuery = saveSupportLocation(query);
     setQuery(cleanQuery);
     setSearchParams({ q: cleanQuery });
     window.open(buildSearchUrl(cleanQuery, 'maps'), '_blank', 'noopener,noreferrer');
@@ -78,14 +87,16 @@ const Meetings = () => {
               className="meeting-chip"
               type="button"
               onClick={() => {
-                setQuery(location);
-                setSearchParams({ q: location });
+                const cleanLocation = saveSupportLocation(location);
+                setQuery(cleanLocation);
+                setSearchParams({ q: cleanLocation });
               }}
             >
               {location}
             </button>
           ))}
         </div>
+        <p className="meetings-note">Saved support base: {savedSupportLocation || defaultSearch}. Rescue and Talk will reuse it when you do not type a city.</p>
       </section>
 
       <section className="support-grid meetings-grid" aria-label="Recovery support options">
