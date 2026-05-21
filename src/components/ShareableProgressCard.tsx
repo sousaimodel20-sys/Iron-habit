@@ -3,10 +3,13 @@ import { toPng } from 'html-to-image';
 import { Button } from './UI';
 import type { IronHabitData } from '../utils/storage';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
+import { calculateMacroTargets } from '../utils/nutrition';
 
-export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts';
+export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly';
 
-const templateCopy: Record<VictoryTemplate, { kicker: string; headline: string; footer: string }> = {
+type TemplateCopy = { kicker: string; headline: string; footer: string };
+
+const templateCopy: Record<VictoryTemplate, TemplateCopy> = {
   comeback: {
     kicker: 'COMEBACK CARD',
     headline: 'stayed sober and showed up.',
@@ -22,7 +25,28 @@ const templateCopy: Record<VictoryTemplate, { kicker: string; headline: string; 
     headline: 'turned recovery into receipts.',
     footer: '#ProofBeatsPromises',
   },
+  craving: {
+    kicker: 'CRAVING DESTROYED',
+    headline: 'felt the urge and did not fold.',
+    footer: '#CravingDestroyed',
+  },
+  transformation: {
+    kicker: 'TRANSFORMATION CARD',
+    headline: 'is building the body and life.',
+    footer: '#TransformationTok',
+  },
+  weekly: {
+    kicker: 'WEEKLY BOSS BATTLE',
+    headline: 'stacked another week of receipts.',
+    footer: '#WeeklyReceipts',
+  },
 };
+
+const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, index) => {
+  const date = new Date();
+  date.setDate(date.getDate() + index - count + 1);
+  return date.toISOString().slice(0, 10);
+});
 
 const ShareableProgressCard = ({
   data,
@@ -36,11 +60,21 @@ const ShareableProgressCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState('');
   const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
-  const latestMood = Object.values(data.checkIns).at(-1)?.mood || 'Locked in';
+  const latestCheckIn = Object.values(data.checkIns).at(-1);
+  const latestMood = latestCheckIn?.mood || 'Locked in';
+  const latestCraving = latestCheckIn?.craving ?? 0;
   const metrics = getTransformationMetrics(data, streak);
   const copy = templateCopy[template];
   const firstName = data.profile.name || 'I';
   const workoutProof = data.latestVictoryProof;
+  const macros = calculateMacroTargets(data.bodyProfile);
+  const recentDays = getRecentDateKeys(7);
+  const weeklyMinutes = data.fitnessEntries
+    .filter((entry) => recentDays.includes(entry.date))
+    .reduce((sum, entry) => sum + entry.durationMinutes, 0);
+  const weeklyCheckIns = recentDays.filter((date) => data.checkIns[date]).length;
+  const weeklySoberDays = recentDays.filter((date) => data.checkIns[date]?.sober).length;
+  const weeklyLoadouts = data.completedLoadouts.filter((proof) => recentDays.includes(proof.date)).length;
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -57,13 +91,68 @@ const ShareableProgressCard = ({
     }
   };
 
+  const headline = workoutProof && ['comeback', 'discipline', 'receipts'].includes(template)
+    ? `${workoutProof.title} conquered.`
+    : `${firstName} ${copy.headline}`;
+
   return (
     <section className="share-wrap">
       <div ref={cardRef} className={`share-card template-${template}`}>
         <div className="share-glow" />
-        <p className="share-kicker">{workoutProof ? 'WORKOUT VICTORY CARD' : copy.kicker}</p>
-        <h2>{workoutProof ? `${workoutProof.title} conquered.` : `${firstName} ${copy.headline}`}</h2>
-        {workoutProof ? (
+        <p className="share-kicker">{workoutProof && ['comeback', 'discipline', 'receipts'].includes(template) ? 'WORKOUT VICTORY CARD' : copy.kicker}</p>
+        <h2>{headline}</h2>
+        {template === 'craving' ? (
+          <>
+            <div className="share-day workout-proof-day">
+              <strong>{latestCraving || '10'}</strong>
+              <span>urge faced / 10</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{streak}</b> sober days</span>
+              <span><b>{latestMood}</b> mood</span>
+              <span><b>10</b> min rule</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>Craving hit. I did not bargain.</span>
+              <span>Opened Rescue. Stayed in command.</span>
+            </div>
+            <p className="share-why">The urge passed. The proof stayed.</p>
+          </>
+        ) : template === 'transformation' ? (
+          <>
+            <div className="share-day workout-proof-day">
+              <strong>{data.bodyProfile.weightLbs || streak}</strong>
+              <span>{data.bodyProfile.weightLbs ? `lb now → ${data.bodyProfile.goalWeightLbs || 'goal'}` : 'days sober'}</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{streak}</b> sober</span>
+              <span><b>{data.bodyProfile.trainingDaysPerWeek || 4}</b> train/wk</span>
+              <span><b>{macros?.proteinGrams || '—'}</b> protein</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>{formatMoney(metrics.moneySaved)} saved</span>
+              <span>{formatNumber(metrics.drinksSkipped)} drinks skipped</span>
+            </div>
+            <p className="share-why">{data.profile.transformationGoal || 'Lean, sober, strong, and consistent.'}</p>
+          </>
+        ) : template === 'weekly' ? (
+          <>
+            <div className="share-day workout-proof-day">
+              <strong>{weeklySoberDays}</strong>
+              <span>sober check-ins this week</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{weeklyMinutes}</b> min</span>
+              <span><b>{weeklyCheckIns}</b> check-ins</span>
+              <span><b>{weeklyLoadouts}</b> conquests</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>Weekly Boss Battle receipts</span>
+              <span>Proof beats promises.</span>
+            </div>
+            <p className="share-why">One week. One receipt wall. Still building.</p>
+          </>
+        ) : workoutProof ? (
           <>
             <div className="share-day workout-proof-day">
               <strong>{workoutProof.completedSets}</strong>
@@ -99,8 +188,8 @@ const ShareableProgressCard = ({
           </>
         )}
         <footer>
-          <span>{workoutProof ? '#WorkoutConquered' : `#${latestMood.replaceAll(' ', '')}`}</span>
-          <span>{workoutProof ? '#IronHabitProof' : copy.footer}</span>
+          <span>{workoutProof ? '#IronHabitProof' : `#${latestMood.replaceAll(' ', '')}`}</span>
+          <span>{copy.footer}</span>
         </footer>
       </div>
       <Button onClick={handleDownload}>Download {template} card</Button>

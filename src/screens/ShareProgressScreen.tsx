@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { loadData, type IronHabitData } from '../utils/storage';
 import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
 import { Button, Card, PageHeader } from '../components/UI';
@@ -8,12 +8,64 @@ const templates: { id: VictoryTemplate; label: string; description: string }[] =
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
   { id: 'discipline', label: 'Discipline', description: 'Gym/recovery lock-in proof.' },
   { id: 'receipts', label: 'Receipts', description: 'Stats-first proof card.' },
+  { id: 'craving', label: 'Craving Destroyed', description: 'Urge survived, streak protected.' },
+  { id: 'transformation', label: 'Transformation', description: 'Body, macros, streak, and identity.' },
+  { id: 'weekly', label: 'Weekly Boss', description: 'Seven-day receipt wall.' },
 ];
+
+const hooks: Record<VictoryTemplate, string[]> = {
+  comeback: [
+    'POV: you chose the new life again.',
+    'Nobody saw the battle. The proof still counts.',
+    'This is what sober momentum looks like.',
+  ],
+  discipline: [
+    'I did not negotiate with myself today.',
+    'The old me wanted comfort. I chose discipline.',
+    'One clean rep. One clean day. Repeat.',
+  ],
+  receipts: [
+    'Proof beats promises.',
+    'Here are the receipts from the comeback.',
+    'I stopped talking about change and started logging it.',
+  ],
+  craving: [
+    'Craving hit. I did not fold.',
+    'The urge said drink. I chose ten minutes.',
+    'Recovery is winning one wave at a time.',
+  ],
+  transformation: [
+    'Sober body. Clear mind. New life.',
+    'The transformation started when I stopped escaping.',
+    'I am not just losing weight. I am building proof.',
+  ],
+  weekly: [
+    'This week tried me. I brought receipts.',
+    'Weekly boss battle: cleared.',
+    'Seven days of proof beats one day of motivation.',
+  ],
+};
+
+const hashtags: Record<VictoryTemplate, string> = {
+  comeback: '#IronHabit #SoberFitness #Comeback #RecoveryTok #GymTok',
+  discipline: '#IronHabit #Discipline #SoberGym #LockIn #FitnessTok',
+  receipts: '#IronHabit #ProofBeatsPromises #RecoveryTok #SoberLife #GymProof',
+  craving: '#IronHabit #CravingDestroyed #SoberLife #RecoveryTok #OneDayAtATime',
+  transformation: '#IronHabit #SoberTransformation #FitnessJourney #RecoveryTok #GymTok',
+  weekly: '#IronHabit #WeeklyReceipts #SoberFitness #Discipline #RecoveryTok',
+};
+
+const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, index) => {
+  const date = new Date();
+  date.setDate(date.getDate() + index - count + 1);
+  return date.toISOString().slice(0, 10);
+});
 
 const ShareProgressScreen = () => {
   const [data, setData] = useState<IronHabitData>(loadData());
   const [streak, setStreak] = useState(calculateSobrietyStreak());
   const [template, setTemplate] = useState<VictoryTemplate>('comeback');
+  const [hookIndex, setHookIndex] = useState(0);
   const [copyStatus, setCopyStatus] = useState('');
 
   useEffect(() => {
@@ -27,38 +79,61 @@ const ShareProgressScreen = () => {
   }, []);
 
   const workoutProof = data.latestVictoryProof;
-  const captions: Record<VictoryTemplate, string> = {
-    comeback: workoutProof
-      ? `${workoutProof.title} conquered: ${workoutProof.durationMinutes} min, ${workoutProof.completedSets} sets. Another vote against the old life. #IronHabit #SoberFitness #WorkoutProof`
-      : `Day ${streak}. Sober, training, and rebuilding brick by brick. #IronHabit #SoberFitness #Comeback`,
-    discipline: workoutProof
-      ? `Proof logged: ${workoutProof.activeDay}, ${workoutProof.exercises.length} exercises, ${workoutProof.completedSets} sets. I did not negotiate today. #Discipline #SoberGym #IronHabit`
-      : `I did not negotiate with the old life today. Day ${streak} locked in. #Discipline #SoberGym #IronHabit`,
-    receipts: workoutProof
-      ? `Receipts: ${workoutProof.label}, ${workoutProof.durationMinutes} minutes, ${workoutProof.completedSets} sets completed. Proof beats promises. #RecoveryTok #IronHabit`
-      : `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. #RecoveryTok #IronHabit`,
-  };
-  const caption = captions[template];
+  const latestCheckIn = Object.values(data.checkIns).at(-1);
+  const recentDays = getRecentDateKeys(7);
+  const weeklyMinutes = data.fitnessEntries
+    .filter((entry) => recentDays.includes(entry.date))
+    .reduce((sum, entry) => sum + entry.durationMinutes, 0);
+  const weeklySoberDays = recentDays.filter((date) => data.checkIns[date]?.sober).length;
 
-  const copyCaption = async () => {
+  const captions: Record<VictoryTemplate, string> = useMemo(() => ({
+    comeback: workoutProof
+      ? `${workoutProof.title} conquered: ${workoutProof.durationMinutes} min, ${workoutProof.completedSets} sets. Another vote against the old life. ${hashtags.comeback}`
+      : `Day ${streak}. Sober, training, and rebuilding brick by brick. ${hashtags.comeback}`,
+    discipline: workoutProof
+      ? `Proof logged: ${workoutProof.activeDay}, ${workoutProof.exercises.length} exercises, ${workoutProof.completedSets} sets. I did not negotiate today. ${hashtags.discipline}`
+      : `I did not negotiate with the old life today. Day ${streak} locked in. ${hashtags.discipline}`,
+    receipts: workoutProof
+      ? `Receipts: ${workoutProof.label}, ${workoutProof.durationMinutes} minutes, ${workoutProof.completedSets} sets completed. Proof beats promises. ${hashtags.receipts}`
+      : `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. ${hashtags.receipts}`,
+    craving: `Craving hit${latestCheckIn?.craving ? ` at ${latestCheckIn.craving}/10` : ''}. I did not bargain with it. I protected the streak and stayed in command. ${hashtags.craving}`,
+    transformation: `${data.bodyProfile.weightLbs ? `${data.bodyProfile.weightLbs} lb today` : `Day ${streak} sober`}${data.bodyProfile.goalWeightLbs ? `, goal ${data.bodyProfile.goalWeightLbs}` : ''}. This is not just fitness. This is the new life getting visible. ${hashtags.transformation}`,
+    weekly: `Weekly receipts: ${weeklySoberDays} sober check-ins, ${weeklyMinutes} training minutes, and another boss battle against the old pattern. ${hashtags.weekly}`,
+  }), [data.bodyProfile.goalWeightLbs, data.bodyProfile.weightLbs, data.fitnessEntries.length, data.habits.length, latestCheckIn?.craving, streak, weeklyMinutes, weeklySoberDays, workoutProof]);
+
+  const hook = hooks[template][hookIndex % hooks[template].length];
+  const videoIdea = template === 'craving'
+    ? 'Film: close-up of timer/water bottle → shoes on → quick walk or pushups → screenshot the Victory Card.'
+    : template === 'weekly'
+      ? 'Film: scroll through the week’s receipts → gym clip → final Victory Card screenshot.'
+      : template === 'transformation'
+        ? 'Film: mirror check or meal prep → macro target → sober streak → Victory Card.'
+        : 'Film: gym set or app proof screen → point to the saved receipt → end with the Victory Card.';
+  const postIdea = `HOOK: ${hook}\n\nCAPTION: ${captions[template]}\n\nVIDEO IDEA: ${videoIdea}\n\nHASHTAGS: ${hashtags[template]}`;
+
+  const copyText = async (text: string, success: string) => {
     try {
-      await navigator.clipboard?.writeText(caption);
-      setCopyStatus('Caption copied.');
+      await navigator.clipboard?.writeText(text);
+      setCopyStatus(success);
     } catch {
-      setCopyStatus('Copy blocked. Press and hold the caption to copy.');
+      setCopyStatus('Copy blocked. Press and hold the text to copy.');
     }
   };
 
+  const rotateTemplate = () => {
+    const index = templates.findIndex((item) => item.id === template);
+    setTemplate(templates[(index + 1) % templates.length].id);
+    setHookIndex(0);
+  };
+
   return (
-    <div className="page stack-lg">
-      <PageHeader eyebrow="Victory Card" title={workoutProof ? 'Make the workout proof visible.' : 'Make the comeback visible.'}>
-        {workoutProof
-          ? 'Your latest finished loadout is ready as a 9:16 proof card for sober-fitness content.'
-          : 'Pick a 9:16 card style, download it, and copy a caption built for sober-fitness content.'}
+    <div className="page stack-lg content-studio-page">
+      <PageHeader eyebrow="TikTok Proof Pack" title={workoutProof ? 'Turn today’s win into content.' : 'Make the comeback visible.'}>
+        Choose a proof angle, download a 9:16 Victory Card, then copy a hook, caption, hashtags, and video idea.
       </PageHeader>
 
-      <Card className="victory-proof-brief stack-sm">
-        <span className="tag danger-tag">Share-ready proof</span>
+      <Card className="victory-proof-brief content-studio-hero stack-sm">
+        <span className="tag danger-tag">Content Studio</span>
         {workoutProof ? (
           <>
             <h2>{workoutProof.title}</h2>
@@ -67,23 +142,31 @@ const ShareProgressScreen = () => {
         ) : (
           <>
             <h2>Build the next receipt.</h2>
-            <p>No workout proof saved yet. Run Workout Mode, finish the set checklist, then come back for a stronger card.</p>
+            <p>No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.</p>
           </>
         )}
+        <div className="proof-angle-strip">
+          <span>{streak} day streak</span>
+          <span>{weeklyMinutes}m this week</span>
+          <span>{latestCheckIn?.craving ?? 0}/10 latest urge</span>
+        </div>
         <div className="hero-actions">
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
-          <a className="btn btn-secondary" href="#caption-starter">Caption</a>
+          <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
         </div>
       </Card>
 
       <Card className="stack-sm">
-        <span className="tag">Card template</span>
-        <div className="template-grid">
+        <span className="tag">Choose proof angle</span>
+        <div className="template-grid proof-template-grid">
           {templates.map((item) => (
             <button
               key={item.id}
               className={`template-option ${template === item.id ? 'selected' : ''}`}
-              onClick={() => setTemplate(item.id)}
+              onClick={() => {
+                setTemplate(item.id);
+                setHookIndex(0);
+              }}
             >
               <strong>{item.label}</strong>
               <span>{item.description}</span>
@@ -96,14 +179,23 @@ const ShareProgressScreen = () => {
         <ShareableProgressCard data={data} streak={streak} template={template} />
       </div>
 
-      <Card id="caption-starter" className="stack-sm">
-        <h2>Caption starter</h2>
-        <p className="caption-box">{caption}</p>
+      <Card id="post-idea" className="stack-sm tiktok-post-card">
+        <span className="tag danger-tag">TikTok post generator</span>
+        <h2>{hook}</h2>
+        <p className="caption-box">{captions[template]}</p>
+        <div className="post-idea-box">
+          <strong>Video idea</strong>
+          <span>{videoIdea}</span>
+        </div>
+        <div className="post-idea-box">
+          <strong>Hashtags</strong>
+          <span>{hashtags[template]}</span>
+        </div>
         <div className="button-row">
-          <Button variant="secondary" onClick={copyCaption}>Copy caption</Button>
-          <Button variant="ghost" onClick={() => setTemplate(template === 'comeback' ? 'discipline' : template === 'discipline' ? 'receipts' : 'comeback')}>
-            Rotate template
-          </Button>
+          <Button variant="secondary" onClick={() => copyText(captions[template], 'Caption copied.')}>Copy caption</Button>
+          <Button variant="secondary" onClick={() => copyText(postIdea, 'Full post idea copied.')}>Copy post idea</Button>
+          <Button variant="ghost" onClick={() => setHookIndex((value) => value + 1)}>Rotate hook</Button>
+          <Button variant="ghost" onClick={rotateTemplate}>Rotate template</Button>
         </div>
         {copyStatus && <p className="success-msg">{copyStatus}</p>}
       </Card>
@@ -111,7 +203,7 @@ const ShareProgressScreen = () => {
       <Card className="stack-sm victory-next-card">
         <span className="tag">Next proof loop</span>
         <h2>Stack another receipt.</h2>
-        <p>The app now has the full loop: mission, train, proof, victory card, and rescue if the old pattern pulls.</p>
+        <p>Post the proof, then go back to Train or Rescue. The identity loop is: stay sober, move, save proof, make the win visible.</p>
         <div className="hero-actions">
           <a className="btn btn-primary" href="/fitness-tracker">Open Train</a>
           <a className="btn btn-danger" href="/rescue">Open Rescue</a>

@@ -171,6 +171,22 @@ const ProgressDashboard = () => {
         <p>{weeklyLoadouts > 0 ? `${weeklyLoadouts} routine conquest${weeklyLoadouts === 1 ? '' : 's'} logged this week. Proof is stacking.` : 'No routine conquest logged this week yet. Finish one session and make the receipt visible.'}</p>
       </Card>
 
+      <Card className="content-studio-card stack-sm">
+        <span className="tag danger-tag">Content Studio</span>
+        <h2>Create today’s post.</h2>
+        <p>Turn this proof into a TikTok-ready hook, caption, hashtags, video idea, and 9:16 Victory Card.</p>
+        <div className="proof-angle-strip">
+          <span>Workout proof</span>
+          <span>Craving survival</span>
+          <span>Weekly boss</span>
+          <span>Transformation</span>
+        </div>
+        <div className="hero-actions">
+          <Link to="/share-progress" className="btn btn-primary">Open TikTok Proof Pack</Link>
+          <Link to="/talk" className="btn btn-secondary">Log More in Talk</Link>
+        </div>
+      </Card>
+
       {latestProof ? (
         <Card className="proof-stack-card stack-md">
           <div className="section-title-row">

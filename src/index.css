@@ -462,7 +462,12 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .share-card { width: min(100%, 390px); aspect-ratio: 9 / 16; position: relative; overflow: hidden; border-radius: 36px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(180deg, #16100a 0%, #070707 52%, #111827 100%); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 24px 90px rgba(0,0,0,.5); }
 .share-card.template-discipline { background: linear-gradient(180deg, #111827 0%, #050507 52%, #1f1308 100%); }
 .share-card.template-receipts { background: radial-gradient(circle at 30% 0, rgba(34,197,94,.18), transparent 34%), linear-gradient(180deg, #07130d 0%, #050507 55%, #0f172a 100%); }
-.share-card.template-receipts .share-day strong { color: var(--green); }
+.share-card.template-craving { background: radial-gradient(circle at 50% 0, rgba(239,68,68,.38), transparent 34%), linear-gradient(180deg, #2a0505 0%, #050507 56%, #111827 100%); }
+.share-card.template-transformation { background: radial-gradient(circle at 20% 0, rgba(246,196,83,.22), transparent 34%), linear-gradient(180deg, #111827 0%, #050507 50%, #07130d 100%); }
+.share-card.template-weekly { background: radial-gradient(circle at 75% 0, rgba(246,196,83,.22), transparent 34%), linear-gradient(180deg, #160a2a 0%, #050507 54%, #1f1308 100%); }
+.share-card.template-receipts .share-day strong, .share-card.template-weekly .share-day strong { color: var(--green); }
+.share-card.template-craving .share-day strong { color: #fecaca; }
+.share-card.template-transformation .share-day strong { color: var(--gold); }
 .share-card.template-discipline .share-glow { background: rgba(251,146,60,.34); }
 .share-glow { position: absolute; inset: -90px -80px auto auto; width: 260px; height: 260px; border-radius: 999px; background: rgba(246,196,83,.28); filter: blur(10px); }
 .share-card > *:not(.share-glow) { position: relative; z-index: 1; }
@@ -478,6 +483,18 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .share-proof-strip span { border: 1px solid rgba(246,196,83,.24); border-radius: 999px; padding: 10px 12px; color: var(--gold); background: rgba(246,196,83,.08); font-weight: 900; text-align: center; }
 .share-why { color: #fff; font-size: 1rem; }
 .share-card footer { display: flex; justify-content: space-between; color: var(--gold); font-size: .82rem; font-weight: 900; }
+.content-studio-page .page-header h1 { letter-spacing: -.07em; }
+.content-studio-hero { overflow: hidden; }
+.proof-angle-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.proof-angle-strip span { color: #fecaca; border: 1px solid rgba(239,68,68,.3); border-radius: 999px; padding: 9px 11px; background: rgba(127,16,16,.18); font-size: .78rem; font-weight: 950; }
+.proof-template-grid { grid-template-columns: repeat(2, 1fr); }
+.tiktok-post-card { border-color: rgba(246,196,83,.35); background: radial-gradient(circle at 0 0, rgba(246,196,83,.17), transparent 35%), linear-gradient(180deg, rgba(28,31,39,.92), rgba(7,7,9,.95)); }
+.tiktok-post-card h2 { color: #fff; font-size: clamp(1.55rem, 8vw, 2.6rem); line-height: .96; letter-spacing: -.06em; }
+.post-idea-box { display: grid; gap: 5px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 13px; background: rgba(0,0,0,.24); }
+.post-idea-box strong { color: var(--gold); text-transform: uppercase; letter-spacing: .12em; font-size: .74rem; }
+.post-idea-box span { color: #f4f4f5; line-height: 1.45; }
+.content-studio-card { border-color: rgba(239,68,68,.34); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 38%), linear-gradient(145deg, rgba(127,16,16,.16), rgba(255,255,255,.055)); }
+.content-studio-card h2 { color: #fff; font-size: clamp(1.5rem, 7vw, 2.3rem); line-height: .98; }
 
 @media (max-width: 720px) {
   .app-shell { padding-inline: 12px; }
