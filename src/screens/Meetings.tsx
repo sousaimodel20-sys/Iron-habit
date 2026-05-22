@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
 import { loadData, saveData } from '../utils/storage';
+import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const defaultSearch = 'Vancouver, BC';
 
@@ -42,7 +43,10 @@ const buildSupportCards = (query: string) => [
 
 const Meetings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const savedSupportLocation = loadData().profile.supportLocation;
+  const profile = loadData().profile;
+  const savedSupportLocation = profile.supportLocation;
+  const supportReady = hasSupportContact(profile);
+  const supportContactLabel = getSupportContactLabel(profile);
   const [query, setQuery] = useState(() => searchParams.get('q') || savedSupportLocation || defaultSearch);
 
   const supportCards = useMemo(() => buildSupportCards(query), [query]);
@@ -114,7 +118,11 @@ const Meetings = () => {
         <span>Open Rescue, text someone safe, or tell Talk: “Find meetings in Vancouver” or “I’m craving.” Human support beats white-knuckling.</span>
         <div className="hero-actions">
           <Link to="/talk" className="btn btn-secondary">Talk to Coach</Link>
-          <a className="btn btn-ghost" href="sms:?body=I’m riding out a craving and need support for the next 10 minutes.">Text support</a>
+          {supportReady ? (
+            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I’m riding out a craving and need support for the next 10 minutes.')}>Text {supportContactLabel}</a>
+          ) : (
+            <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
+          )}
         </div>
       </section>
     </div>

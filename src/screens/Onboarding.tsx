@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type IronHabitData, type Profile } from '../utils/storage';
+import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
@@ -56,6 +57,7 @@ const Onboarding = () => {
   ];
   const weeklyBossCleared = missions.filter((mission) => mission.done).length;
   const weeklyBossPercent = Math.round((weeklyBossCleared / missions.length) * 100);
+  const supportReady = hasSupportContact(profile);
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -91,6 +93,8 @@ const Onboarding = () => {
       why: profile.why || 'Discipline today. Freedom tomorrow.',
       focus: profile.focus || 'sobriety-strength-discipline',
       transformationGoal: profile.transformationGoal || 'Lean, sober, strong, and consistent.',
+      supportLocation: profile.supportLocation || 'Vancouver, BC',
+      supportName: profile.supportName || 'Safe Person',
     };
     const demoBodyProfile: BodyProfile = {
       ...bodyProfile,
@@ -338,6 +342,31 @@ const Onboarding = () => {
           <Field label="Transformation goal">
             <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
           </Field>
+
+          <div className="card support-contact-card stack-sm">
+            <span className="tag">Recovery contact</span>
+            <h2>Choose the safe person before the craving shows up.</h2>
+            <p>Iron Habit will use this contact for Rescue and Meetings text actions instead of a generic blank SMS sheet.</p>
+            <div className="metric-input-grid">
+              <Field label="Support contact name">
+                <input value={profile.supportName} onChange={(e) => update('supportName', e.target.value)} placeholder="Joshua’s brother" />
+              </Field>
+              <Field label="Support contact phone">
+                <input value={profile.supportPhone} onChange={(e) => update('supportPhone', e.target.value)} placeholder="+16045551234" />
+              </Field>
+              <Field label="Support area">
+                <input value={profile.supportLocation} onChange={(e) => update('supportLocation', e.target.value)} placeholder="Vancouver, BC" />
+              </Field>
+            </div>
+            <p className="support-contact-note">Use a real number you trust. Example format: `+16045551234`.</p>
+            <div className="hero-actions">
+              {supportReady ? (
+                <a className="btn btn-secondary" href={buildSupportSmsHref(profile, 'I’m riding out a craving and need support for the next 10 minutes.')}>Test support text</a>
+              ) : (
+                <span className="support-contact-note">Add a phone number to unlock one-tap support texts in Rescue and Meetings.</span>
+              )}
+            </div>
+          </div>
 
           <div className="metric-input-grid">
             <Field label="Current weight">

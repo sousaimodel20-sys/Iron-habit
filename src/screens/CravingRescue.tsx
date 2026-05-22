@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
+import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const protocol = [
   'Put the drink plan on pause. Say: “I only need to win ten minutes.”',
@@ -22,6 +23,8 @@ const CravingRescue = () => {
   const data = loadData();
   const profile = data.profile;
   const supportLocation = profile.supportLocation || 'Vancouver, BC';
+  const supportReady = hasSupportContact(profile);
+  const supportContactLabel = getSupportContactLabel(profile);
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const minutes = Math.floor(secondsLeft / 60);
@@ -120,7 +123,11 @@ const CravingRescue = () => {
         <div className="rescue-actions primary-rescue-actions">
           <Button variant="danger" onClick={startEmergency}>I’m about to drink</Button>
           <Button onClick={start}>{running ? 'Restart 10 minutes' : 'Start 10-minute rescue'}</Button>
-          <a className="btn btn-ghost" href="sms:?body=I%27m%20riding%20out%20a%20craving.%20Can%20you%20check%20in%20with%20me%3F">Text support</a>
+          {supportReady ? (
+            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I’m riding out a craving. Can you check in with me?')}>Text {supportContactLabel}</a>
+          ) : (
+            <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
+          )}
         </div>
 
         <div className="rescue-actions">
@@ -167,6 +174,7 @@ const CravingRescue = () => {
         <span>Reason to stay in command</span>
         <strong>{profile.transformationGoal || profile.why || 'Lean, sober, strong, and consistent.'}</strong>
         <small className="rescue-support-note">Support base locked to {supportLocation}. Update it from Meetings if you need a different area.</small>
+        {!supportReady && <small className="rescue-support-note">Add a safe-person phone on Setup so Rescue can text the right human in one tap.</small>}
       </Card>
     </div>
   );

@@ -77,6 +77,8 @@ export type Profile = {
   caloriesPerDrink: string;
   transformationGoal: string;
   supportLocation: string;
+  supportName: string;
+  supportPhone: string;
 };
 
 export type BodyProfile = {
@@ -118,6 +120,8 @@ export const defaultData: IronHabitData = {
     caloriesPerDrink: '150',
     transformationGoal: 'Lean, sober, strong, and consistent.',
     supportLocation: 'Vancouver, BC',
+    supportName: '',
+    supportPhone: '',
   },
   bodyProfile: {
     sex: '',
