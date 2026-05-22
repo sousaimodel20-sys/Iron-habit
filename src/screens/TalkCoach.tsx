@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
+import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
 
 type WebSpeechRecognitionResultEvent = {
@@ -124,6 +125,8 @@ const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const quickCommands = [
   'I need a meeting',
+  'Set support contact Brother Mike 604-555-1234',
+  'Text my support person',
   'Build me a workout',
   'Start my workout',
   'I’m craving',
@@ -204,6 +207,37 @@ const extractMeetingLocation = (command: string) => {
   return locationMatch?.[1]?.trim().replace(/[.?!]+$/, '');
 };
 
+const extractSupportPhone = (command: string) => {
+  const match = command.match(/(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\+\d{10,15})/);
+  return match?.[0]?.trim() || '';
+};
+
+const normalizeSupportName = (value: string) => value
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+  .join(' ')
+  .trim();
+
+const extractSupportName = (command: string) => {
+  const phone = extractSupportPhone(command);
+  const withoutPhone = phone ? command.replace(phone, ' ') : command;
+  const withoutPrefix = withoutPhone
+    .replace(/^(?:set|save|update|add|make)\s+/i, '')
+    .replace(/(?:my\s+)?(?:safe|support|recovery)\s+(?:person|contact)\s*(?:is|to|as)?\s*/i, '')
+    .replace(/\b(?:phone|number|at)\b.*$/i, '')
+    .replace(/[,:]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return normalizeSupportName(withoutPrefix);
+};
+
+const extractSupportBase = (command: string) => {
+  const match = command.match(/(?:support\s+(?:base|area|location)|recovery\s+area)(?:\s+(?:is|to|as|in))?\s+(.+)/i);
+  return match?.[1]?.trim().replace(/[.?!]+$/, '') || '';
+};
+
 const inferMood = (command: string) => {
   if (/(low|sad|depressed|tired|rough)/.test(command)) return 'Low';
   if (/(restless|anxious|antsy|stressed)/.test(command)) return 'Restless';
@@ -257,6 +291,9 @@ const TalkCoach = () => {
   const recognitionRef = useRef<WebSpeechRecognition | null>(null);
   const macroTargets = useMemo(() => calculateMacroTargets(bodyProfile), [bodyProfile]);
   const voiceSupported = typeof window !== 'undefined' && Boolean((window as VoiceWindow).SpeechRecognition || (window as VoiceWindow).webkitSpeechRecognition);
+  const supportProfile = dataSnapshot.profile;
+  const supportReady = hasSupportContact(supportProfile);
+  const supportLabel = getSupportContactLabel(supportProfile);
 
   useEffect(() => {
     const refreshData = () => setDataSnapshot(loadData());
@@ -350,6 +387,54 @@ const TalkCoach = () => {
       };
       saveData({ checkIns: { ...data.checkIns, [today]: entry } });
       setCommandReply('Rescue win saved. Craving wave survived, sober proof stacked.');
+      return;
+    }
+
+    if (/(support\s+(?:base|area|location)|recovery\s+area)/.test(command)) {
+      const location = extractSupportBase(rawCommand);
+      if (!location) {
+        setCommandReply('Tell me the support area too. Example: “Set support area Burnaby, BC.”');
+        return;
+      }
+      const current = loadData();
+      saveData({ profile: { ...current.profile, supportLocation: location } });
+      setCommandReply(`Support area saved as ${location}. Meetings and Rescue will reuse it.`);
+      return;
+    }
+
+    if (/(text|message|sms).*(support|safe person|contact)|(?:support|safe person|contact).*(text|message|sms)/.test(command)) {
+      const profile = loadData().profile;
+      if (!hasSupportContact(profile)) {
+        setCommandReply('No support contact saved yet. Opening Setup so you can lock one in.');
+        navigate('/setup-profile');
+        return;
+      }
+      setCommandReply(`Opening SMS to ${getSupportContactLabel(profile)} now.`);
+      window.location.href = buildSupportSmsHref(profile, 'I need support right now. Can you check in with me for the next 10 minutes?');
+      return;
+    }
+
+    if (/(support contact|support person|safe person|recovery contact)/.test(command) && /(set|save|update|add|change|my .* is)/.test(command)) {
+      const current = loadData();
+      const supportPhone = extractSupportPhone(rawCommand) || current.profile.supportPhone;
+      const supportName = extractSupportName(rawCommand) || current.profile.supportName;
+      const supportLocation = extractSupportBase(rawCommand) || current.profile.supportLocation;
+
+      if (!supportPhone && !supportName) {
+        setCommandReply('Tell me the contact name and phone. Example: “Set support contact Brother Mike 604-555-1234.”');
+        return;
+      }
+
+      saveData({
+        profile: {
+          ...current.profile,
+          supportName,
+          supportPhone,
+          supportLocation,
+        },
+      });
+
+      setCommandReply(`Support contact saved: ${supportName || 'safe person'}${supportPhone ? ` • ${supportPhone}` : ''}${supportLocation ? ` • ${supportLocation}` : ''}.`);
       return;
     }
 
@@ -575,6 +660,27 @@ const TalkCoach = () => {
           ))}
         </div>
         <p className="command-reply">{commandReply}</p>
+      </section>
+
+      <section className="coach-card body-target-card stack-sm">
+        <div className="coach-head">
+          <span>Support Contact</span>
+          <b>{supportReady ? 'Locked in' : 'Missing'}</b>
+        </div>
+        <h2>{supportReady ? supportLabel : 'Add your safe person to Talk.'}</h2>
+        <p>
+          {supportReady
+            ? `${supportProfile.supportPhone || 'Phone saved'} • ${supportProfile.supportLocation || 'Support base ready'}`
+            : 'Try: “Set support contact Brother Mike 604-555-1234” or “Set support area Burnaby, BC.”'}
+        </p>
+        <div className="hero-actions command-actions">
+          {supportReady ? (
+            <a className="btn btn-secondary" href={buildSupportSmsHref(supportProfile, 'I need support right now. Can you check in with me for the next 10 minutes?')}>Text {supportLabel}</a>
+          ) : (
+            <Link to="/setup-profile" className="btn btn-secondary">Set support contact</Link>
+          )}
+          <button className="btn btn-ghost" type="button" onClick={() => handleCommand('Set support area Burnaby, BC')}>Set support area</button>
+        </div>
       </section>
 
       <section className="coach-card body-target-card stack-sm">
