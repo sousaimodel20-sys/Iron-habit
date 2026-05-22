@@ -124,6 +124,7 @@ const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const quickCommands = [
+  'I need help now',
   'I need a meeting',
   'I’m about to drink text my support person',
   'Open rescue and text my support person',
@@ -418,6 +419,18 @@ const TalkCoach = () => {
       };
       saveData({ checkIns: { ...data.checkIns, [today]: entry } });
       setCommandReply('Rescue win saved. Craving wave survived, sober proof stacked.');
+      return;
+    }
+
+    if (/(help now|need help now|support now|rescue me|panic|spiraling|spiralling|about to cave)/.test(command)) {
+      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 10);
+      setCommandReply(`Craving logged at ${cravingLevel}/10. Opening the emergency support chain now.`);
+      navigate('/rescue?chain=1');
+      if (hasSupportContact(profile)) {
+        window.setTimeout(() => {
+          window.location.href = buildSupportSmsHref(profile, 'I need support right now. I am in a high-craving moment and staying sober for the next 10 minutes.');
+        }, 150);
+      }
       return;
     }
 

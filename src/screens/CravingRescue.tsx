@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
@@ -16,15 +16,20 @@ const protocol = [
 const appendNote = (current: string, next: string) => [current, next].filter(Boolean).join(' | ');
 
 const CravingRescue = () => {
-  const [secondsLeft, setSecondsLeft] = useState(600);
-  const [running, setRunning] = useState(false);
-  const [mode, setMode] = useState<'steady' | 'emergency' | 'slip'>('steady');
-  const [status, setStatus] = useState('');
+  const [searchParams] = useSearchParams();
+  const chainMode = searchParams.get('chain') === '1';
   const data = loadData();
   const profile = data.profile;
   const supportLocation = profile.supportLocation || 'Vancouver, BC';
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
+  const initialChainStatus = supportReady
+    ? `Emergency support chain live. Text ${supportContactLabel}, check the map, and win the next ten minutes.`
+    : 'Emergency support chain live. Set a support contact, check the map, and win the next ten minutes.';
+  const [secondsLeft, setSecondsLeft] = useState(600);
+  const [running, setRunning] = useState(chainMode);
+  const [mode, setMode] = useState<'steady' | 'emergency' | 'slip'>(chainMode ? 'emergency' : 'steady');
+  const [status, setStatus] = useState(chainMode ? initialChainStatus : '');
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const minutes = Math.floor(secondsLeft / 60);
@@ -55,6 +60,24 @@ const CravingRescue = () => {
     saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
     setStatus(message);
   };
+
+  useEffect(() => {
+    if (!chainMode || todayCheckIn?.note?.includes('Emergency support chain opened from Talk.')) return;
+    const chainKey = `iron-habit-chain-${todayKey}`;
+    if (window.sessionStorage.getItem(chainKey) === '1') return;
+    window.sessionStorage.setItem(chainKey, '1');
+    const current = loadData();
+    const existing = current.checkIns[todayKey];
+    const nextCheckIn: CheckIn = {
+      date: todayKey,
+      sober: existing?.sober ?? true,
+      mood: 'Emergency rescue',
+      craving: Math.max(existing?.craving ?? 0, 10),
+      habitsCompleted: existing?.habitsCompleted ?? [],
+      note: appendNote(existing?.note || '', 'Emergency support chain opened from Talk.'),
+    };
+    saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
+  }, [chainMode, todayCheckIn?.note, todayKey]);
 
   const start = () => {
     setSecondsLeft(600);
@@ -111,6 +134,20 @@ const CravingRescue = () => {
       </PageHeader>
 
       <Card className={`rescue-card emergency-rescue-card stack-md ${mode === 'emergency' ? 'is-emergency' : ''}`}>
+        {chainMode && (
+          <div className="stack-sm">
+            <span className="tag danger-tag">Emergency support chain</span>
+            <p className="rescue-support-note">Talk already logged the craving and kicked off Rescue. Stack the next human-support moves fast.</p>
+            <div className="rescue-actions primary-rescue-actions">
+              {supportReady ? (
+                <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I need support right now. I am in a high-craving moment and staying sober for the next 10 minutes.')}>Text {supportContactLabel}</a>
+              ) : (
+                <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
+              )}
+              <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
+            </div>
+          </div>
+        )}
         <div className="rescue-head">
           <span className="tag danger-tag">{mode === 'emergency' ? 'I am about to drink' : 'Emergency lock-in'}</span>
           <span className="rescue-clock">{minutes}:{seconds}</span>
