@@ -125,6 +125,8 @@ const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const quickCommands = [
   'I need a meeting',
+  'I’m about to drink text my support person',
+  'Open rescue and text my support person',
   'Set support contact Brother Mike 604-555-1234',
   'Text my support person',
   'Build me a workout',
@@ -204,7 +206,13 @@ const parseDurationMinutes = (command: string, fallback = 45) => {
 const extractMeetingLocation = (command: string) => {
   const locationMatch = command.match(/(?:meetings?|aa|na|support|group)(?:\s+(?:near|in|around|at))\s+(.+)/i)
     || command.match(/(?:find|show|need|open)\s+(?:me\s+)?(?:meetings?|aa|na|support|group)(?:\s+(?:near|in|around|at))?\s+(.+)/i);
-  return locationMatch?.[1]?.trim().replace(/[.?!]+$/, '');
+  const cleaned = locationMatch?.[1]
+    ?.trim()
+    .replace(/\b(?:because|cause)\b.*$/i, '')
+    .replace(/\b(?:i\s*(?:am|'m)\s+about\s+to\s+drink|i\s+need\s+help|i'?m\s+craving.*)$/i, '')
+    .replace(/[.?!]+$/, '')
+    .trim();
+  return cleaned;
 };
 
 const extractSupportPhone = (command: string) => {
@@ -353,6 +361,29 @@ const TalkCoach = () => {
     setSavedMessage(`${loadout.title} saved to Train.`);
   };
 
+  const saveCravingCommandState = (rawCommand: string, fallback = 7) => {
+    const data = loadData();
+    const today = getTodayKey();
+    const existing = data.checkIns[today];
+    const cravingLevel = parseCravingLevel(rawCommand.toLowerCase(), existing?.craving ?? fallback);
+    saveData({
+      checkIns: {
+        ...data.checkIns,
+        [today]: {
+          ...(existing || makeCheckInFromCommand(rawCommand, true)),
+          date: today,
+          sober: existing?.sober ?? true,
+          craving: cravingLevel,
+          note: existing?.note ? `${existing.note}\n${rawCommand}` : rawCommand,
+        },
+      },
+    });
+    return {
+      profile: data.profile,
+      cravingLevel,
+    };
+  };
+
   const handleCommand = (rawCommand = message) => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
@@ -387,6 +418,30 @@ const TalkCoach = () => {
       };
       saveData({ checkIns: { ...data.checkIns, [today]: entry } });
       setCommandReply('Rescue win saved. Craving wave survived, sober proof stacked.');
+      return;
+    }
+
+    if (/(craving|urge|drink|emergency|about to drink|open rescue|need rescue)/.test(command) && /(meeting|meetings|aa|na|group)/.test(command)) {
+      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 9);
+      const location = extractMeetingLocation(rawCommand) || profile.supportLocation;
+      setCommandReply(location
+        ? `Craving logged at ${cravingLevel}/10. Opening meetings for ${location}. Human support now, not later.`
+        : `Craving logged at ${cravingLevel}/10. Opening meetings now. Human support now, not later.`);
+      navigate(location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings');
+      return;
+    }
+
+    if (/(craving|urge|drink|emergency|about to drink|open rescue|need rescue)/.test(command) && /(text|message|sms).*(support|safe person|contact)|(?:support|safe person|contact).*(text|message|sms)/.test(command)) {
+      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 9);
+      navigate('/rescue');
+      if (!hasSupportContact(profile)) {
+        setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue now. Add a support contact so Talk can text the right person.`);
+        return;
+      }
+      setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue and texting ${getSupportContactLabel(profile)} now.`);
+      window.setTimeout(() => {
+        window.location.href = buildSupportSmsHref(profile, 'I’m about to drink and need support right now. Can you check in with me for the next 10 minutes?');
+      }, 150);
       return;
     }
 
@@ -522,22 +577,7 @@ const TalkCoach = () => {
     }
 
     if (/(craving|urge|relapse|drink|emergency)/.test(command)) {
-      const data = loadData();
-      const today = getTodayKey();
-      const existing = data.checkIns[today];
-      const cravingLevel = parseCravingLevel(command, existing?.craving ?? 7);
-      saveData({
-        checkIns: {
-          ...data.checkIns,
-          [today]: {
-            ...(existing || makeCheckInFromCommand(rawCommand, true)),
-            date: today,
-            sober: existing?.sober ?? true,
-            craving: cravingLevel,
-            note: existing?.note ? `${existing.note}\n${rawCommand}` : rawCommand,
-          },
-        },
-      });
+      const { cravingLevel } = saveCravingCommandState(rawCommand, 7);
       setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue. Ten minutes. No bargaining.`);
       navigate('/rescue');
       return;
