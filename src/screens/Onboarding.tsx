@@ -1,4 +1,4 @@
-import { type CSSProperties, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
@@ -189,25 +189,16 @@ const Onboarding = () => {
   return (
     <div className="page warrior-page stack-lg">
       <section className="warrior-hero">
-        <div className="warrior-topline">
-          <span>Warrior Mode</span>
-          <b>Live Combat Dashboard</b>
-        </div>
-
-        <div className="warrior-ring-wrap">
-          <div className="warrior-ring" style={{ '--ring-progress': `${displayDay * 5}deg` } as CSSProperties}>
-            <div className="helmet-core" aria-label="warrior emblem">
-              <span className="helmet-plume" />
-              <span className="helmet-face">Λ</span>
-            </div>
+        <div className="hero-top-bar">
+          <div className="hero-left">
+            <span className="hero-day">DAY {displayDay}</span>
+            <h1>SOBER</h1>
           </div>
+          <Link to="/rescue" className="btn btn-danger btn-hero-rescue">
+            🆘 Rescue
+          </Link>
         </div>
-
-        <div className="warrior-day-copy">
-          <span>DAY {displayDay}</span>
-          <h1>SOBER</h1>
-          <p>Discipline today. Freedom tomorrow.</p>
-        </div>
+        <p className="hero-why">Discipline today. Freedom tomorrow.</p>
       </section>
 
       {needsSetup && (
