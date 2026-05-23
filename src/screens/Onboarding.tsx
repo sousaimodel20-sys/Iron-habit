@@ -69,6 +69,7 @@ const Onboarding = () => {
   const weeklyBossCleared = missions.filter((mission) => mission.done).length;
   const weeklyBossPercent = Math.round((weeklyBossCleared / missions.length) * 100);
   const supportReady = hasSupportContact(profile);
+  const demoProofReady = Boolean(activeLoadout && latestProof && Object.keys(data.checkIns).length >= 7);
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -274,14 +275,15 @@ const Onboarding = () => {
         </section>
       )}
 
-      {backupStatus.includes('Full demo mode loaded') && (
+      {(backupStatus.includes('Full demo mode loaded') || demoProofReady) && (
         <section className="card stack-sm demo-next-card">
-          <span className="tag danger-tag">Demo loaded</span>
+          <span className="tag danger-tag">{backupStatus.includes('Full demo mode loaded') ? 'Demo loaded' : 'Demo proof ready'}</span>
           <h2>Show the proof loop fast.</h2>
-          <p>Brother Mike support contact, Day 47 proof, training receipts, and Victory Card data are loaded. Jump straight to the strongest demo moment.</p>
+          <p>{supportReady ? `${profile.supportName} support contact, ` : ''}Day {displayDay} proof, training receipts, and Victory Card data are loaded. Jump straight to the strongest demo moment.</p>
           <div className="hero-actions">
             <Link to="/share-progress" className="btn btn-primary">Open Victory Card</Link>
-            <Link to="/daily-check-in" className="btn btn-secondary">Test Check-In Rescue</Link>
+            <Link to="/workout-mode" className="btn btn-secondary">View Routine</Link>
+            <Link to="/profile" className="btn btn-secondary">Proof Stack</Link>
             <Link to="/rescue?chain=1" className="btn btn-danger">Demo Emergency Chain</Link>
           </div>
         </section>

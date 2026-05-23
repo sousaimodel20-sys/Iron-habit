@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Card, PageHeader } from '../components/UI';
-import { loadData, replaceData, type IronHabitData } from '../utils/storage';
+import { defaultData, loadData, replaceData, type IronHabitData } from '../utils/storage';
 
 const Settings = () => {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'success'>('idle');
@@ -58,18 +58,25 @@ const Settings = () => {
 
     try {
       const text = await file.text();
-      const parsed = JSON.parse(text) as Partial<IronHabitData>;
+      const parsed = JSON.parse(text) as { data?: Partial<IronHabitData> } | Partial<IronHabitData>;
+      const incoming: Partial<IronHabitData> = 'data' in parsed && parsed.data ? parsed.data : parsed as Partial<IronHabitData>;
       
-      if (!parsed.profile || !parsed.bodyProfile) {
-        throw new Error('Invalid backup file: missing required fields');
+      if (!incoming.profile && !incoming.bodyProfile && !incoming.checkIns && !incoming.fitnessEntries) {
+        throw new Error('Invalid backup file: missing Iron Habit data');
       }
 
-      // Merge parsed data with current data to maintain full shape
-      const currentData = loadData();
       const mergedData: IronHabitData = {
-        ...currentData,
-        ...parsed,
-      } as IronHabitData;
+        ...defaultData,
+        ...incoming,
+        profile: { ...defaultData.profile, ...(incoming.profile || {}) },
+        bodyProfile: { ...defaultData.bodyProfile, ...(incoming.bodyProfile || {}) },
+        checkIns: incoming.checkIns || {},
+        habits: incoming.habits || defaultData.habits,
+        fitnessEntries: incoming.fitnessEntries || [],
+        activeLoadout: incoming.activeLoadout || null,
+        completedLoadouts: incoming.completedLoadouts || [],
+        latestVictoryProof: incoming.latestVictoryProof || null,
+      };
       
       replaceData(mergedData);
       setImportStatus('success');
@@ -90,18 +97,7 @@ const Settings = () => {
   };
 
   const handleClearData = () => {
-    // Load default data structure and clear all user data
-    const defaultData = loadData(); // This will return defaults if localStorage is empty
-    const clearedData: IronHabitData = {
-      ...defaultData,
-      checkIns: {},
-      fitnessEntries: [],
-      habits: defaultData.habits || [],
-      completedLoadouts: [],
-      latestVictoryProof: null,
-      activeLoadout: null,
-    };
-    replaceData(clearedData);
+    replaceData(defaultData);
     setShowClearConfirm(false);
     window.location.reload();
   };

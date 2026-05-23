@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { calculateSobrietyStreak } from '../utils/streaks';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -52,6 +53,7 @@ const WorkoutMode = () => {
     const minutes = Number.parseInt(loadout.time, 10) || 45;
     const intensity = loadout.level === 'Advanced' ? 'Beast mode' : loadout.level === 'Beginner' ? 'Moderate' : 'Hard';
     const date = today();
+    const soberDay = Math.max(1, calculateSobrietyStreak());
     const proof: CompletedLoadout = {
       id: `${Date.now()}`,
       date,
@@ -64,7 +66,7 @@ const WorkoutMode = () => {
       completedSets: allSetsDone ? totalSets : Math.max(completedSets, totalSets),
       totalSets,
       finisher: loadout.finisher,
-      proofCopy: 'Routine completed. Proof logged. Receipts beat promises.',
+      proofCopy: `Day ${soberDay} sober. ${loadout.title} conquered: ${totalSets} sets, ${minutes} minutes. Receipts beat promises.`,
     };
     const entry: FitnessEntry = {
       id: proof.id,
@@ -89,9 +91,9 @@ const WorkoutMode = () => {
     return (
       <div className="page warrior-page workout-mode-page stack-lg">
         <section className="workout-complete-card victory-complete-card">
-          <span className="talk-kicker">Routine Logged</span>
+          <span className="talk-kicker">Workout Conquered</span>
           <h1>Proof saved.</h1>
-          <p>Routine completed. Proof logged. Receipts beat promises.</p>
+          <p>{proof?.proofCopy || 'Another vote against the old life. Proof logged. The new identity gets stronger.'}</p>
           {proof && (
             <>
               <div className="victory-proof-grid">
