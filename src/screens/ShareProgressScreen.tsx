@@ -83,7 +83,14 @@ const ShareProgressScreen = () => {
 
   const workoutProof = data.latestVictoryProof;
   const latestCheckIn = Object.values(data.checkIns).at(-1);
-  const cravingProofReady = Boolean(latestCheckIn && (latestCheckIn.craving >= 7 || latestCheckIn.note.toLowerCase().includes('rescue')));
+  const cravingProofReady = Boolean(latestCheckIn && (latestCheckIn.craving >= 7 || latestCheckIn.note.toLowerCase().includes('rescue') || latestCheckIn.note.toLowerCase().includes('craving')));
+  const activeProofLabel = template === 'craving'
+    ? cravingProofReady
+      ? `Craving proof ready: ${latestCheckIn?.craving ?? 0}/10 urge faced and streak protected.`
+      : 'Craving Card preview ready. Open Rescue first to save a real craving receipt.'
+    : workoutProof
+      ? `${workoutProof.title} • ${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets.`
+      : 'No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.';
   const recentDays = getRecentDateKeys(7);
   const weeklyMinutes = data.fitnessEntries
     .filter((entry) => recentDays.includes(entry.date))
@@ -141,12 +148,17 @@ const ShareProgressScreen = () => {
         {workoutProof ? (
           <>
             <h2>{workoutProof.title}</h2>
-            <p>{workoutProof.activeDay} • {workoutProof.durationMinutes} minutes • {workoutProof.completedSets}/{workoutProof.totalSets} sets completed. This is the receipt.</p>
+            <p>{activeProofLabel}</p>
+          </>
+        ) : template === 'craving' ? (
+          <>
+            <h2>{cravingProofReady ? 'Craving proof is ready.' : 'Preview a Craving Victory Card.'}</h2>
+            <p>{activeProofLabel}</p>
           </>
         ) : (
           <>
             <h2>Build the next receipt.</h2>
-            <p>No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.</p>
+            <p>{activeProofLabel}</p>
           </>
         )}
         <div className="proof-angle-strip">
@@ -158,6 +170,7 @@ const ShareProgressScreen = () => {
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
           {cravingProofReady && <Button variant="danger" onClick={() => setTemplate('craving')}>Make Craving Victory Card</Button>}
+          {template === 'craving' && !cravingProofReady && <a className="btn btn-danger" href="/rescue">Save Craving Proof First</a>}
         </div>
       </Card>
 
