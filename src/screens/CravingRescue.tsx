@@ -173,6 +173,7 @@ const CravingRescue = () => {
 
         <div className="rescue-actions">
           <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
+          <Link to="/share-progress?template=craving" className="btn btn-primary">Make Craving Card</Link>
           <Button variant="ghost" onClick={logSlip}>I slipped — restart</Button>
           <Button variant="secondary" onClick={reset}>Reset timer</Button>
         </div>

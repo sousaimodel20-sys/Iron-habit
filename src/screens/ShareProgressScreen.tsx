@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { loadData, type IronHabitData } from '../utils/storage';
 import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
 import { Button, Card, PageHeader } from '../components/UI';
@@ -62,9 +63,11 @@ const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, i
 });
 
 const ShareProgressScreen = () => {
+  const [searchParams] = useSearchParams();
+  const initialTemplate = (searchParams.get('template') === 'craving' ? 'craving' : 'comeback') as VictoryTemplate;
   const [data, setData] = useState<IronHabitData>(loadData());
   const [streak, setStreak] = useState(calculateSobrietyStreak());
-  const [template, setTemplate] = useState<VictoryTemplate>('comeback');
+  const [template, setTemplate] = useState<VictoryTemplate>(initialTemplate);
   const [hookIndex, setHookIndex] = useState(0);
   const [copyStatus, setCopyStatus] = useState('');
 
@@ -80,6 +83,7 @@ const ShareProgressScreen = () => {
 
   const workoutProof = data.latestVictoryProof;
   const latestCheckIn = Object.values(data.checkIns).at(-1);
+  const cravingProofReady = Boolean(latestCheckIn && (latestCheckIn.craving >= 7 || latestCheckIn.note.toLowerCase().includes('rescue')));
   const recentDays = getRecentDateKeys(7);
   const weeklyMinutes = data.fitnessEntries
     .filter((entry) => recentDays.includes(entry.date))
@@ -153,6 +157,7 @@ const ShareProgressScreen = () => {
         <div className="hero-actions">
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
+          {cravingProofReady && <Button variant="danger" onClick={() => setTemplate('craving')}>Make Craving Victory Card</Button>}
         </div>
       </Card>
 
