@@ -1,0 +1,224 @@
+import { useRef, useState } from 'react';
+import { Card, PageHeader } from '../components/UI';
+import { loadData, replaceData, type IronHabitData } from '../utils/storage';
+
+const Settings = () => {
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'success'>('idle');
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [importStatus, setImportStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [importError, setImportError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const handleExportData = () => {
+    try {
+      const data = loadData();
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `iron-habit-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      
+      setDownloadStatus('success');
+      setTimeout(() => setDownloadStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
+  const handleCopyBackup = async () => {
+    try {
+      const data = loadData();
+      const json = JSON.stringify(data, null, 2);
+      await navigator.clipboard.writeText(json);
+      setCopyStatus('success');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Copy failed:', error);
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportStatus('loading');
+    setImportError('');
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<IronHabitData>;
+      
+      if (!parsed.profile || !parsed.bodyProfile) {
+        throw new Error('Invalid backup file: missing required fields');
+      }
+
+      // Merge parsed data with current data to maintain full shape
+      const currentData = loadData();
+      const mergedData: IronHabitData = {
+        ...currentData,
+        ...parsed,
+      } as IronHabitData;
+      
+      replaceData(mergedData);
+      setImportStatus('success');
+      setTimeout(() => {
+        setImportStatus('idle');
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to import backup';
+      setImportError(message);
+      setImportStatus('error');
+      setTimeout(() => setImportStatus('idle'), 3000);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClearData = () => {
+    // Load default data structure and clear all user data
+    const defaultData = loadData(); // This will return defaults if localStorage is empty
+    const clearedData: IronHabitData = {
+      ...defaultData,
+      checkIns: {},
+      fitnessEntries: [],
+      habits: defaultData.habits || [],
+      completedLoadouts: [],
+      latestVictoryProof: null,
+      activeLoadout: null,
+    };
+    replaceData(clearedData);
+    setShowClearConfirm(false);
+    window.location.reload();
+  };
+
+  return (
+    <div className="page stack-lg">
+      <PageHeader eyebrow="Settings" title="Manage your Iron Habit data.">
+        Backup, restore, and control your app state.
+      </PageHeader>
+
+      <Card className="stack-sm">
+        <span className="tag">Backup</span>
+        <h2>Save your progress</h2>
+        <p>
+          Export your sober dates, training logs, check-ins, and proof so you can restore them later or move to a new device.
+        </p>
+        <div className="button-group stack-xs">
+          <button
+            onClick={handleExportData}
+            className="btn btn-primary"
+            aria-label="Download backup as JSON file"
+          >
+            {downloadStatus === 'success' ? '✓ Download Ready' : 'Download Backup'}
+          </button>
+          <button
+            onClick={handleCopyBackup}
+            className="btn btn-secondary"
+            aria-label="Copy backup JSON to clipboard"
+          >
+            {copyStatus === 'success' ? '✓ Copied to clipboard' : copyStatus === 'error' ? 'Copy failed' : 'Copy Backup to Clipboard'}
+          </button>
+        </div>
+        <small>Keep your backup file safe. You will need it to restore your data.</small>
+      </Card>
+
+      <Card className="stack-sm">
+        <span className="tag">Restore</span>
+        <h2>Load a previous backup</h2>
+        <p>
+          Upload a backup JSON file to restore all your sober dates, training logs, check-ins, and proof.
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+          aria-label="Select backup file to restore"
+        />
+        <button onClick={handleImportClick} className="btn btn-primary" disabled={importStatus === 'loading'}>
+          {importStatus === 'loading' ? '⏳ Restoring...' : importStatus === 'success' ? '✓ Restored' : 'Select Backup File'}
+        </button>
+        {importStatus === 'error' && <p style={{ color: 'var(--error, #ff4444)' }}>{importError}</p>}
+        <small>
+          Your backup will be merged with current app defaults to ensure compatibility. This will reload the app.
+        </small>
+      </Card>
+
+      <Card className="stack-sm">
+        <span className="tag">Advanced</span>
+        <h2>Clear all data</h2>
+        <p>
+          Remove all check-ins, training logs, loadouts, and profile data. This action cannot be undone. A backup will be required to recover.
+        </p>
+        {!showClearConfirm ? (
+          <button onClick={() => setShowClearConfirm(true)} className="btn btn-danger">
+            Clear All Data
+          </button>
+        ) : (
+          <div className="stack-xs">
+            <p style={{ color: 'var(--error, #ff4444)', fontWeight: 600 }}>
+              ⚠ Are you sure? This will delete all your progress.
+            </p>
+            <div className="button-group stack-xs">
+              <button onClick={handleClearData} className="btn btn-danger">
+                Yes, Clear Everything
+              </button>
+              <button onClick={() => setShowClearConfirm(false)} className="btn btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <Card className="stack-sm">
+        <span className="tag">About</span>
+        <h2>Iron Habit</h2>
+        <p>
+          <strong>Version:</strong> 1.0 Beta
+        </p>
+        <p>
+          <strong>Storage:</strong> All data is stored locally on your device using browser localStorage. We do not send your data to servers.
+        </p>
+        <p>
+          <strong>Privacy:</strong> Your sober dates, training logs, and personal details stay on your device. Make sure to back up your data.
+        </p>
+      </Card>
+
+      <style>{`
+        .button-group {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .button-group .btn {
+          flex: 1;
+          min-width: 120px;
+        }
+
+        .button-group .btn-danger {
+          color: #fff;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Settings;

@@ -122,6 +122,9 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .hero-left h1 { margin: 0; color: #fff; font-size: clamp(2.8rem, 16vw, 4.8rem); line-height: .82; letter-spacing: -.08em; }
 .hero-why { position: relative; z-index: 1; margin: 0; color: #d4d4d8; font-weight: 800; font-size: 0.95rem; }
 .btn-hero-rescue { flex-shrink: 0; min-width: 100px; padding: 10px 12px; font-size: 0.86rem; height: fit-content; }
+.hero-tag-bar { position: relative; z-index: 2; display: inline-block; margin-bottom: 12px; padding: 7px 11px; border-radius: 999px; background: rgba(220,38,38,.2); border: 1px solid rgba(220,38,38,.4); color: #fecaca; font-weight: 950; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .12em; }
+.hero-milestone { position: relative; z-index: 2; display: inline-block; margin-bottom: 14px; padding: 10px 13px; border-radius: 28px; background: linear-gradient(135deg, rgba(239,68,68,.3), rgba(127,16,16,.2)); border: 1px solid rgba(239,68,68,.5); color: #fff; font-weight: 950; font-size: 0.9rem; letter-spacing: -.02em; animation: milestone-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes milestone-pop { from { transform: scale(0.75) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
 .warrior-topline { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; color: #fafafa; text-transform: uppercase; letter-spacing: .13em; font-size: .68rem; }
 .warrior-topline span { color: #ff6b6b; font-weight: 950; }

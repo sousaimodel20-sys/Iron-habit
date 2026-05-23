@@ -9,6 +9,7 @@ import CravingRescue from './screens/CravingRescue';
 import TalkCoach from './screens/TalkCoach';
 import WorkoutMode from './screens/WorkoutMode';
 import Meetings from './screens/Meetings';
+import Settings from './screens/Settings';
 
 const navItems = [
   { to: '/', label: 'Today' },
@@ -49,6 +50,7 @@ function AppLayout() {
           <Route path="/rescue" element={<CravingRescue />} />
           <Route path="/talk" element={<TalkCoach />} />
           <Route path="/workout-mode" element={<WorkoutMode />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
 

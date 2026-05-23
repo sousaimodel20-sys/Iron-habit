@@ -39,6 +39,17 @@ const Onboarding = () => {
   const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
 
+  // Milestone badges
+  const getMilestoneInfo = () => {
+    if (displayDay >= 365) return { milestone: '365+', label: 'Legend', emoji: '👑', color: 'gold' };
+    if (displayDay >= 90) return { milestone: '90+', label: 'Master', emoji: '⚡', color: 'platinum' };
+    if (displayDay >= 30) return { milestone: '30+', label: 'Warrior', emoji: '🔥', color: 'crimson' };
+    if (displayDay >= 7) return { milestone: '7+', label: 'Undefeated', emoji: '💪', color: 'bronze' };
+    return null;
+  };
+  const milestoneInfo = getMilestoneInfo();
+  const heroTag = !todayCheckIn ? 'ACTION: Lock in today' : !trainedToday ? "ACTION: Run today's routine" : 'READY: Make proof';
+
   const missions = [
     {
       label: 'Workout Goal',
@@ -189,6 +200,8 @@ const Onboarding = () => {
   return (
     <div className="page warrior-page stack-lg">
       <section className="warrior-hero">
+        <div className="hero-tag-bar">{heroTag}</div>
+        {milestoneInfo && <div className="hero-milestone">{milestoneInfo.emoji} {milestoneInfo.label} UNLOCKED</div>}
         <div className="hero-top-bar">
           <div className="hero-left">
             <span className="hero-day">DAY {displayDay}</span>
@@ -235,6 +248,7 @@ const Onboarding = () => {
           <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
           <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
           <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+          <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
         </div>
       </section>
 
