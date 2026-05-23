@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { calculateSobrietyStreak } from '../utils/streaks';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
@@ -14,6 +15,7 @@ const FitnessTracker = () => {
   const [duration, setDuration] = useState(45);
   const [intensity, setIntensity] = useState(intensities[1]);
   const [note, setNote] = useState('');
+  const [quickProof, setQuickProof] = useState<CompletedLoadout | null>(null);
 
 
   const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
@@ -48,6 +50,7 @@ const FitnessTracker = () => {
     const minutes = Number.parseInt(activeLoadout.time, 10) || 45;
     const intensityValue = activeLoadout.level === 'Advanced' ? 'Beast mode' : activeLoadout.level === 'Beginner' ? 'Moderate' : 'Hard';
     const date = new Date().toISOString().slice(0, 10);
+    const soberDay = Math.max(1, calculateSobrietyStreak());
     const totalSets = activeLoadout.exercises.reduce((sum, exercise) => sum + (Number.parseInt(exercise.sets, 10) || 3), 0);
     const proof: CompletedLoadout = {
       id: `${Date.now()}`,
@@ -61,7 +64,7 @@ const FitnessTracker = () => {
       completedSets: totalSets,
       totalSets,
       finisher: activeLoadout.finisher,
-      proofCopy: 'Quick proof logged. The new identity gets stronger.',
+      proofCopy: `Day ${soberDay} sober. ${activeLoadout.title} quick-completed: ${totalSets} sets, ${minutes} minutes. Proof stacked.`,
     };
     const entry: FitnessEntry = {
       id: proof.id,
@@ -76,6 +79,7 @@ const FitnessTracker = () => {
     const nextCompletedLoadouts = [proof, ...completedLoadouts];
     setEntries(nextEntries);
     setCompletedLoadouts(nextCompletedLoadouts);
+    setQuickProof(proof);
     saveData({ fitnessEntries: nextEntries, completedLoadouts: nextCompletedLoadouts, latestVictoryProof: proof });
   };
 
@@ -126,6 +130,25 @@ const FitnessTracker = () => {
           <h2>Generate your next loadout with Coach.</h2>
           <p>Save a PPL, Arnold, dumbbell, or craving-killer plan and it will appear here.</p>
           <Link to="/talk" className="btn btn-primary">Open Coach Loadouts</Link>
+        </Card>
+      )}
+
+      {quickProof && (
+        <Card className="workout-complete-card victory-complete-card stack-md">
+          <span className="tag danger-tag">Quick proof saved</span>
+          <h2>{quickProof.title} conquered.</h2>
+          <p>{quickProof.proofCopy}</p>
+          <div className="victory-proof-grid">
+            <span><b>{quickProof.durationMinutes}</b><small>minutes</small></span>
+            <span><b>{quickProof.completedSets}</b><small>sets</small></span>
+            <span><b>{quickProof.activeDay}</b><small>split</small></span>
+            <span><b>{quickProof.exercises.length}</b><small>moves</small></span>
+          </div>
+          <div className="hero-actions">
+            <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+            <Link to="/profile" className="btn btn-secondary">View Proof Stack</Link>
+            <Button variant="ghost" onClick={() => setQuickProof(null)}>Hide</Button>
+          </div>
         </Card>
       )}
 
