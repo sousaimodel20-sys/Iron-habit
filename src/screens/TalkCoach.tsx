@@ -807,7 +807,7 @@ const TalkCoach = () => {
         {savedMessage && <p className="success-msg">{savedMessage}</p>}
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={saveLoadout}>Save This Loadout</button>
-          <Link to="/fitness-tracker" className="btn btn-ghost">View in Train</Link>
+          <Link to="/train" className="btn btn-ghost">View in Train</Link>
         </div>
       </section>
 
@@ -841,9 +841,9 @@ const TalkCoach = () => {
         <b>Finisher</b>
         <span>{loadout.finisher}</span>
         <div className="hero-actions">
-          <Link to="/fitness-tracker" className="btn btn-primary">Log Training</Link>
+          <Link to="/train" className="btn btn-primary">Log Training</Link>
           <button className="btn btn-secondary" onClick={saveLoadout}>Save Program</button>
-          <Link to="/craving-rescue" className="btn btn-ghost">Open Rescue</Link>
+          <Link to="/rescue" className="btn btn-ghost">Open Rescue</Link>
         </div>
       </section>
     </div>

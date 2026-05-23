@@ -223,7 +223,7 @@ const ShareProgressScreen = () => {
         <h2>Stack another receipt.</h2>
         <p>Post the proof, then go back to Train or Rescue. The identity loop is: stay sober, move, save proof, make the win visible.</p>
         <div className="hero-actions">
-          <a className="btn btn-primary" href="/fitness-tracker">Open Train</a>
+          <a className="btn btn-primary" href="/train">Open Train</a>
           <a className="btn btn-danger" href="/rescue">Open Rescue</a>
         </div>
       </Card>

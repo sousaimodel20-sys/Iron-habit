@@ -241,7 +241,7 @@ const ProgressDashboard = () => {
           </div>
           <div className="hero-actions">
             <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
-            <Link to="/fitness-tracker" className="btn btn-secondary">See Train Log</Link>
+            <Link to="/train" className="btn btn-secondary">See Train Log</Link>
           </div>
         </Card>
       ) : (
@@ -251,7 +251,7 @@ const ProgressDashboard = () => {
           <p>Generate a Coach Loadout, finish the Routine Sheet, then come back here for a Victory Card.</p>
           <div className="hero-actions">
             <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
-            <Link to="/fitness-tracker" className="btn btn-secondary">Open Train</Link>
+            <Link to="/train" className="btn btn-secondary">Open Train</Link>
           </div>
         </Card>
       )}
@@ -395,7 +395,7 @@ const ProgressDashboard = () => {
         <p className="quote">“{data.profile.why || 'Build a body and life I am proud of.'}”</p>
         <div className="hero-actions">
           <Link to="/share-progress" className="btn btn-primary">Create Victory Card</Link>
-          <Link to="/fitness-tracker" className="btn btn-secondary">Stack More Proof</Link>
+          <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>
     </div>
