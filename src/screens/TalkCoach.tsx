@@ -397,7 +397,7 @@ const TalkCoach = () => {
         navigate('/daily-check-in');
       } else if (!data.fitnessEntries.some((entry) => entry.date === today)) {
         setCommandReply(data.activeLoadout ? 'Next move: run today’s routine. Opening Train.' : 'Next move: generate a workout loadout. Build one here, then save it.');
-        if (data.activeLoadout) navigate('/fitness-tracker');
+        if (data.activeLoadout) navigate('/train');
       } else {
         setCommandReply('Next move: show proof and make the win visible. Opening Proof.');
         navigate('/profile');

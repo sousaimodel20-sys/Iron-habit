@@ -62,7 +62,7 @@ const Onboarding = () => {
       label: 'Proof Goal',
       detail: latestProof ? 'Create Victory Card' : 'Stack first proof',
       done: Boolean(latestProof?.date === todayKey),
-      to: latestProof ? '/share-progress' : '/fitness-tracker',
+      to: latestProof ? '/share-progress' : '/train',
     },
     { label: 'Emergency Plan', detail: craving >= 7 ? 'Open Rescue now' : 'Rescue one tap away', done: craving < 4, to: '/rescue' },
   ];
