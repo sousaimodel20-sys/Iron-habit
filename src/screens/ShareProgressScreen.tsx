@@ -139,20 +139,20 @@ const ShareProgressScreen = () => {
 
   return (
     <div className="page stack-lg content-studio-page">
-      <PageHeader eyebrow="TikTok Proof Pack" title={workoutProof ? 'Turn today’s win into content.' : 'Make the comeback visible.'}>
+      <PageHeader eyebrow="TikTok Proof Pack" title={template === 'craving' ? 'Turn the urge into proof.' : workoutProof ? 'Turn today’s win into content.' : 'Make the comeback visible.'}>
         Choose a proof angle, download a 9:16 Victory Card, then copy a hook, caption, hashtags, and video idea.
       </PageHeader>
 
       <Card className="victory-proof-brief content-studio-hero stack-sm">
         <span className="tag danger-tag">Content Studio</span>
-        {workoutProof ? (
-          <>
-            <h2>{workoutProof.title}</h2>
-            <p>{activeProofLabel}</p>
-          </>
-        ) : template === 'craving' ? (
+        {template === 'craving' ? (
           <>
             <h2>{cravingProofReady ? 'Craving proof is ready.' : 'Preview a Craving Victory Card.'}</h2>
+            <p>{activeProofLabel}</p>
+          </>
+        ) : workoutProof ? (
+          <>
+            <h2>{workoutProof.title}</h2>
             <p>{activeProofLabel}</p>
           </>
         ) : (
