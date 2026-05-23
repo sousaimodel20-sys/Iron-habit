@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
-import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
+import { getTodayKey, loadData, saveData, type CheckIn, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const defaultHabits = ['No alcohol', 'Gym / movement', 'Protein meal', 'Meditation', 'Read / learn', 'Sleep routine'];
 
@@ -17,9 +19,18 @@ const DailyCheckIn = () => {
   const [streak, setStreak] = useState(calculateSobrietyStreak());
   const [rescueActive, setRescueActive] = useState(false);
   const [rescueSeconds, setRescueSeconds] = useState(600);
-  const profile = loadData().profile;
+  const [profile, setProfile] = useState<Profile>(() => loadData().profile);
+  const supportReady = hasSupportContact(profile);
+  const supportContactLabel = getSupportContactLabel(profile);
+  const supportLocation = profile.supportLocation || 'Vancouver, BC';
   const rescueMinutes = Math.floor(rescueSeconds / 60);
   const rescueRemainder = String(rescueSeconds % 60).padStart(2, '0');
+
+  useEffect(() => {
+    const refreshProfile = () => setProfile(loadData().profile);
+    window.addEventListener('iron-habit-data-updated', refreshProfile);
+    return () => window.removeEventListener('iron-habit-data-updated', refreshProfile);
+  }, []);
 
   useEffect(() => {
     if (!rescueActive || rescueSeconds <= 0) return undefined;
@@ -87,7 +98,16 @@ const DailyCheckIn = () => {
         <div className="rescue-actions">
           <Button onClick={startRescue}>{rescueActive ? 'Restart timer' : 'Start rescue timer'}</Button>
           <Button variant="secondary" onClick={resetRescue}>Reset</Button>
-          <a className="btn btn-ghost" href="sms:">Text support</a>
+          {supportReady ? (
+            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, `I’m at ${craving}/10 craving and staying sober right now. Can you check in with me for 10 minutes?`)}>Text {supportContactLabel}</a>
+          ) : (
+            <Link className="btn btn-ghost" to="/setup-profile">Set support contact</Link>
+          )}
+          <Link className="btn btn-secondary" to="/rescue">Open full Rescue</Link>
+        </div>
+
+        <div className="rescue-actions">
+          <Link className="btn btn-secondary" to={`/meetings?q=${encodeURIComponent(supportLocation)}`}>Find meetings near {supportLocation}</Link>
         </div>
 
         <div className="reason-card">
