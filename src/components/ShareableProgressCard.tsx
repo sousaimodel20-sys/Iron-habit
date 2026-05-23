@@ -100,9 +100,15 @@ const ShareableProgressCard = ({
     ? `${workoutProof.title} conquered.`
     : `${firstName} ${copy.headline}`;
 
-  const cardText = workoutProof
-    ? `${headline}\n${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets • ${workoutProof.exercises.length} exercises\n${workoutProof.proofCopy}\n#IronHabitProof ${copy.footer}`
-    : `${headline}\nDay ${streak} sober • ${data.fitnessEntries.length} workouts • ${totalMinutes} minutes logged\n${data.profile.why || 'Build a body and life I am proud of.'}\n${copy.footer}`;
+  const cardText = template === 'craving'
+    ? `${headline}\n${latestCraving || 10}/10 urge faced • Day ${streak} sober • ${latestMood}\nCraving hit. I did not bargain. Opened Rescue. Stayed in command.\n#IronHabit ${copy.footer}`
+    : template === 'weekly'
+      ? `${headline}\n${weeklySoberDays} sober check-ins • ${weeklyMinutes} training minutes • ${weeklyLoadouts} routine conquests\nWeekly Boss Battle receipts. Proof beats promises.\n#IronHabit ${copy.footer}`
+      : template === 'transformation'
+        ? `${headline}\nDay ${streak} sober • ${data.bodyProfile.weightLbs || '—'} lb now • ${macros?.proteinGrams || '—'}g protein\n${data.profile.transformationGoal || 'Lean, sober, strong, and consistent.'}\n#IronHabit ${copy.footer}`
+        : workoutProof
+          ? `${headline}\n${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets • ${workoutProof.exercises.length} exercises\n${workoutProof.proofCopy}\n#IronHabitProof ${copy.footer}`
+          : `${headline}\nDay ${streak} sober • ${data.fitnessEntries.length} workouts • ${totalMinutes} minutes logged\n${data.profile.why || 'Build a body and life I am proud of.'}\n${copy.footer}`;
 
   const copyCardText = async () => {
     try {
