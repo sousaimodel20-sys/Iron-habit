@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type IronHabitData, type Profile } from '../utils/storage';
+import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
@@ -97,10 +97,18 @@ const Onboarding = () => {
   };
 
   const loadDemoBaseline = () => {
+    const now = new Date();
+    const dateKey = (offset: number) => {
+      const date = new Date(now);
+      date.setDate(now.getDate() + offset);
+      return date.toISOString().slice(0, 10);
+    };
+    const soberStart = dateKey(-46);
+    const createdAt = now.toISOString();
     const demoProfile: Profile = {
       ...profile,
       name: profile.name || 'Iron Warrior',
-      sobrietyDate: profile.sobrietyDate || getTodayKey(),
+      sobrietyDate: soberStart,
       why: profile.why || 'Discipline today. Freedom tomorrow.',
       focus: profile.focus || 'sobriety-strength-discipline',
       transformationGoal: profile.transformationGoal || 'Lean, sober, strong, and consistent.',
@@ -118,10 +126,10 @@ const Onboarding = () => {
       trainingDaysPerWeek: bodyProfile.trainingDaysPerWeek || '5',
       bodyGoal: bodyProfile.bodyGoal || 'recomposition',
       pace: bodyProfile.pace || 'steady',
-      updatedAt: new Date().toISOString(),
+      updatedAt: createdAt,
     };
     const demoLoadout: ActiveLoadout = {
-      id: `demo-loadout-${Date.now()}`,
+      id: `demo-loadout-${now.getTime()}`,
       templateId: 'ppl',
       title: '20-Min Sober Strength Loadout',
       label: 'Push Pull Legs',
@@ -131,19 +139,57 @@ const Onboarding = () => {
       days: ['Push', 'Pull', 'Legs'],
       intent: 'Demo-ready sober strength routine',
       finisher: '2-minute incline walk breathing reset',
-      createdAt: new Date().toISOString(),
+      createdAt,
       exercises: [
         { name: 'Incline Dumbbell Press', muscle: 'Chest', equipment: 'Dumbbells', sets: '2', reps: '8–10', rest: '90 sec', cue: 'Shoulders packed, press with control.', mistake: 'Do not bounce or flare elbows hard.', swap: 'Push-ups or machine press.', icon: '▲' },
         { name: 'Lat Pulldown', muscle: 'Back', equipment: 'Cable', sets: '2', reps: '10–12', rest: '75 sec', cue: 'Pull elbows to ribs.', mistake: 'Do not turn it into a curl.', swap: 'Assisted pull-up or row.', icon: '↓' },
         { name: 'Goblet Squat', muscle: 'Legs', equipment: 'Dumbbell', sets: '2', reps: '10–12', rest: '75 sec', cue: 'Brace, sit between the hips.', mistake: 'Do not collapse knees in.', swap: 'Leg press.', icon: '◆' },
       ],
     };
+    const demoCheckIns: Record<string, CheckIn> = [-6, -5, -4, -3, -2, -1, 0].reduce((acc, offset) => {
+      const date = dateKey(offset);
+      acc[date] = {
+        date,
+        sober: true,
+        mood: offset === 0 ? 'Locked in' : offset === -2 ? 'Tested but steady' : 'Disciplined',
+        craving: offset === -2 ? 6 : offset === 0 ? 2 : 3,
+        note: offset === 0 ? 'Demo proof: checked in, trained, and stayed sober.' : 'Stacked another clean day.',
+        habitsCompleted: ['Drink water before coffee', 'Move for 20+ minutes'],
+      };
+      return acc;
+    }, {} as Record<string, CheckIn>);
+    const demoFitnessEntries: FitnessEntry[] = [
+      { id: `demo-fitness-${dateKey(-3)}`, date: dateKey(-3), type: 'Full-body strength', durationMinutes: 38, intensity: 'Hard', note: 'Routine complete — cravings dropped after training.' },
+      { id: `demo-fitness-${dateKey(0)}`, date: dateKey(0), type: demoLoadout.title, durationMinutes: 22, intensity: 'Hard', note: '20-minute sober strength loadout conquered.' },
+    ];
+    const demoProof: CompletedLoadout = {
+      id: `demo-proof-${now.getTime()}`,
+      date: dateKey(0),
+      title: demoLoadout.title,
+      label: demoLoadout.label,
+      activeDay: 'Push Day',
+      durationMinutes: 22,
+      intensity: 'Hard',
+      exercises: demoLoadout.exercises.map((exercise) => exercise.name),
+      completedSets: 6,
+      totalSets: 6,
+      finisher: demoLoadout.finisher,
+      proofCopy: 'Day 47 sober. 20-minute strength loadout complete. Craving lost, proof stacked.',
+    };
 
     setProfile(demoProfile);
     setBodyProfile(demoBodyProfile);
-    saveData({ profile: demoProfile, bodyProfile: demoBodyProfile, activeLoadout: demoLoadout });
+    saveData({
+      profile: demoProfile,
+      bodyProfile: demoBodyProfile,
+      checkIns: demoCheckIns,
+      fitnessEntries: demoFitnessEntries,
+      activeLoadout: demoLoadout,
+      completedLoadouts: [demoProof],
+      latestVictoryProof: demoProof,
+    });
     setSaved(true);
-    setBackupStatus('Demo baseline loaded. Open Train or Workout Mode to show the full proof loop.');
+    setBackupStatus('Full demo mode loaded: Day 47 streak, weekly check-ins, active routine, workout proof, and Victory Card data.');
   };
 
   const makeBackupJson = () => {
