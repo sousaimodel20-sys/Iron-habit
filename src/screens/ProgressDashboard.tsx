@@ -100,6 +100,11 @@ const ProgressDashboard = () => {
   const weeklySoberDays = getRecentDays(7).filter((date) => data.checkIns[date]?.sober).length;
   const weeklyHabitBlocks = getRecentDays(7).reduce((sum, date) => sum + (data.checkIns[date]?.habitsCompleted.length || 0), 0);
   const weeklyLoadouts = data.completedLoadouts.filter((proof) => getRecentDays(7).includes(proof.date)).length;
+  const sortedCheckIns = [...checkIns].sort((a, b) => b.date.localeCompare(a.date));
+  const cravingReceipts = sortedCheckIns
+    .filter((entry) => entry.sober && (entry.craving >= 7 || entry.note.toLowerCase().includes('rescue') || entry.note.toLowerCase().includes('craving')))
+    .slice(0, 3);
+  const latestCravingReceipt = cravingReceipts[0] || null;
   const latestProof = data.latestVictoryProof || data.completedLoadouts[0] || null;
   const proofStack = data.completedLoadouts.slice(0, 5);
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
@@ -192,6 +197,36 @@ const ProgressDashboard = () => {
           <Link to="/talk" className="btn btn-secondary">Log More in Talk</Link>
         </div>
       </Card>
+
+      {latestCravingReceipt && (
+        <Card className="proof-stack-card stack-md">
+          <div className="section-title-row">
+            <span>Craving Rescue Receipt</span>
+            <b>{latestCravingReceipt.date}</b>
+          </div>
+          <h2>Urge survived. Streak protected.</h2>
+          <p>{latestCravingReceipt.craving}/10 craving faced • mood: {latestCravingReceipt.mood || 'Still in command'}.</p>
+          <p>{latestCravingReceipt.note || 'Rescue protocol opened. The urge did not get the final vote.'}</p>
+          <div className="hero-actions">
+            <Link to="/share-progress?template=craving" className="btn btn-danger">Make Craving Card</Link>
+            <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
+          </div>
+          {cravingReceipts.length > 1 && (
+            <div className="completed-loadout-list compact-receipt-list">
+              {cravingReceipts.slice(1).map((receipt) => (
+                <article key={receipt.date}>
+                  <div>
+                    <span>{receipt.date} • {receipt.craving}/10 urge</span>
+                    <h3>{receipt.mood || 'Craving defeated'}</h3>
+                    <p>{receipt.note || 'Proof stacked from a sober check-in.'}</p>
+                  </div>
+                  <Link to="/share-progress?template=craving" className="btn btn-ghost">Make Card</Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
       {latestProof ? (
         <Card className="proof-stack-card stack-md">
