@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MilestoneBadge from '../components/MilestoneBadge';
 import { Card, PageHeader, Stat } from '../components/UI';
-import { loadData, type IronHabitData } from '../utils/storage';
+import { loadData, saveData, type CompletedLoadout, type IronHabitData } from '../utils/storage';
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
@@ -101,12 +101,18 @@ const ProgressDashboard = () => {
   const weeklyHabitBlocks = getRecentDays(7).reduce((sum, date) => sum + (data.checkIns[date]?.habitsCompleted.length || 0), 0);
   const weeklyLoadouts = data.completedLoadouts.filter((proof) => getRecentDays(7).includes(proof.date)).length;
   const latestProof = data.latestVictoryProof || data.completedLoadouts[0] || null;
+  const proofStack = data.completedLoadouts.slice(0, 5);
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const soberRate = checkIns.length ? Math.round((soberCheckIns / checkIns.length) * 100) : 0;
   const firstCheckIn = checkIns
     .map((entry) => new Date(`${entry.date}T12:00:00`).getTime())
     .sort((a, b) => a - b)[0];
   const daysTracked = firstCheckIn ? Math.max(1, Math.ceil((todayTime - firstCheckIn) / dayMs) + 1) : 0;
+
+  const selectProofForCard = (proof: CompletedLoadout) => {
+    const next = saveData({ latestVictoryProof: proof });
+    setData(next);
+  };
 
   return (
     <div className="page stack-lg">
@@ -211,6 +217,34 @@ const ProgressDashboard = () => {
           <div className="hero-actions">
             <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
             <Link to="/fitness-tracker" className="btn btn-secondary">Open Train</Link>
+          </div>
+        </Card>
+      )}
+
+      {proofStack.length > 0 && (
+        <Card className="proof-stack-card stack-md">
+          <div className="section-title-row">
+            <span>Proof Stack History</span>
+            <b>{data.completedLoadouts.length} receipts</b>
+          </div>
+          <p>Pick any conquered routine and turn that exact receipt into a Victory Card.</p>
+          <div className="completed-loadout-list">
+            {proofStack.map((proof) => (
+              <article key={proof.id}>
+                <div>
+                  <span>{proof.date} • {proof.activeDay} • {proof.label}</span>
+                  <h3>{proof.title}</h3>
+                  <p>{proof.durationMinutes} min • {proof.completedSets}/{proof.totalSets} sets • {proof.exercises.length} moves</p>
+                </div>
+                <Link
+                  to="/share-progress"
+                  className="btn btn-ghost"
+                  onClick={() => selectProofForCard(proof)}
+                >
+                  Make Card
+                </Link>
+              </article>
+            ))}
           </div>
         </Card>
       )}

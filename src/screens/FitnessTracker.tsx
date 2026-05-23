@@ -166,7 +166,13 @@ const FitnessTracker = () => {
                   <h3>{proof.title}</h3>
                   <p>{proof.durationMinutes} min • {proof.completedSets} sets • {proof.exercises.length} exercises</p>
                 </div>
-                <Link to="/share-progress" className="btn btn-ghost">Victory Card</Link>
+                <Link
+                  to="/share-progress"
+                  className="btn btn-ghost"
+                  onClick={() => saveData({ latestVictoryProof: proof })}
+                >
+                  Victory Card
+                </Link>
               </article>
             ))}
           </div>
