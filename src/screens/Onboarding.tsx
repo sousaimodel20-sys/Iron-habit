@@ -113,7 +113,8 @@ const Onboarding = () => {
       focus: profile.focus || 'sobriety-strength-discipline',
       transformationGoal: profile.transformationGoal || 'Lean, sober, strong, and consistent.',
       supportLocation: profile.supportLocation || 'Vancouver, BC',
-      supportName: profile.supportName || 'Safe Person',
+      supportName: profile.supportName || 'Brother Mike',
+      supportPhone: profile.supportPhone || '604-555-1234',
     };
     const demoBodyProfile: BodyProfile = {
       ...bodyProfile,
@@ -189,7 +190,7 @@ const Onboarding = () => {
       latestVictoryProof: demoProof,
     });
     setSaved(true);
-    setBackupStatus('Full demo mode loaded: Day 47 streak, weekly check-ins, active routine, workout proof, and Victory Card data.');
+    setBackupStatus('Full demo mode loaded: Day 47 streak, weekly check-ins, active routine, workout proof, Victory Card data, and Brother Mike support contact.');
   };
 
   const makeBackupJson = () => {
@@ -269,6 +270,19 @@ const Onboarding = () => {
             <a href="#setup-profile" className="btn btn-primary">Set baseline</a>
             <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
             <Link to="/daily-check-in" className="btn btn-ghost">First check-in</Link>
+          </div>
+        </section>
+      )}
+
+      {backupStatus.includes('Full demo mode loaded') && (
+        <section className="card stack-sm demo-next-card">
+          <span className="tag danger-tag">Demo loaded</span>
+          <h2>Show the proof loop fast.</h2>
+          <p>Brother Mike support contact, Day 47 proof, training receipts, and Victory Card data are loaded. Jump straight to the strongest demo moment.</p>
+          <div className="hero-actions">
+            <Link to="/share-progress" className="btn btn-primary">Open Victory Card</Link>
+            <Link to="/daily-check-in" className="btn btn-secondary">Test Check-In Rescue</Link>
+            <Link to="/rescue?chain=1" className="btn btn-danger">Demo Emergency Chain</Link>
           </div>
         </section>
       )}
