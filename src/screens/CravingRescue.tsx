@@ -103,6 +103,13 @@ const CravingRescue = () => {
     );
   };
 
+  const makeCravingCard = () => {
+    saveRescueCheckIn(
+      { sober: true, mood: 'Craving defeated', craving: Math.max(todayCheckIn?.craving ?? 0, mode === 'emergency' ? 10 : 7), note: 'Craving Victory Card created from Rescue.' },
+      'Craving proof saved. Turn it into a Victory Card.',
+    );
+  };
+
   const logSlip = () => {
     setMode('slip');
     setRunning(false);
@@ -173,7 +180,7 @@ const CravingRescue = () => {
 
         <div className="rescue-actions">
           <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
-          <Link to="/share-progress?template=craving" className="btn btn-primary">Make Craving Card</Link>
+          <Link to="/share-progress?template=craving" className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
           <Button variant="ghost" onClick={logSlip}>I slipped — restart</Button>
           <Button variant="secondary" onClick={reset}>Reset timer</Button>
         </div>
