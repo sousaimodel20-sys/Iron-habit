@@ -82,7 +82,7 @@ const ShareProgressScreen = () => {
   }, []);
 
   const workoutProof = data.latestVictoryProof;
-  const latestCheckIn = Object.values(data.checkIns).at(-1);
+  const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
   const cravingProofReady = Boolean(latestCheckIn && (latestCheckIn.craving >= 7 || latestCheckIn.note.toLowerCase().includes('rescue') || latestCheckIn.note.toLowerCase().includes('craving')));
   const activeProofLabel = template === 'craving'
     ? cravingProofReady

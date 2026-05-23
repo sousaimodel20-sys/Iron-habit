@@ -60,7 +60,7 @@ const ShareableProgressCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState('');
   const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
-  const latestCheckIn = Object.values(data.checkIns).at(-1);
+  const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
   const latestMood = latestCheckIn?.mood || 'Locked in';
   const latestCraving = latestCheckIn?.craving ?? 0;
   const metrics = getTransformationMetrics(data, streak);
