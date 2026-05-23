@@ -78,22 +78,40 @@ const ShareableProgressCard = ({
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
+    setStatus('Building Victory Card image…');
+
     try {
       const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement('a');
       link.download = `iron-habit-${template}-day-${streak}.png`;
       link.href = dataUrl;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
       link.click();
-      setStatus('Victory card downloaded.');
+      link.remove();
+      setStatus('Victory card downloaded. If it did not open, take a screenshot of the card preview.');
     } catch (err) {
       console.error('Failed to generate image', err);
-      setStatus('Download failed. Try screenshotting the card.');
+      setStatus('Download blocked. Press and hold the card preview to screenshot or save it.');
     }
   };
 
   const headline = workoutProof && ['comeback', 'discipline', 'receipts'].includes(template)
     ? `${workoutProof.title} conquered.`
     : `${firstName} ${copy.headline}`;
+
+  const cardText = workoutProof
+    ? `${headline}\n${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets • ${workoutProof.exercises.length} exercises\n${workoutProof.proofCopy}\n#IronHabitProof ${copy.footer}`
+    : `${headline}\nDay ${streak} sober • ${data.fitnessEntries.length} workouts • ${totalMinutes} minutes logged\n${data.profile.why || 'Build a body and life I am proud of.'}\n${copy.footer}`;
+
+  const copyCardText = async () => {
+    try {
+      await navigator.clipboard?.writeText(cardText);
+      setStatus('Victory Card text copied.');
+    } catch {
+      setStatus('Copy blocked. Press and hold the caption text below instead.');
+    }
+  };
 
   return (
     <section className="share-wrap">
@@ -192,7 +210,10 @@ const ShareableProgressCard = ({
           <span>{copy.footer}</span>
         </footer>
       </div>
-      <Button onClick={handleDownload}>Download {template} card</Button>
+      <div className="button-row share-card-actions">
+        <Button onClick={handleDownload}>Download {template} card</Button>
+        <Button variant="secondary" onClick={copyCardText}>Copy card text</Button>
+      </div>
       {status && <p className="success-msg">{status}</p>}
     </section>
   );
