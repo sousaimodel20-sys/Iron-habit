@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { loadData, type IronHabitData } from '../utils/storage';
 import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
 import { Button, Card, PageHeader } from '../components/UI';
@@ -170,7 +170,7 @@ const ShareProgressScreen = () => {
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
           {cravingProofReady && <Button variant="danger" onClick={() => setTemplate('craving')}>Make Craving Victory Card</Button>}
-          {template === 'craving' && !cravingProofReady && <a className="btn btn-danger" href="/rescue">Save Craving Proof First</a>}
+          {template === 'craving' && !cravingProofReady && <Link className="btn btn-danger" to="/rescue">Save Craving Proof First</Link>}
         </div>
       </Card>
 
@@ -223,8 +223,8 @@ const ShareProgressScreen = () => {
         <h2>Stack another receipt.</h2>
         <p>Post the proof, then go back to Train or Rescue. The identity loop is: stay sober, move, save proof, make the win visible.</p>
         <div className="hero-actions">
-          <a className="btn btn-primary" href="/train">Open Train</a>
-          <a className="btn btn-danger" href="/rescue">Open Rescue</a>
+          <Link className="btn btn-primary" to="/train">Open Train</Link>
+          <Link className="btn btn-danger" to="/rescue">Open Rescue</Link>
         </div>
       </Card>
     </div>
