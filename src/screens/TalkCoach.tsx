@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  buildEmergencyCommandCheckIn,
+  EMERGENCY_SUPPORT_SMS,
+  emergencyRescuePath,
+  isEmergencySupportCommand,
+  wantsEmergencyMeetings,
+  wantsEmergencySupportCall,
+  wantsEmergencySupportText,
+} from '../utils/emergencySupportChain';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
 
 type WebSpeechRecognitionResultEvent = {
@@ -362,26 +371,28 @@ const TalkCoach = () => {
     setSavedMessage(`${loadout.title} saved to Train.`);
   };
 
-  const saveCravingCommandState = (rawCommand: string, fallback = 7) => {
+  const saveCravingCommandState = (rawCommand: string, fallback = 7, emergency = false) => {
     const data = loadData();
     const today = getTodayKey();
     const existing = data.checkIns[today];
-    const cravingLevel = parseCravingLevel(rawCommand.toLowerCase(), existing?.craving ?? fallback);
-    saveData({
-      checkIns: {
-        ...data.checkIns,
-        [today]: {
+    const nextCheckIn = emergency
+      ? buildEmergencyCommandCheckIn({ existing, rawCommand, todayKey: today, fallbackCraving: fallback })
+      : {
           ...(existing || makeCheckInFromCommand(rawCommand, true)),
           date: today,
           sober: existing?.sober ?? true,
-          craving: cravingLevel,
+          craving: parseCravingLevel(rawCommand.toLowerCase(), existing?.craving ?? fallback),
           note: existing?.note ? `${existing.note}\n${rawCommand}` : rawCommand,
-        },
+        };
+    saveData({
+      checkIns: {
+        ...data.checkIns,
+        [today]: nextCheckIn,
       },
     });
     return {
       profile: data.profile,
-      cravingLevel,
+      cravingLevel: nextCheckIn.craving,
     };
   };
 
@@ -422,39 +433,45 @@ const TalkCoach = () => {
       return;
     }
 
-    if (/(help now|need help now|support now|rescue me|panic|spiraling|spiralling|about to cave)/.test(command)) {
-      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 10);
-      setCommandReply(`Craving logged at ${cravingLevel}/10. Opening the emergency support chain now.`);
-      navigate('/rescue?chain=1');
-      if (hasSupportContact(profile)) {
-        window.setTimeout(() => {
-          window.location.href = buildSupportSmsHref(profile, 'I need support right now. I am in a high-craving moment and staying sober for the next 10 minutes.');
-        }, 150);
-      }
-      return;
-    }
+    if (isEmergencySupportCommand(command)) {
+      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 10, true);
+      const supportName = getSupportContactLabel(profile);
 
-    if (/(craving|urge|drink|emergency|about to drink|open rescue|need rescue)/.test(command) && /(meeting|meetings|aa|na|group)/.test(command)) {
-      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 9);
-      const location = extractMeetingLocation(rawCommand) || profile.supportLocation;
-      setCommandReply(location
-        ? `Craving logged at ${cravingLevel}/10. Opening meetings for ${location}. Human support now, not later.`
-        : `Craving logged at ${cravingLevel}/10. Opening meetings now. Human support now, not later.`);
-      navigate(location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings');
-      return;
-    }
-
-    if (/(craving|urge|drink|emergency|about to drink|open rescue|need rescue)/.test(command) && /(text|message|sms).*(support|safe person|contact)|(?:support|safe person|contact).*(text|message|sms)/.test(command)) {
-      const { profile, cravingLevel } = saveCravingCommandState(rawCommand, 9);
-      navigate('/rescue');
-      if (!hasSupportContact(profile)) {
-        setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue now. Add a support contact so Talk can text the right person.`);
+      if (wantsEmergencyMeetings(command)) {
+        const location = extractMeetingLocation(rawCommand) || profile.supportLocation;
+        setCommandReply(location
+          ? `Emergency logged at ${cravingLevel}/10. Opening meetings for ${location}. Human support now, not later.`
+          : `Emergency logged at ${cravingLevel}/10. Opening meetings now. Human support now, not later.`);
+        navigate(location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings');
         return;
       }
-      setCommandReply(`Craving logged at ${cravingLevel}/10. Opening Rescue and texting ${getSupportContactLabel(profile)} now.`);
-      window.setTimeout(() => {
-        window.location.href = buildSupportSmsHref(profile, 'I’m about to drink and need support right now. Can you check in with me for the next 10 minutes?');
-      }, 150);
+
+      if (!hasSupportContact(profile)) {
+        setCommandReply(`Emergency logged at ${cravingLevel}/10. Opening Rescue. Add a support contact so Talk can text the right person.`);
+        navigate(emergencyRescuePath);
+        return;
+      }
+
+      if (wantsEmergencySupportCall(command)) {
+        setCommandReply(`Emergency logged at ${cravingLevel}/10. Opening Rescue and calling ${supportName} now.`);
+        navigate(emergencyRescuePath);
+        window.setTimeout(() => {
+          window.location.href = buildSupportTelHref(profile);
+        }, 150);
+        return;
+      }
+
+      if (wantsEmergencySupportText(command) || /\b(help now|support now|about to drink|going to drink|gonna drink|might drink|close to drinking)\b/.test(command)) {
+        setCommandReply(`Emergency logged at ${cravingLevel}/10. Opening Rescue and texting ${supportName} now.`);
+        navigate(emergencyRescuePath);
+        window.setTimeout(() => {
+          window.location.href = buildSupportSmsHref(profile, EMERGENCY_SUPPORT_SMS);
+        }, 150);
+        return;
+      }
+
+      setCommandReply(`Emergency logged at ${cravingLevel}/10. Opening the support chain now.`);
+      navigate(emergencyRescuePath);
       return;
     }
 
