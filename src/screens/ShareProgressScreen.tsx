@@ -62,9 +62,13 @@ const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, i
   return date.toISOString().slice(0, 10);
 });
 
+const templateIds = templates.map((item) => item.id);
+const isVictoryTemplate = (value: string | null): value is VictoryTemplate => Boolean(value && templateIds.includes(value as VictoryTemplate));
+
 const ShareProgressScreen = () => {
-  const [searchParams] = useSearchParams();
-  const initialTemplate = (searchParams.get('template') === 'craving' ? 'craving' : 'comeback') as VictoryTemplate;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const routeTemplate = searchParams.get('template');
+  const initialTemplate = isVictoryTemplate(routeTemplate) ? routeTemplate : 'comeback';
   const [data, setData] = useState<IronHabitData>(loadData());
   const [streak, setStreak] = useState(calculateSobrietyStreak());
   const [template, setTemplate] = useState<VictoryTemplate>(initialTemplate);
@@ -80,6 +84,12 @@ const ShareProgressScreen = () => {
     window.addEventListener('iron-habit-data-updated', refresh);
     return () => window.removeEventListener('iron-habit-data-updated', refresh);
   }, []);
+
+  const chooseTemplate = (nextTemplate: VictoryTemplate) => {
+    setTemplate(nextTemplate);
+    setHookIndex(0);
+    setSearchParams({ template: nextTemplate });
+  };
 
   const workoutProof = data.latestVictoryProof;
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
@@ -133,8 +143,7 @@ const ShareProgressScreen = () => {
 
   const rotateTemplate = () => {
     const index = templates.findIndex((item) => item.id === template);
-    setTemplate(templates[(index + 1) % templates.length].id);
-    setHookIndex(0);
+    chooseTemplate(templates[(index + 1) % templates.length].id);
   };
 
   return (
@@ -169,7 +178,7 @@ const ShareProgressScreen = () => {
         <div className="hero-actions">
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
-          {cravingProofReady && <Button variant="danger" onClick={() => setTemplate('craving')}>Make Craving Victory Card</Button>}
+          {cravingProofReady && <Button variant="danger" onClick={() => chooseTemplate('craving')}>Make Craving Victory Card</Button>}
           {template === 'craving' && !cravingProofReady && <Link className="btn btn-danger" to="/rescue">Save Craving Proof First</Link>}
         </div>
       </Card>
@@ -181,10 +190,7 @@ const ShareProgressScreen = () => {
             <button
               key={item.id}
               className={`template-option ${template === item.id ? 'selected' : ''}`}
-              onClick={() => {
-                setTemplate(item.id);
-                setHookIndex(0);
-              }}
+              onClick={() => chooseTemplate(item.id)}
             >
               <strong>{item.label}</strong>
               <span>{item.description}</span>
