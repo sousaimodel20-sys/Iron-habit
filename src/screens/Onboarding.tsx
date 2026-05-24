@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { formatLocalDateKey } from '../utils/date';
@@ -12,6 +12,8 @@ const Onboarding = () => {
   const [bodyProfile, setBodyProfile] = useState<BodyProfile>(loadData().bodyProfile);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
+  const [setupOpen, setSetupOpen] = useState(false);
+  const setupSectionRef = useRef<HTMLDetailsElement | null>(null);
   const data = loadData();
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
@@ -95,6 +97,13 @@ const Onboarding = () => {
   const handleSave = () => {
     saveData({ profile, bodyProfile });
     setSaved(true);
+  };
+
+  const openSetup = () => {
+    setSetupOpen(true);
+    window.requestAnimationFrame(() => {
+      setupSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   const quickStart = () => {
@@ -279,7 +288,7 @@ const Onboarding = () => {
           <h2>Lock your baseline, then move straight into today.</h2>
           <p>Set name, sober start date, goal, and why. The setup form is lower on the page so the mission stays front and center.</p>
           <div className="hero-actions">
-            <a href="#setup-profile" className="btn btn-primary">Open baseline setup</a>
+            <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
             <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
             <Link to="/daily-check-in" className="btn btn-ghost">First check-in</Link>
           </div>
@@ -377,7 +386,13 @@ const Onboarding = () => {
         </div>
       </section>
 
-      <details id="setup-profile" className="collapse-card card warrior-collapse" open={false}>
+      <details
+        id="setup-profile"
+        ref={setupSectionRef}
+        className="collapse-card card warrior-collapse"
+        open={setupOpen}
+        onToggle={(event) => setSetupOpen(event.currentTarget.open)}
+      >
         <summary>
           <span>
             <b>Setup & profile</b>
