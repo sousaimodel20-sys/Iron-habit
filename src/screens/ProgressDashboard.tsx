@@ -148,6 +148,24 @@ const ProgressDashboard = () => {
         <small>{Math.max(0, nextMilestonePlan.days - streak)} sober days left. Stack today, not forever.</small>
       </Card>
 
+      <Card className="proof-vault-card stack-sm">
+        <span className="tag">Proof Vault</span>
+        <h2>{latestProof ? `${latestProof.title} locked in.` : 'No workout receipt selected yet.'}</h2>
+        <p>{latestProof ? latestProof.proofCopy : 'Finish a session, then choose a receipt to turn into a Victory Card.'}</p>
+        {latestProof && (
+          <div className="proof-grid mini-proof">
+            <div><strong>{latestProof.date}</strong><span>date saved</span></div>
+            <div><strong>{latestProof.activeDay}</strong><span>split</span></div>
+            <div><strong>{latestProof.completedSets}/{latestProof.totalSets}</strong><span>sets</span></div>
+            <div><strong>{latestProof.durationMinutes}m</strong><span>proof time</span></div>
+          </div>
+        )}
+        <div className="hero-actions">
+          <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
+          <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
+        </div>
+      </Card>
+
       <Card className="stack-sm">
         <span className="tag">Milestone Timeline</span>
         <h2>The comeback map.</h2>

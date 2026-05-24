@@ -89,11 +89,17 @@ const ShareableProgressCard = ({
       link.rel = 'noopener';
       document.body.appendChild(link);
       link.click();
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
       link.remove();
       setStatus('Victory card downloaded. If it did not open, take a screenshot of the card preview.');
     } catch (err) {
       console.error('Failed to generate image', err);
-      setStatus('Download blocked. Press and hold the card preview to screenshot or save it.');
+      try {
+        await navigator.clipboard?.writeText(cardText);
+        setStatus('Download blocked. Card text copied instead.');
+      } catch {
+        setStatus('Download blocked. Copy the card text below or screenshot the card preview.');
+      }
     }
   };
 

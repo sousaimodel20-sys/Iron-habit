@@ -37,6 +37,16 @@ const Onboarding = () => {
     : !trainedToday
       ? { title: activeLoadout ? `Run ${activeLoadout.title}` : 'Build today’s training loadout', detail: activeLoadout ? 'Open Workout Mode, finish the session, then log the proof.' : 'Let Talk generate the workout, then save it to Train.', to: activeLoadout ? '/workout-mode' : '/talk', cta: activeLoadout ? 'Start Workout' : 'Build Workout' }
       : { title: 'Turn today into proof', detail: 'Training and check-in are stacked. Make the win visible with Proof or a Victory Card.', to: latestProof ? '/share-progress' : '/profile', cta: latestProof ? 'Make Victory Card' : 'Show Proof' };
+  const nextBestMove = !todayCheckIn
+    ? 'Start the check-in and lock the day.'
+    : !trainedToday
+      ? activeLoadout
+        ? `Run ${activeLoadout.title} in Workout Mode.`
+        : 'Build today’s workout in Talk.'
+      : latestProof
+        ? 'Make the Victory Card and close the loop.'
+        : 'Open Proof and turn today into evidence.';
+  const proofAction = latestProof?.date === todayKey ? 'Victory Card ready' : latestProof ? 'Open Proof Stack' : 'Log visible proof';
   const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
 
@@ -260,7 +270,7 @@ const Onboarding = () => {
             🆘 Rescue
           </Link>
         </div>
-        <p className="hero-why">Discipline today. Freedom tomorrow.</p>
+        <p className="hero-why">{nextBestMove}</p>
       </section>
 
       {needsSetup && (
@@ -305,7 +315,7 @@ const Onboarding = () => {
         <div className="mission-brief-grid">
           <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
           <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
-          <div><span>Proof action</span><strong>{latestProof?.date === todayKey ? 'Victory Card ready' : 'Log visible proof'}</strong></div>
+          <div><span>Proof action</span><strong>{proofAction}</strong></div>
         </div>
         <div className="hero-actions">
           <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
