@@ -4,6 +4,7 @@ import { loadData, type IronHabitData } from '../utils/storage';
 import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
 import { Button, Card, PageHeader } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { formatLocalDateKey } from '../utils/date';
 
 const templates: { id: VictoryTemplate; label: string; description: string }[] = [
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
@@ -59,7 +60,7 @@ const hashtags: Record<VictoryTemplate, string> = {
 const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, index) => {
   const date = new Date();
   date.setDate(date.getDate() + index - count + 1);
-  return date.toISOString().slice(0, 10);
+  return formatLocalDateKey(date);
 });
 
 const templateIds = templates.map((item) => item.id);

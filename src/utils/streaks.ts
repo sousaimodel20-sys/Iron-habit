@@ -1,8 +1,9 @@
 import { loadData } from './storage';
+import { formatLocalDateKey } from './date';
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-const toDateKey = (date: Date) => date.toISOString().slice(0, 10);
+const toDateKey = (date: Date) => formatLocalDateKey(date);
 
 export const daysBetween = (start: string, end = toDateKey(new Date())) => {
   const startDate = new Date(`${start}T00:00:00`);

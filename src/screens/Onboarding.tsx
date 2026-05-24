@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
+import { formatLocalDateKey } from '../utils/date';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
@@ -102,7 +103,7 @@ const Onboarding = () => {
     const dateKey = (offset: number) => {
       const date = new Date(now);
       date.setDate(now.getDate() + offset);
-      return date.toISOString().slice(0, 10);
+      return formatLocalDateKey(date);
     };
     const soberStart = dateKey(-46);
     const createdAt = now.toISOString();

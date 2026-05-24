@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Card, Field, PageHeader } from '../components/UI';
 import { loadData, saveData, type Habit } from '../utils/storage';
+import { formatLocalDateKey } from '../utils/date';
 
 const HabitTracker = () => {
   const [habits, setHabits] = useState<Habit[]>(() => loadData().habits);
@@ -21,7 +22,7 @@ const HabitTracker = () => {
       title: title.trim(),
       why: why.trim() || 'This supports the person I am becoming.',
       cadence,
-      createdAt: new Date().toISOString().slice(0, 10),
+      createdAt: formatLocalDateKey(),
     };
     persist([habit, ...habits]);
     setTitle('');

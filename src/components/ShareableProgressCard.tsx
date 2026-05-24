@@ -4,6 +4,7 @@ import { Button } from './UI';
 import type { IronHabitData } from '../utils/storage';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets } from '../utils/nutrition';
+import { formatLocalDateKey } from '../utils/date';
 
 export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly';
 
@@ -45,7 +46,7 @@ const templateCopy: Record<VictoryTemplate, TemplateCopy> = {
 const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, index) => {
   const date = new Date();
   date.setDate(date.getDate() + index - count + 1);
-  return date.toISOString().slice(0, 10);
+  return formatLocalDateKey(date);
 });
 
 const ShareableProgressCard = ({

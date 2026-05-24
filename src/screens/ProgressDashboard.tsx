@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MilestoneBadge from '../components/MilestoneBadge';
 import { Card, PageHeader, Stat } from '../components/UI';
+import { formatLocalDateKey } from '../utils/date';
 import { loadData, saveData, type CompletedLoadout, type IronHabitData } from '../utils/storage';
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
@@ -23,7 +24,7 @@ const dayMs = 24 * 60 * 60 * 1000;
 const getDateKey = (offset: number) => {
   const date = new Date();
   date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
+  return formatLocalDateKey(date);
 };
 
 const getDayLabel = (dateKey: string) =>

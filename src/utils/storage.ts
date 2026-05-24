@@ -1,3 +1,5 @@
+import { formatLocalDateKey } from './date';
+
 export type CheckIn = {
   date: string;
   sober: boolean;
@@ -107,7 +109,7 @@ export type IronHabitData = {
 
 const STORAGE_KEY = 'iron-habit-data';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => formatLocalDateKey();
 
 export const defaultData: IronHabitData = {
   profile: {

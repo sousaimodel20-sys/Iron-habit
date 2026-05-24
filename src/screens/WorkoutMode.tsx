@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { formatLocalDateKey } from '../utils/date';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => formatLocalDateKey();
 
 const setsAsNumber = (sets: string) => {
   const parsed = Number.parseInt(sets, 10);

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { formatLocalDateKey } from '../utils/date';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
@@ -34,7 +35,7 @@ const FitnessTracker = () => {
   const addEntry = () => {
     const entry: FitnessEntry = {
       id: `${Date.now()}`,
-      date: new Date().toISOString().slice(0, 10),
+      date: formatLocalDateKey(),
       type,
       durationMinutes: Math.max(1, duration),
       intensity,
@@ -49,7 +50,7 @@ const FitnessTracker = () => {
 
     const minutes = Number.parseInt(activeLoadout.time, 10) || 45;
     const intensityValue = activeLoadout.level === 'Advanced' ? 'Beast mode' : activeLoadout.level === 'Beginner' ? 'Moderate' : 'Hard';
-    const date = new Date().toISOString().slice(0, 10);
+    const date = formatLocalDateKey();
     const soberDay = Math.max(1, calculateSobrietyStreak());
     const totalSets = activeLoadout.exercises.reduce((sum, exercise) => sum + (Number.parseInt(exercise.sets, 10) || 3), 0);
     const proof: CompletedLoadout = {
