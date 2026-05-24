@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
 import { loadData, saveData } from '../utils/storage';
@@ -43,11 +43,21 @@ const buildSupportCards = (query: string) => [
 
 const Meetings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const profile = loadData().profile;
+  const [profile, setProfile] = useState(() => loadData().profile);
   const savedSupportLocation = profile.supportLocation;
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
   const [query, setQuery] = useState(() => searchParams.get('q') || savedSupportLocation || defaultSearch);
+
+  useEffect(() => {
+    const refreshProfile = () => setProfile(loadData().profile);
+    window.addEventListener('iron-habit-data-updated', refreshProfile);
+    window.addEventListener('storage', refreshProfile);
+    return () => {
+      window.removeEventListener('iron-habit-data-updated', refreshProfile);
+      window.removeEventListener('storage', refreshProfile);
+    };
+  }, []);
 
   const supportCards = useMemo(() => buildSupportCards(query), [query]);
   const mapsUrl = useMemo(() => buildSearchUrl(query, 'maps'), [query]);
@@ -56,7 +66,8 @@ const Meetings = () => {
   const saveSupportLocation = (location: string) => {
     const cleanLocation = location.trim() || defaultSearch;
     const current = loadData();
-    saveData({ profile: { ...current.profile, supportLocation: cleanLocation } });
+    const next = saveData({ profile: { ...current.profile, supportLocation: cleanLocation } });
+    setProfile(next.profile);
     return cleanLocation;
   };
 
