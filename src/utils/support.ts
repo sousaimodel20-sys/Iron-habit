@@ -11,3 +11,8 @@ export const buildSupportSmsHref = (profile: Profile, message: string) => {
   const body = encodeURIComponent(message);
   return phone ? `sms:${phone}?&body=${body}` : `sms:?body=${body}`;
 };
+
+export const buildSupportTelHref = (profile: Profile) => {
+  const phone = cleanPhone(profile.supportPhone);
+  return phone ? `tel:${phone}` : '';
+};

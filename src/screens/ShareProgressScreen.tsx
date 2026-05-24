@@ -180,7 +180,12 @@ const ShareProgressScreen = () => {
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
           {cravingProofReady && <Button variant="danger" onClick={() => chooseTemplate('craving')}>Make Craving Victory Card</Button>}
-          {template === 'craving' && !cravingProofReady && <Link className="btn btn-danger" to="/rescue">Save Craving Proof First</Link>}
+          {template === 'craving' && !cravingProofReady && (
+            <>
+              <Link className="btn btn-danger" to="/rescue">Save Craving Proof First</Link>
+              <Link className="btn btn-secondary" to="/rescue">Open Rescue now</Link>
+            </>
+          )}
         </div>
       </Card>
 

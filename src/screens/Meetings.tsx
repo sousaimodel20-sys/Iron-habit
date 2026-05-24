@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
 import { loadData, saveData } from '../utils/storage';
-import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const defaultSearch = 'Vancouver, BC';
 
@@ -119,7 +119,10 @@ const Meetings = () => {
         <div className="hero-actions">
           <Link to="/talk" className="btn btn-secondary">Talk to Coach</Link>
           {supportReady ? (
-            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I’m riding out a craving and need support for the next 10 minutes.')}>Text {supportContactLabel}</a>
+            <>
+              <a className="btn btn-danger" href={buildSupportTelHref(profile)}>Call {supportContactLabel}</a>
+              <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I’m riding out a craving and need support for the next 10 minutes.')}>Text {supportContactLabel}</a>
+            </>
           ) : (
             <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
           )}
