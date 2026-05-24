@@ -276,10 +276,10 @@ const Onboarding = () => {
       {needsSetup && (
         <section className="card first-user-card stack-sm">
           <span className="tag danger-tag">First launch</span>
-          <h2>Lock your baseline before the app asks more from you.</h2>
-          <p>Set name, sober start date, goal, and why. Then run today’s check-in and generate your first Coach Loadout.</p>
+          <h2>Lock your baseline, then move straight into today.</h2>
+          <p>Set name, sober start date, goal, and why. The setup form is lower on the page so the mission stays front and center.</p>
           <div className="hero-actions">
-            <a href="#setup-profile" className="btn btn-primary">Set baseline</a>
+            <a href="#setup-profile" className="btn btn-primary">Open baseline setup</a>
             <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
             <Link to="/daily-check-in" className="btn btn-ghost">First check-in</Link>
           </div>
@@ -377,7 +377,7 @@ const Onboarding = () => {
         </div>
       </section>
 
-      <details id="setup-profile" className="collapse-card card warrior-collapse" open={needsSetup}>
+      <details id="setup-profile" className="collapse-card card warrior-collapse" open={false}>
         <summary>
           <span>
             <b>Setup & profile</b>
