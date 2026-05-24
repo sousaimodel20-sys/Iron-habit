@@ -504,6 +504,9 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .share-proof-strip span { border: 1px solid rgba(246,196,83,.24); border-radius: 999px; padding: 10px 12px; color: var(--gold); background: rgba(246,196,83,.08); font-weight: 900; text-align: center; }
 .share-why { color: #fff; font-size: 1rem; }
 .share-card footer { display: flex; justify-content: space-between; color: var(--gold); font-size: .82rem; font-weight: 900; }
+.share-card-text-fallback { width: min(100%, 390px); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 12px 14px; background: rgba(255,255,255,.04); color: var(--muted); }
+.share-card-text-fallback summary { cursor: pointer; color: #fff; font-weight: 850; }
+.share-card-text-fallback pre { margin: 10px 0 0; white-space: pre-wrap; word-break: break-word; color: #f8fafc; font-size: .84rem; line-height: 1.45; }
 .content-studio-page .page-header h1 { letter-spacing: -.07em; }
 .content-studio-hero { overflow: hidden; }
 .proof-angle-strip { display: flex; flex-wrap: wrap; gap: 8px; }

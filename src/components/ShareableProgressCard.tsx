@@ -122,7 +122,7 @@ const ShareableProgressCard = ({
       await navigator.clipboard?.writeText(cardText);
       setStatus('Victory Card text copied.');
     } catch {
-      setStatus('Copy blocked. Press and hold the caption text below instead.');
+      setStatus('Copy blocked. Open the card text fallback below and press-and-hold to copy it.');
     }
   };
 
@@ -227,6 +227,10 @@ const ShareableProgressCard = ({
         <Button onClick={handleDownload}>Download {template} card</Button>
         <Button variant="secondary" onClick={copyCardText}>Copy card text</Button>
       </div>
+      <details className="share-card-text-fallback">
+        <summary>Card text fallback</summary>
+        <pre>{cardText}</pre>
+      </details>
       {status && <p className="success-msg">{status}</p>}
     </section>
   );
