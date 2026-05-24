@@ -93,8 +93,12 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .mission-step-strip a, .mission-brief-grid div { border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.24); padding: 11px; }
 .mission-step-strip a { display: grid; place-items: center; color: #d4d4d8; font-size: .78rem; font-weight: 900; }
 .mission-step-strip b { color: #ff6b6b; font-size: 1.05rem; }
+.mission-title-row { align-items: center; }
+.mission-title-row b { color: var(--gold); font-size: .76rem; text-transform: uppercase; letter-spacing: .12em; }
+.mission-step-strip a.step-active { border-color: rgba(246,196,83,.68); background: rgba(246,196,83,.13); box-shadow: 0 0 0 3px rgba(246,196,83,.08); color: #fff; }
 .mission-step-strip a.step-done { border-color: rgba(34,197,94,.42); background: rgba(34,197,94,.11); color: #fff; }
 .mission-step-strip a.step-done b { color: #86efac; }
+.mission-step-strip a.step-active b { color: var(--gold); }
 .mission-brief-grid { grid-template-columns: 1fr; }
 .mission-brief-grid span { display: block; color: #ff6b6b; font-size: .66rem; text-transform: uppercase; letter-spacing: .13em; font-weight: 950; }
 .mission-brief-grid strong { display: block; margin-top: 4px; color: #fff; font-size: .9rem; line-height: 1.25; }

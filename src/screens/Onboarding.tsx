@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { formatLocalDateKey } from '../utils/date';
+import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
@@ -16,10 +17,10 @@ const Onboarding = () => {
   const setupSectionRef = useRef<HTMLDetailsElement | null>(null);
   const data = loadData();
   const todayKey = getTodayKey();
-  const todayCheckIn = data.checkIns[todayKey];
-  const trainedToday = data.fitnessEntries.some((entry) => entry.date === todayKey);
   const activeLoadout = data.activeLoadout;
   const latestProof = data.latestVictoryProof;
+  const missionState = computeDailyMissionState(data, todayKey);
+  const { todayCheckIn, trainedToday, primaryMission, missionSteps, nextBestMove, heroTag, proofAction, completionLabel } = missionState;
   const needsSetup = !profile.name && Object.keys(data.checkIns).length === 0;
   const displayDay = Math.max(1, calculateSobrietyStreak());
   const workoutDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
@@ -29,26 +30,6 @@ const Onboarding = () => {
   const craving = todayCheckIn?.craving ?? 2;
   const moodStability = todayCheckIn ? 'Stable' : 'Locked';
   const macroTargets = calculateMacroTargets(bodyProfile);
-  const missionSteps = [
-    { label: 'Check in', done: Boolean(todayCheckIn), to: '/daily-check-in' },
-    { label: 'Train', done: trainedToday, to: activeLoadout ? '/workout-mode' : '/talk' },
-    { label: 'Proof', done: Boolean(latestProof?.date === todayKey), to: latestProof ? '/share-progress' : '/profile' },
-  ];
-  const primaryMission = !todayCheckIn
-    ? { title: 'Lock today’s check-in', detail: `Day ${displayDay}: name the mood, rate the craving, and protect the streak first.`, to: '/daily-check-in', cta: 'Start Check-In' }
-    : !trainedToday
-      ? { title: activeLoadout ? `Run ${activeLoadout.title}` : 'Build today’s training loadout', detail: activeLoadout ? 'Open Workout Mode, finish the session, then log the proof.' : 'Let Talk generate the workout, then save it to Train.', to: activeLoadout ? '/workout-mode' : '/talk', cta: activeLoadout ? 'Start Workout' : 'Build Workout' }
-      : { title: 'Turn today into proof', detail: 'Training and check-in are stacked. Make the win visible with Proof or a Victory Card.', to: latestProof ? '/share-progress' : '/profile', cta: latestProof ? 'Make Victory Card' : 'Show Proof' };
-  const nextBestMove = !todayCheckIn
-    ? 'Start the check-in and lock the day.'
-    : !trainedToday
-      ? activeLoadout
-        ? `Run ${activeLoadout.title} in Workout Mode.`
-        : 'Build today’s workout in Talk.'
-      : latestProof
-        ? 'Make the Victory Card and close the loop.'
-        : 'Open Proof and turn today into evidence.';
-  const proofAction = latestProof?.date === todayKey ? 'Victory Card ready' : latestProof ? 'Open Proof Stack' : 'Log visible proof';
   const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
 
@@ -61,7 +42,6 @@ const Onboarding = () => {
     return null;
   };
   const milestoneInfo = getMilestoneInfo();
-  const heroTag = !todayCheckIn ? 'ACTION: Lock in today' : !trainedToday ? "ACTION: Run today's routine" : 'READY: Make proof';
 
   const missions = [
     {
@@ -310,12 +290,15 @@ const Onboarding = () => {
       )}
 
       <section className="card command-card sober-mission-card stack-sm">
-        <span className="tag">Sober Strength Mission</span>
+        <div className="section-title-row mission-title-row">
+          <span className="tag">Sober Strength Mission</span>
+          <b>{completionLabel}</b>
+        </div>
         <h2>{primaryMission.title}</h2>
         <p>{primaryMission.detail}</p>
         <div className="mission-step-strip" aria-label="Daily mission steps">
           {missionSteps.map((step) => (
-            <Link to={step.to} key={step.label} className={step.done ? 'step-done' : ''}>
+            <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
               <b>{step.done ? '✓' : '•'}</b>
               <span>{step.label}</span>
             </Link>
