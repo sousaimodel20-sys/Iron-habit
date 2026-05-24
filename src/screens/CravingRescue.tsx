@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
@@ -14,6 +14,8 @@ const protocol = [
 ];
 
 const appendNote = (current: string, next: string) => [current, next].filter(Boolean).join(' | ');
+
+type RescueOutcome = 'idle' | 'win' | 'slip';
 
 const CravingRescue = () => {
   const [searchParams] = useSearchParams();
@@ -34,6 +36,7 @@ const CravingRescue = () => {
   const [running, setRunning] = useState(chainMode);
   const [mode, setMode] = useState<'steady' | 'emergency' | 'slip'>(chainMode ? 'emergency' : 'steady');
   const [status, setStatus] = useState(chainMode ? initialChainStatus : '');
+  const [outcome, setOutcome] = useState<RescueOutcome>('idle');
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
   const minutes = Math.floor(secondsLeft / 60);
@@ -83,7 +86,15 @@ const CravingRescue = () => {
     saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
   }, [chainMode, todayCheckIn?.note, todayKey]);
 
+  const rescueStepMessage = useMemo(() => {
+    if (outcome === 'win') return 'Win state: stack proof, keep the day sober, and move to the next right action.';
+    if (outcome === 'slip') return 'Restart state: stop the bleed, then rebuild the next 24 hours without shame.';
+    if (mode === 'emergency') return 'Emergency state: lock in human support and let the 10-minute clock do the work.';
+    return running ? 'The only job is to finish the 10-minute clock.' : 'Press start, then do the next 10 minutes exactly as written.';
+  }, [mode, outcome, running]);
+
   const start = () => {
+    setOutcome('idle');
     setSecondsLeft(600);
     setRunning(true);
     setStatus('Ten-minute rescue started. Do not negotiate until the clock hits zero.');
@@ -91,6 +102,7 @@ const CravingRescue = () => {
 
   const startEmergency = () => {
     setMode('emergency');
+    setOutcome('idle');
     setSecondsLeft(600);
     setRunning(true);
     saveRescueCheckIn(
@@ -101,6 +113,7 @@ const CravingRescue = () => {
 
   const logRescueWin = () => {
     setRunning(false);
+    setOutcome('win');
     saveRescueCheckIn(
       { sober: true, mood: 'Rescue win', craving: Math.min(todayCheckIn?.craving ?? 3, 3), note: 'Rescue win logged: craving wave passed without drinking.' },
       'Rescue win logged. Proof beats the old loop.',
@@ -108,6 +121,7 @@ const CravingRescue = () => {
   };
 
   const makeCravingCard = () => {
+    setOutcome('win');
     saveRescueCheckIn(
       { sober: true, mood: 'Craving defeated', craving: Math.max(todayCheckIn?.craving ?? 0, mode === 'emergency' ? 10 : 7), note: 'Craving Victory Card created from Rescue.' },
       'Craving proof saved. Turn it into a Victory Card.',
@@ -116,6 +130,7 @@ const CravingRescue = () => {
 
   const logSlip = () => {
     setMode('slip');
+    setOutcome('slip');
     setRunning(false);
     saveRescueCheckIn(
       { sober: false, mood: 'Restarting', craving: 6, note: 'Slip logged without shame. Restart plan opened.' },
@@ -133,6 +148,7 @@ const CravingRescue = () => {
     setRunning(false);
     setSecondsLeft(600);
     setMode('steady');
+    setOutcome('idle');
     setStatus('');
   };
 
@@ -145,28 +161,12 @@ const CravingRescue = () => {
       </PageHeader>
 
       <Card className={`rescue-card emergency-rescue-card stack-md ${mode === 'emergency' ? 'is-emergency' : ''}`}>
-        {chainMode && (
-          <div className="stack-sm">
-            <span className="tag danger-tag">Emergency support chain</span>
-            <p className="rescue-support-note">Talk already logged the craving and kicked off Rescue. Stack the next human-support moves fast.</p>
-            <div className="rescue-actions primary-rescue-actions">
-              {supportReady ? (
-                <>
-                  <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
-                  <a className="btn btn-ghost" href={buildSupportSmsHref(profile, 'I need support right now. I am in a high-craving moment and staying sober for the next 10 minutes.')}>Text {supportContactLabel}</a>
-                </>
-              ) : (
-                <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
-              )}
-              <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
-            </div>
-          </div>
-        )}
-
         <div className="rescue-head">
           <span className="tag danger-tag">{mode === 'emergency' ? 'I am about to drink' : 'Emergency lock-in'}</span>
           <span className="rescue-clock">{minutes}:{seconds}</span>
         </div>
+
+        <p className="rescue-support-note rescue-hero-note">{rescueStepMessage}</p>
 
         <div className="breath-ring" aria-label="Breathing guide">
           <span>{secondsLeft === 0 ? 'Clear' : running ? 'Breathe' : 'Start'}</span>
@@ -185,6 +185,14 @@ const CravingRescue = () => {
           )}
         </div>
 
+        {chainMode && (
+          <div className="rescue-chain-panel">
+            <span className="tag danger-tag">Emergency support chain</span>
+            <p className="rescue-support-note">Talk already logged the craving and kicked off Rescue. Stack the next human-support moves fast.</p>
+            <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
+          </div>
+        )}
+
         <div className="rescue-actions">
           <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
         </div>
@@ -196,9 +204,32 @@ const CravingRescue = () => {
           <Button variant="secondary" onClick={reset}>Reset timer</Button>
         </div>
 
-        {secondsLeft === 0 && <p className="success-msg">You made it through the wave. Log the rescue win.</p>}
+        {secondsLeft === 0 && outcome !== 'win' && <p className="success-msg">You made it through the wave. Log the rescue win.</p>}
         {status && <p className="success-msg">{status}</p>}
       </Card>
+
+      {outcome !== 'idle' && (
+        <Card className={`rescue-outcome-card stack-md ${outcome === 'win' ? 'is-win' : 'is-slip'}`}>
+          <span className="tag">{outcome === 'win' ? 'Rescue win' : 'Restart now'}</span>
+          <h2>{outcome === 'win' ? 'You just beat the urge.' : 'No shame. Restart the next 24 hours.'}</h2>
+          <p>{outcome === 'win' ? 'Treat this as proof. Lock the win, keep the streak alive, and move to the next right action.' : 'Stop the bleed, reset the day, and use the proof loop to start clean.'}</p>
+          <div className="rescue-actions">
+            {outcome === 'win' ? (
+              <>
+                <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+                <Link to="/share-progress?template=craving" className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
+                <Link to="/profile" className="btn btn-ghost">Open Proof Vault</Link>
+              </>
+            ) : (
+              <>
+                <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
+                <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+                <Link to="/meetings?q=Vancouver%2C%20BC" className="btn btn-ghost">Find a meeting</Link>
+              </>
+            )}
+          </div>
+        </Card>
+      )}
 
       {mode === 'slip' && (
         <Card className="slip-restart-card stack-md">
