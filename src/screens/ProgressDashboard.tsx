@@ -7,6 +7,7 @@ import { loadData, saveData, type CompletedLoadout, type IronHabitData } from '.
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
+import { getCravingReceipts, getLatestProof, getProofStack } from '../utils/proofReceipts';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 const milestonePlan = [
@@ -101,13 +102,10 @@ const ProgressDashboard = () => {
   const weeklySoberDays = getRecentDays(7).filter((date) => data.checkIns[date]?.sober).length;
   const weeklyHabitBlocks = getRecentDays(7).reduce((sum, date) => sum + (data.checkIns[date]?.habitsCompleted.length || 0), 0);
   const weeklyLoadouts = data.completedLoadouts.filter((proof) => getRecentDays(7).includes(proof.date)).length;
-  const sortedCheckIns = [...checkIns].sort((a, b) => b.date.localeCompare(a.date));
-  const cravingReceipts = sortedCheckIns
-    .filter((entry) => entry.sober && (entry.craving >= 7 || entry.note.toLowerCase().includes('rescue') || entry.note.toLowerCase().includes('craving')))
-    .slice(0, 3);
+  const cravingReceipts = getCravingReceipts(data.checkIns, 3);
   const latestCravingReceipt = cravingReceipts[0] || null;
-  const latestProof = data.latestVictoryProof || data.completedLoadouts[0] || null;
-  const proofStack = data.completedLoadouts.slice(0, 5);
+  const latestProof = getLatestProof(data.latestVictoryProof, data.completedLoadouts);
+  const proofStack = getProofStack(data.completedLoadouts, 5);
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const soberRate = checkIns.length ? Math.round((soberCheckIns / checkIns.length) * 100) : 0;
   const firstCheckIn = checkIns

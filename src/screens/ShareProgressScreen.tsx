@@ -5,6 +5,7 @@ import ShareableProgressCard, { type VictoryTemplate } from '../components/Share
 import { Button, Card, PageHeader } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { getCravingReceipts } from '../utils/proofReceipts';
 
 const templates: { id: VictoryTemplate; label: string; description: string }[] = [
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
@@ -94,10 +95,11 @@ const ShareProgressScreen = () => {
 
   const workoutProof = data.latestVictoryProof;
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
-  const cravingProofReady = Boolean(latestCheckIn && (latestCheckIn.craving >= 7 || latestCheckIn.note.toLowerCase().includes('rescue') || latestCheckIn.note.toLowerCase().includes('craving')));
+  const latestCravingReceipt = getCravingReceipts(data.checkIns, 1)[0];
+  const cravingProofReady = Boolean(latestCravingReceipt);
   const activeProofLabel = template === 'craving'
     ? cravingProofReady
-      ? `Craving proof ready: ${latestCheckIn?.craving ?? 0}/10 urge faced and streak protected.`
+      ? `Craving proof ready: ${latestCravingReceipt?.craving ?? 0}/10 urge faced on ${latestCravingReceipt?.date} and streak protected.`
       : 'Craving Card preview ready. Open Rescue first to save a real craving receipt.'
     : workoutProof
       ? `${workoutProof.title} • ${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets.`
@@ -118,10 +120,10 @@ const ShareProgressScreen = () => {
     receipts: workoutProof
       ? `Receipts: ${workoutProof.label}, ${workoutProof.durationMinutes} minutes, ${workoutProof.completedSets} sets completed. Proof beats promises. ${hashtags.receipts}`
       : `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. ${hashtags.receipts}`,
-    craving: `Craving hit${latestCheckIn?.craving ? ` at ${latestCheckIn.craving}/10` : ''}. I did not bargain with it. I protected the streak and stayed in command. ${hashtags.craving}`,
+    craving: `Craving hit${latestCravingReceipt?.craving ? ` at ${latestCravingReceipt.craving}/10` : ''}. I did not bargain with it. I protected the streak and stayed in command. ${hashtags.craving}`,
     transformation: `${data.bodyProfile.weightLbs ? `${data.bodyProfile.weightLbs} lb today` : `Day ${streak} sober`}${data.bodyProfile.goalWeightLbs ? `, goal ${data.bodyProfile.goalWeightLbs}` : ''}. This is not just fitness. This is the new life getting visible. ${hashtags.transformation}`,
     weekly: `Weekly receipts: ${weeklySoberDays} sober check-ins, ${weeklyMinutes} training minutes, and another boss battle against the old pattern. ${hashtags.weekly}`,
-  }), [data.bodyProfile.goalWeightLbs, data.bodyProfile.weightLbs, data.fitnessEntries.length, data.habits.length, latestCheckIn?.craving, streak, weeklyMinutes, weeklySoberDays, workoutProof]);
+  }), [data.bodyProfile.goalWeightLbs, data.bodyProfile.weightLbs, data.fitnessEntries.length, data.habits.length, latestCravingReceipt?.craving, streak, weeklyMinutes, weeklySoberDays, workoutProof]);
 
   const hook = hooks[template][hookIndex % hooks[template].length];
   const videoIdea = template === 'craving'

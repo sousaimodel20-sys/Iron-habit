@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test:daily-mission": "node --experimental-transform-types scripts/test-daily-mission.mjs",
+    "test:proof-receipts": "node --experimental-transform-types scripts/test-proof-receipts.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
