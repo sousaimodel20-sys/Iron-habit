@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Card, PageHeader } from '../components/UI';
-import { defaultData, loadData, replaceData, type IronHabitData } from '../utils/storage';
+import { defaultData, loadData, replaceData, resetData, type IronHabitData } from '../utils/storage';
 import { formatLocalDateKey } from '../utils/date';
 
 const Settings = () => {
@@ -98,7 +98,7 @@ const Settings = () => {
   };
 
   const handleClearData = () => {
-    replaceData(defaultData);
+    resetData();
     setShowClearConfirm(false);
     window.location.reload();
   };
@@ -161,7 +161,7 @@ const Settings = () => {
         <span className="tag">Advanced</span>
         <h2>Clear all data</h2>
         <p>
-          Remove all check-ins, training logs, loadouts, and profile data. This action cannot be undone. A backup will be required to recover.
+          Remove the local Iron Habit save and reload back to first-launch defaults. This action cannot be undone. A backup will be required to recover.
         </p>
         {!showClearConfirm ? (
           <button onClick={() => setShowClearConfirm(true)} className="btn btn-danger">
