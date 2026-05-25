@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { getCravingReceipts, getLatestProof, getProofStack } from '../src/utils/proofReceipts.ts';
+import { getCravingReceiptByDate, getCravingReceipts, getLatestProof, getProofStack } from '../src/utils/proofReceipts.ts';
 
 const checkIns = {
   '2026-05-21': { date: '2026-05-21', sober: true, mood: 'Steady', craving: 2, note: 'Normal day', habitsCompleted: [] },
@@ -20,5 +20,7 @@ const proofC = { id: 'c', date: '2026-05-22', title: 'Middle Lift', label: 'PPL'
 assert.deepEqual(getProofStack([proofA, proofB, proofC], 2).map((proof) => proof.id), ['b', 'c']);
 assert.equal(getLatestProof(null, [proofA, proofB, proofC])?.id, 'b');
 assert.equal(getLatestProof(proofA, [proofB, proofC])?.id, 'a');
+assert.equal(getCravingReceiptByDate(checkIns, '2026-05-22')?.mood, 'Emergency rescue');
+assert.equal(getCravingReceiptByDate(checkIns, '2026-05-23'), null);
 
 console.log('proof receipt tests passed');

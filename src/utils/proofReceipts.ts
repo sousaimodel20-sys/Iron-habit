@@ -10,6 +10,9 @@ export const getCravingReceipts = (checkIns: Record<string, CheckIn>, limit = 3)
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, limit);
 
+export const getCravingReceiptByDate = (checkIns: Record<string, CheckIn>, date: string) =>
+  getCravingReceipts(checkIns, Object.keys(checkIns).length).find((entry) => entry.date === date) || null;
+
 export const getProofStack = (completedLoadouts: CompletedLoadout[], limit = 5) => [...completedLoadouts]
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, limit);

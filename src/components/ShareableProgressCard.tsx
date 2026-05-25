@@ -5,7 +5,8 @@ import type { IronHabitData } from '../utils/storage';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets } from '../utils/nutrition';
 import { formatLocalDateKey } from '../utils/date';
-import { getCravingReceipts } from '../utils/proofReceipts';
+import { getCravingReceiptByDate, getCravingReceipts } from '../utils/proofReceipts';
+import type { CheckIn } from '../utils/storage';
 
 export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly';
 
@@ -54,20 +55,23 @@ const ShareableProgressCard = ({
   data,
   streak,
   template = 'comeback',
+  cravingReceipt = null,
 }: {
   data: IronHabitData;
   streak: number;
   template?: VictoryTemplate;
+  cravingReceipt?: CheckIn | null;
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState('');
   const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
-  const latestCravingReceipt = getCravingReceipts(data.checkIns, 1)[0];
+  const latestCravingReceipt = cravingReceipt || getCravingReceipts(data.checkIns, 1)[0];
+  const cravingReceiptDate = latestCravingReceipt ? getCravingReceiptByDate(data.checkIns, latestCravingReceipt.date) : null;
   const latestMood = latestCheckIn?.mood || 'Locked in';
-  const cravingMood = latestCravingReceipt?.mood || latestMood;
+  const cravingMood = cravingReceiptDate?.mood || latestCravingReceipt?.mood || latestMood;
   const latestCraving = latestCheckIn?.craving ?? 0;
-  const receiptCraving = latestCravingReceipt?.craving ?? latestCraving;
+  const receiptCraving = cravingReceiptDate?.craving ?? latestCravingReceipt?.craving ?? latestCraving;
   const metrics = getTransformationMetrics(data, streak);
   const copy = templateCopy[template];
   const firstName = data.profile.name || 'I';

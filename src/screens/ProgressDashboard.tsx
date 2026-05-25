@@ -239,7 +239,7 @@ const ProgressDashboard = () => {
                     <h3>{receipt.mood || 'Craving defeated'}</h3>
                     <p>{receipt.note || 'Proof stacked from a sober check-in.'}</p>
                   </div>
-                  <Link to="/share-progress?template=craving" className="btn btn-ghost">Make Card</Link>
+                  <Link to={`/share-progress?template=craving&receipt=${receipt.date}`} className="btn btn-ghost">Make Card</Link>
                 </article>
               ))}
             </div>

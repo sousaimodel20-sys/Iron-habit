@@ -5,7 +5,7 @@ import ShareableProgressCard, { type VictoryTemplate } from '../components/Share
 import { Button, Card, PageHeader } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
-import { getCravingReceipts } from '../utils/proofReceipts';
+import { getCravingReceiptByDate, getCravingReceipts } from '../utils/proofReceipts';
 
 const templates: { id: VictoryTemplate; label: string; description: string }[] = [
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
@@ -93,7 +93,9 @@ const ShareProgressScreen = () => {
 
   const workoutProof = data.latestVictoryProof;
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
-  const latestCravingReceipt = getCravingReceipts(data.checkIns, 1)[0];
+  const cravingReceiptDate = searchParams.get('receipt');
+  const routeCravingReceipt = cravingReceiptDate ? getCravingReceiptByDate(data.checkIns, cravingReceiptDate) : null;
+  const latestCravingReceipt = routeCravingReceipt || getCravingReceipts(data.checkIns, 1)[0];
   const cravingProofReady = Boolean(latestCravingReceipt);
   const activeProofLabel = template === 'craving'
     ? cravingProofReady
@@ -206,7 +208,7 @@ const ShareProgressScreen = () => {
       </Card>
 
       <div id="victory-card-preview">
-        <ShareableProgressCard data={data} streak={streak} template={template} />
+        <ShareableProgressCard data={data} streak={streak} template={template} cravingReceipt={latestCravingReceipt} />
       </div>
 
       <Card id="post-idea" className="stack-sm tiktok-post-card">
