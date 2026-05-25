@@ -63,6 +63,11 @@ const Onboarding = () => {
   const weeklyBossPercent = Math.round((weeklyBossCleared / missions.length) * 100);
   const supportReady = hasSupportContact(profile);
   const demoProofReady = Boolean(activeLoadout && latestProof && Object.keys(data.checkIns).length >= 7);
+  const launchSteps = [
+    { step: '1', title: 'Open baseline setup', detail: 'Add your name, why, sobriety start date, and support contact.' },
+    { step: '2', title: 'Save the first check-in', detail: 'Lock in mood, craving, and sober status before the day gets loud.' },
+    { step: '3', title: 'Use Talk or Rescue', detail: 'Route commands to meetings, proof, training, and emergency help.' },
+  ];
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -265,8 +270,17 @@ const Onboarding = () => {
       {needsSetup && (
         <section className="card first-user-card stack-sm">
           <span className="tag danger-tag">First launch</span>
-          <h2>Lock your baseline, then move straight into today.</h2>
-          <p>Set name, sober start date, goal, and why. The setup form is lower on the page so the mission stays front and center.</p>
+          <h2>Get to a working baseline in three taps.</h2>
+          <p>Start with setup, save your first check-in, then use Talk or Rescue whenever the day gets loud.</p>
+          <div className="launch-step-strip" aria-label="First launch steps">
+            {launchSteps.map((item) => (
+              <div key={item.step} className="launch-step">
+                <span>{item.step}</span>
+                <b>{item.title}</b>
+                <small>{item.detail}</small>
+              </div>
+            ))}
+          </div>
           <div className="hero-actions">
             <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
             <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
