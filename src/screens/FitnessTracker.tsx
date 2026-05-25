@@ -17,7 +17,7 @@ const FitnessTracker = () => {
   const [intensity, setIntensity] = useState(intensities[1]);
   const [note, setNote] = useState('');
   const [quickProof, setQuickProof] = useState<CompletedLoadout | null>(null);
-  const [manualProof, setManualProof] = useState<FitnessEntry | null>(null);
+  const [manualProof, setManualProof] = useState<CompletedLoadout | null>(null);
 
 
   const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
@@ -34,16 +34,37 @@ const FitnessTracker = () => {
   };
 
   const addEntry = () => {
+    const date = formatLocalDateKey();
+    const minutes = Math.max(1, duration);
+    const soberDay = Math.max(1, calculateSobrietyStreak());
     const entry: FitnessEntry = {
       id: `${Date.now()}`,
-      date: formatLocalDateKey(),
+      date,
       type,
-      durationMinutes: Math.max(1, duration),
+      durationMinutes: minutes,
       intensity,
       note: note.trim(),
     };
-    persist([entry, ...entries]);
-    setManualProof(entry);
+    const proof: CompletedLoadout = {
+      id: entry.id,
+      date,
+      title: `${type} Training Proof`,
+      label: type,
+      activeDay: 'Train Anyway',
+      durationMinutes: minutes,
+      intensity,
+      exercises: [type],
+      completedSets: 1,
+      totalSets: 1,
+      finisher: note.trim() || 'Manual training proof logged.',
+      proofCopy: `Day ${soberDay} sober. ${type} conquered: ${minutes} minutes, ${intensity.toLowerCase()} intensity. Receipts beat promises.`,
+    };
+    const nextEntries = [entry, ...entries];
+    const nextCompletedLoadouts = [proof, ...completedLoadouts];
+    setEntries(nextEntries);
+    setCompletedLoadouts(nextCompletedLoadouts);
+    setManualProof(proof);
+    saveData({ fitnessEntries: nextEntries, completedLoadouts: nextCompletedLoadouts, latestVictoryProof: proof });
     setNote('');
   };
 
@@ -219,9 +240,14 @@ const FitnessTracker = () => {
           <Link to="/daily-check-in" className="btn btn-secondary">Check in next</Link>
         </div>
         {manualProof && (
-          <p className="success-msg">
-            {manualProof.type} proof saved for {manualProof.date}: {manualProof.durationMinutes} minutes, {manualProof.intensity.toLowerCase()} intensity. Stack the next win.
-          </p>
+          <div className="success-msg stack-sm">
+            <strong>{manualProof.title} saved for {manualProof.date}.</strong>
+            <span>{manualProof.proofCopy}</span>
+            <div className="hero-actions">
+              <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+              <Link to="/profile" className="btn btn-secondary">View Proof Stack</Link>
+            </div>
+          </div>
         )}
       </Card>
 
