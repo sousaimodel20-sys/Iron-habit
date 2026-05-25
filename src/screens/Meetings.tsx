@@ -4,15 +4,13 @@ import { Field, PageHeader } from '../components/UI';
 import { loadData, saveData } from '../utils/storage';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
-const defaultSearch = 'Vancouver, BC';
-
 const buildSearchUrl = (query: string, type: 'aa' | 'na' | 'smart' | 'maps') => {
-  const location = query.trim() || defaultSearch;
+  const location = query.trim();
   const terms = {
-    aa: `${location} AA meetings`,
-    na: `${location} NA meetings`,
-    smart: `${location} SMART Recovery meetings`,
-    maps: `${location} recovery meetings`,
+    aa: location ? `${location} AA meetings` : 'AA meetings near me',
+    na: location ? `${location} NA meetings` : 'NA meetings near me',
+    smart: location ? `${location} SMART Recovery meetings` : 'SMART Recovery meetings near me',
+    maps: location ? `${location} recovery meetings` : 'recovery meetings near me',
   }[type];
 
   return type === 'maps'
@@ -47,7 +45,7 @@ const Meetings = () => {
   const savedSupportLocation = profile.supportLocation;
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
-  const [query, setQuery] = useState(() => searchParams.get('q') || savedSupportLocation || defaultSearch);
+  const [query, setQuery] = useState(() => searchParams.get('q') || savedSupportLocation || '');
 
   useEffect(() => {
     const refreshProfile = () => setProfile(loadData().profile);
@@ -61,10 +59,11 @@ const Meetings = () => {
 
   const supportCards = useMemo(() => buildSupportCards(query), [query]);
   const mapsUrl = useMemo(() => buildSearchUrl(query, 'maps'), [query]);
-  const helperLabel = query.trim() ? `Searching around ${query.trim()}.` : `Searching around ${defaultSearch}.`;
+  const helperLabel = query.trim() ? `Searching around ${query.trim()}.` : 'Enter a city/postal code or use near-me search.';
 
   const saveSupportLocation = (location: string) => {
-    const cleanLocation = location.trim() || defaultSearch;
+    const cleanLocation = location.trim();
+    if (!cleanLocation) return '';
     const current = loadData();
     const next = saveData({ profile: { ...current.profile, supportLocation: cleanLocation } });
     setProfile(next.profile);
@@ -74,7 +73,11 @@ const Meetings = () => {
   const runSearch = () => {
     const cleanQuery = saveSupportLocation(query);
     setQuery(cleanQuery);
-    setSearchParams({ q: cleanQuery });
+    if (cleanQuery) {
+      setSearchParams({ q: cleanQuery });
+    } else {
+      setSearchParams({});
+    }
     window.open(buildSearchUrl(cleanQuery, 'maps'), '_blank', 'noopener,noreferrer');
   };
 
@@ -87,7 +90,7 @@ const Meetings = () => {
       <section className="meetings-search-card card stack-md">
         <span className="tag danger-tag">Support locator</span>
         <Field label="City or postal code">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Vancouver, BC or V6B" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Your city or postal code" />
         </Field>
         <p className="meetings-note">{helperLabel} Open the map first, then use the room type below that feels safest right now.</p>
         <div className="hero-actions">
@@ -111,7 +114,7 @@ const Meetings = () => {
             </button>
           ))}
         </div>
-        <p className="meetings-note">Saved support base: {savedSupportLocation || defaultSearch}. Rescue and Talk will reuse it when you do not type a city.</p>
+        <p className="meetings-note">Saved support base: {savedSupportLocation || 'Not set yet — search once or choose a chip.'} Rescue and Talk will reuse it when you do not type a city.</p>
       </section>
 
       <section className="support-grid meetings-grid" aria-label="Recovery support options">
@@ -126,7 +129,7 @@ const Meetings = () => {
 
       <section className="safety-card stack-sm">
         <b>If the urge is loud, do not browse alone.</b>
-        <span>Open Rescue, text someone safe, or tell Talk: “Find meetings in Vancouver” or “I’m craving.” Human support beats white-knuckling.</span>
+        <span>Open Rescue, text someone safe, or tell Talk: “Find meetings near me” or “I’m craving.” Human support beats white-knuckling.</span>
         <div className="hero-actions">
           <Link to="/talk" className="btn btn-secondary">Talk to Coach</Link>
           {supportReady ? (

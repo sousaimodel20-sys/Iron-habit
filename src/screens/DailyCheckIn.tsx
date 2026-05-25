@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
-import { buildSupportSmsHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const defaultHabits = ['No alcohol', 'Gym / movement', 'Protein meal', 'Meditation', 'Read / learn', 'Sleep routine'];
 const moodOptions = ['Focused', 'Strong', 'Calm', 'Restless', 'Low', 'Grateful'];
@@ -30,7 +30,8 @@ const DailyCheckIn = () => {
   const [profile, setProfile] = useState<Profile>(() => loadData().profile);
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
-  const supportLocation = profile.supportLocation || 'Vancouver, BC';
+  const meetingsPath = buildMeetingsPath(profile);
+  const meetingsLabel = getMeetingsCtaLabel(profile);
   const rescueMinutes = Math.floor(rescueSeconds / 60);
   const rescueRemainder = String(rescueSeconds % 60).padStart(2, '0');
   const cravingCue = getCravingCue(craving);
@@ -116,7 +117,7 @@ const DailyCheckIn = () => {
         </div>
 
         <div className="rescue-actions">
-          <Link className="btn btn-secondary" to={`/meetings?q=${encodeURIComponent(supportLocation)}`}>Find meetings near {supportLocation}</Link>
+          <Link className="btn btn-secondary" to={meetingsPath}>{meetingsLabel}</Link>
         </div>
 
         <div className="reason-card">
@@ -206,7 +207,7 @@ const DailyCheckIn = () => {
               <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
             )}
             <Link className="btn btn-secondary" to="/train">Train next</Link>
-            <Link className="btn btn-ghost" to={`/meetings?q=${encodeURIComponent(supportLocation)}`}>Find meetings near {supportLocation}</Link>
+            <Link className="btn btn-ghost" to={meetingsPath}>{meetingsLabel}</Link>
           </div>
         </Card>
       )}

@@ -6,6 +6,18 @@ export const hasSupportContact = (profile: Profile) => Boolean(cleanSupportPhone
 
 export const getSupportContactLabel = (profile: Profile) => profile.supportName.trim() || 'safe person';
 
+export const getSupportLocation = (profile: Profile) => profile.supportLocation.trim();
+
+export const buildMeetingsPath = (profile: Profile) => {
+  const location = getSupportLocation(profile);
+  return location ? `/meetings?q=${encodeURIComponent(location)}` : '/meetings';
+};
+
+export const getMeetingsCtaLabel = (profile: Profile) => {
+  const location = getSupportLocation(profile);
+  return location ? `Find meetings near ${location}` : 'Find meetings near me';
+};
+
 export const buildSupportSmsHref = (profile: Profile, message: string) => {
   const phone = cleanSupportPhone(profile.supportPhone);
   const body = encodeURIComponent(message);

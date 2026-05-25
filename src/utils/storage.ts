@@ -121,7 +121,7 @@ export const defaultData: IronHabitData = {
     drinksPerDay: '4',
     caloriesPerDrink: '150',
     transformationGoal: 'Lean, sober, strong, and consistent.',
-    supportLocation: 'Vancouver, BC',
+    supportLocation: '',
     supportName: '',
     supportPhone: '',
   },

@@ -8,6 +8,7 @@ import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getCravingReceipts, getLatestProof, getProofStack } from '../utils/proofReceipts';
+import { buildMeetingsPath, getMeetingsCtaLabel } from '../utils/support';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 const milestonePlan = [
@@ -64,7 +65,8 @@ const ProgressDashboard = () => {
   const metrics = getTransformationMetrics(data, streak);
   const macroTargets = calculateMacroTargets(data.bodyProfile);
   const todayCheckIn = data.checkIns[getDateKey(0)] || null;
-  const supportLocation = data.profile.supportLocation || 'Vancouver, BC';
+  const meetingsPath = buildMeetingsPath(data.profile);
+  const meetingsLabel = getMeetingsCtaLabel(data.profile);
 
   const weeklyTraining = useMemo(() => {
     const days = getRecentDays(7);
@@ -192,7 +194,7 @@ const ProgressDashboard = () => {
               <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
             )}
             <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
-            <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-ghost">Find meetings near {supportLocation}</Link>
+            <Link to={meetingsPath} className="btn btn-ghost">{meetingsLabel}</Link>
           </div>
         </Card>
       )}

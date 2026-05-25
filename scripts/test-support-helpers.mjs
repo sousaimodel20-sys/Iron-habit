@@ -3,6 +3,8 @@ import {
   buildSupportSmsHref,
   buildSupportTelHref,
   cleanSupportPhone,
+  buildMeetingsPath,
+  getMeetingsCtaLabel,
   getSupportContactLabel,
   hasSupportContact,
 } from '../src/utils/support.ts';
@@ -17,6 +19,10 @@ assert.equal(hasSupportContact(blankProfile), false);
 assert.equal(hasSupportContact(profile), true);
 assert.equal(getSupportContactLabel(blankProfile), 'safe person');
 assert.equal(getSupportContactLabel(profile), 'Brother Mike');
+assert.equal(buildMeetingsPath(blankProfile), '/meetings');
+assert.equal(buildMeetingsPath(profile), '/meetings?q=Burnaby%2C%20BC');
+assert.equal(getMeetingsCtaLabel(blankProfile), 'Find meetings near me');
+assert.equal(getMeetingsCtaLabel(profile), 'Find meetings near Burnaby, BC');
 assert.equal(buildSupportTelHref(profile), 'tel:6045551234');
 assert.equal(buildSupportSmsHref(profile, 'I need help now.'), 'sms:6045551234?&body=I%20need%20help%20now.');
 assert.equal(buildSupportSmsHref(blankProfile, 'I need help now.'), 'sms:?body=I%20need%20help%20now.');

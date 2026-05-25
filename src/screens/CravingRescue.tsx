@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
-import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
 
 const protocol = [
   'Put the drink plan on pause. Say: “I only need to win ten minutes.”',
@@ -22,7 +22,9 @@ const CravingRescue = () => {
   const chainMode = searchParams.get('chain') === '1';
   const data = loadData();
   const profile = data.profile;
-  const supportLocation = profile.supportLocation || 'Vancouver, BC';
+  const supportLocation = getSupportLocation(profile);
+  const meetingsPath = buildMeetingsPath(profile);
+  const meetingsLabel = getMeetingsCtaLabel(profile);
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
   const supportCallHref = buildSupportTelHref(profile);
@@ -196,12 +198,12 @@ const CravingRescue = () => {
               <span><b>2</b>Text or call your safe person.</span>
               <span><b>3</b>Move toward a meeting or safer room.</span>
             </div>
-            <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
+            <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
           </div>
         )}
 
         <div className="rescue-actions">
-          <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
+          <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
         </div>
 
         <div className="rescue-actions">
@@ -231,7 +233,7 @@ const CravingRescue = () => {
               <>
                 <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
                 <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
-                <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-ghost">Find meetings near {supportLocation}</Link>
+                <Link to={meetingsPath} className="btn btn-ghost">{meetingsLabel}</Link>
               </>
             )}
           </div>
@@ -267,7 +269,7 @@ const CravingRescue = () => {
       <Card className="reason-card">
         <span>Reason to stay in command</span>
         <strong>{profile.transformationGoal || profile.why || 'Lean, sober, strong, and consistent.'}</strong>
-        <small className="rescue-support-note">Support base locked to {supportLocation}. Update it from Meetings if you need a different area.</small>
+        <small className="rescue-support-note">{supportLocation ? `Support base locked to ${supportLocation}.` : 'Support base not set yet.'} Update it from Meetings if you need a different area.</small>
         <small className="rescue-support-note">Remember: win the next 10 minutes, then decide again.</small>
         {supportReady ? (
           <div className="hero-actions" style={{ marginTop: '0.25rem' }}>
