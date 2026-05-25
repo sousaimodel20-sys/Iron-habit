@@ -225,7 +225,7 @@ const CravingRescue = () => {
               <>
                 <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
                 <Link to="/share-progress?template=craving" className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
-                <Link to="/profile" className="btn btn-ghost">Open Proof Vault</Link>
+                <Link to="/proof" className="btn btn-ghost">Open Proof Vault</Link>
               </>
             ) : (
               <>

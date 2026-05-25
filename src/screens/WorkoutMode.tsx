@@ -110,7 +110,7 @@ const WorkoutMode = () => {
           )}
           <div className="workout-progress-ring"><strong>+{proof?.durationMinutes || Number.parseInt(loadout.time, 10) || 45}</strong><span>minutes</span></div>
           <div className="hero-actions">
-            <Link to="/profile" className="btn btn-secondary">Open Proof Stack</Link>
+            <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
             <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
             <Link to="/train" className="btn btn-ghost">Back to Train</Link>
             <button type="button" className="btn btn-ghost" onClick={() => setFinished(false)}>View Routine Again</button>

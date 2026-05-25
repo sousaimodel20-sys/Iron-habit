@@ -411,7 +411,7 @@ const TalkCoach = () => {
         if (data.activeLoadout) navigate('/train');
       } else {
         setCommandReply('Next move: show proof and make the win visible. Opening Proof.');
-        navigate('/profile');
+        navigate('/proof');
       }
       return;
     }
@@ -621,7 +621,7 @@ const TalkCoach = () => {
 
     if (/(proof|progress|streak|stats)/.test(command)) {
       setCommandReply('Showing proof. Receipts beat promises.');
-      navigate('/profile');
+      navigate('/proof');
       return;
     }
 

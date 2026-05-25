@@ -16,7 +16,7 @@ const navItems = [
   { to: '/meetings', label: 'Meetings' },
   { to: '/talk', label: 'Talk', center: true },
   { to: '/train', label: 'Train' },
-  { to: '/profile', label: 'Proof' },
+  { to: '/proof', label: 'Proof' },
 ];
 
 function AppLayout() {
@@ -45,6 +45,7 @@ function AppLayout() {
           <Route path="/train" element={<FitnessTracker />} />
           <Route path="/meetings" element={<Meetings />} />
           <Route path="/progress-dashboard" element={<ProgressDashboard />} />
+          <Route path="/proof" element={<ProgressDashboard />} />
           <Route path="/profile" element={<ProgressDashboard />} />
           <Route path="/share-progress" element={<ShareProgressScreen />} />
           <Route path="/craving-rescue" element={<CravingRescue />} />
@@ -58,7 +59,7 @@ function AppLayout() {
       <nav className="bottom-nav" aria-label="Primary navigation">
         {navItems.map((item) => {
           const trainActive = (item.to === '/train' || item.to === '/fitness-tracker') && ['/train', '/fitness-tracker', '/workout-mode'].includes(location.pathname);
-          const proofActive = item.to === '/profile' && ['/profile', '/progress-dashboard', '/share-progress'].includes(location.pathname);
+          const proofActive = item.to === '/proof' && ['/proof', '/profile', '/progress-dashboard', '/share-progress'].includes(location.pathname);
           return (
             <NavLink
               key={item.to}

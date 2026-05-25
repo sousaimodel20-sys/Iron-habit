@@ -297,7 +297,7 @@ const Onboarding = () => {
           <div className="hero-actions">
             <Link to="/share-progress" className="btn btn-primary">Open Victory Card</Link>
             <Link to="/workout-mode" className="btn btn-secondary">View Routine</Link>
-            <Link to="/profile" className="btn btn-secondary">Proof Stack</Link>
+            <Link to="/proof" className="btn btn-secondary">Proof Stack</Link>
             <Link to="/rescue?chain=1" className="btn btn-danger">Demo Emergency Chain</Link>
           </div>
         </section>
