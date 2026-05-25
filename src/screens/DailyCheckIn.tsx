@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn, type Profile } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
-import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
 
 const defaultHabits = ['No alcohol', 'Gym / movement', 'Protein meal', 'Meditation', 'Read / learn', 'Sleep routine'];
 const moodOptions = ['Focused', 'Strong', 'Calm', 'Restless', 'Low', 'Grateful'];
@@ -30,6 +30,8 @@ const DailyCheckIn = () => {
   const [profile, setProfile] = useState<Profile>(() => loadData().profile);
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
+  const supportLocation = getSupportLocation(profile);
+  const supportCallHref = buildSupportTelHref(profile);
   const meetingsPath = buildMeetingsPath(profile);
   const meetingsLabel = getMeetingsCtaLabel(profile);
   const rescueMinutes = Math.floor(rescueSeconds / 60);
@@ -102,14 +104,17 @@ const DailyCheckIn = () => {
           <span><b>01</b> Drink cold water</span>
           <span><b>02</b> Walk outside</span>
           <span><b>03</b> Eat protein</span>
-          <span><b>04</b> Text someone safe</span>
+          <span><b>04</b>{supportReady ? ` Text ${supportContactLabel}` : ' Set support contact'}</span>
         </div>
 
         <div className="rescue-actions">
           <Button onClick={startRescue}>{rescueActive ? 'Restart timer' : 'Start rescue timer'}</Button>
           <Button variant="secondary" onClick={resetRescue}>Reset</Button>
           {supportReady ? (
-            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, `I’m at ${craving}/10 craving and staying sober right now. Can you check in with me for 10 minutes?`)}>Text {supportContactLabel}</a>
+            <>
+              <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
+              <a className="btn btn-ghost" href={buildSupportSmsHref(profile, `I’m at ${craving}/10 craving and staying sober right now. Can you check in with me for 10 minutes?`)}>Text {supportContactLabel}</a>
+            </>
           ) : (
             <Link className="btn btn-ghost" to="/setup-profile">Set support contact</Link>
           )}
@@ -119,6 +124,11 @@ const DailyCheckIn = () => {
         <div className="rescue-actions">
           <Link className="btn btn-secondary" to={meetingsPath}>{meetingsLabel}</Link>
         </div>
+        <p className="rescue-support-note">
+          {supportReady
+            ? `Safe person: ${supportContactLabel}${supportLocation ? ` • ${supportLocation}` : ''}`
+            : 'Set a support contact on Setup so Rescue can call and text the right human in one tap.'}
+        </p>
 
         <div className="reason-card">
           <span>Remember the mission</span>
