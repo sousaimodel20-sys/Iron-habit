@@ -256,7 +256,7 @@ const ProgressDashboard = () => {
           <p>{latestCravingReceipt.craving}/10 craving faced • mood: {latestCravingReceipt.mood || 'Still in command'}.</p>
           <p>{latestCravingReceipt.note || 'Rescue protocol opened. The urge did not get the final vote.'}</p>
           <div className="hero-actions">
-            <Link to="/share-progress?template=craving" className="btn btn-danger">Make Craving Card</Link>
+            <Link to={`/share-progress?template=craving&receipt=${latestCravingReceipt.date}`} className="btn btn-danger">Make Craving Card</Link>
             <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
           </div>
           {cravingReceipts.length > 1 && (
