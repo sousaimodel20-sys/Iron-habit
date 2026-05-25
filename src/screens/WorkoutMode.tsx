@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 
@@ -24,10 +25,46 @@ const WorkoutMode = () => {
     const dayIndex = new Date().getDay();
     return loadout.days[(dayIndex + 6) % loadout.days.length] || loadout.days[0];
   }, [loadout]);
+  const missionState = computeDailyMissionState(data, today());
+  const missionRouteLabel = missionState.primaryMission.stage === 'check-in'
+    ? 'Daily Check-In'
+    : missionState.primaryMission.stage === 'build-loadout'
+      ? 'Talk Coach'
+      : missionState.primaryMission.stage === 'train'
+        ? 'Workout Mode'
+        : missionState.primaryMission.stage === 'proof'
+          ? 'Proof'
+          : 'Victory Card';
 
   if (!loadout) {
     return (
       <div className="page warrior-page workout-mode-page stack-lg">
+        <Card className="command-card sober-mission-card stack-sm">
+          <div className="section-title-row mission-title-row">
+            <span className="tag">Sober Strength Mission</span>
+            <b>{missionState.completionLabel}</b>
+          </div>
+          <h2>{missionState.primaryMission.title}</h2>
+          <p>{missionState.nextBestMove}</p>
+          <div className="mission-step-strip" aria-label="Daily mission steps">
+            {missionState.missionSteps.map((step) => (
+              <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+                <b>{step.done ? '✓' : '•'}</b>
+                <span>{step.label}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="mission-brief-grid">
+            <div><span>Proof action</span><strong>{missionState.proofAction}</strong></div>
+            <div><span>Next move</span><strong>{missionState.primaryMission.cta}</strong></div>
+            <div><span>Route</span><strong>{missionRouteLabel}</strong></div>
+          </div>
+          <div className="hero-actions">
+            <Link to={missionState.primaryMission.to} className="btn btn-primary">{missionState.primaryMission.cta}</Link>
+            <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+          </div>
+        </Card>
+
         <Card className="active-program-card stack-md">
           <span className="tag">No Active Routine</span>
           <h1>Save a split first.</h1>
@@ -91,6 +128,32 @@ const WorkoutMode = () => {
     const proof = victoryProof;
     return (
       <div className="page warrior-page workout-mode-page stack-lg">
+        <Card className="command-card sober-mission-card stack-sm">
+          <div className="section-title-row mission-title-row">
+            <span className="tag">Sober Strength Mission</span>
+            <b>{missionState.completionLabel}</b>
+          </div>
+          <h2>{missionState.primaryMission.title}</h2>
+          <p>{missionState.nextBestMove}</p>
+          <div className="mission-step-strip" aria-label="Daily mission steps">
+            {missionState.missionSteps.map((step) => (
+              <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+                <b>{step.done ? '✓' : '•'}</b>
+                <span>{step.label}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="mission-brief-grid">
+            <div><span>Proof action</span><strong>{missionState.proofAction}</strong></div>
+            <div><span>Next move</span><strong>{missionState.primaryMission.cta}</strong></div>
+            <div><span>Route</span><strong>{missionRouteLabel}</strong></div>
+          </div>
+          <div className="hero-actions">
+            <Link to={missionState.primaryMission.to} className="btn btn-primary">{missionState.primaryMission.cta}</Link>
+            <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
+          </div>
+        </Card>
+
         <section className="workout-complete-card victory-complete-card">
           <span className="talk-kicker">Workout Conquered</span>
           <h1>Proof saved.</h1>
@@ -111,7 +174,7 @@ const WorkoutMode = () => {
           <div className="workout-progress-ring"><strong>+{proof?.durationMinutes || Number.parseInt(loadout.time, 10) || 45}</strong><span>minutes</span></div>
           <div className="hero-actions">
             <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
-            <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
+            <Link to={proof ? `/share-progress?template=receipts&proof=${proof.id}` : '/share-progress'} className="btn btn-primary">Build Victory Card</Link>
             <Link to="/train" className="btn btn-ghost">Back to Train</Link>
             <button type="button" className="btn btn-ghost" onClick={() => setFinished(false)}>View Routine Again</button>
           </div>
@@ -122,6 +185,33 @@ const WorkoutMode = () => {
 
   return (
     <div className="page warrior-page workout-mode-page stack-lg">
+      <Card className="command-card sober-mission-card stack-sm">
+        <div className="section-title-row mission-title-row">
+          <span className="tag">Sober Strength Mission</span>
+          <b>{missionState.completionLabel}</b>
+        </div>
+        <h2>{missionState.primaryMission.title}</h2>
+        <p>{missionState.nextBestMove}</p>
+        <div className="mission-step-strip" aria-label="Daily mission steps">
+          {missionState.missionSteps.map((step) => (
+            <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+              <b>{step.done ? '✓' : '•'}</b>
+              <span>{step.label}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mission-brief-grid">
+          <div><span>Proof action</span><strong>{missionState.proofAction}</strong></div>
+          <div><span>Next move</span><strong>{missionState.primaryMission.cta}</strong></div>
+          <div><span>Route</span><strong>{missionRouteLabel}</strong></div>
+        </div>
+        <div className="hero-actions">
+          <Link to={missionState.primaryMission.to} className="btn btn-primary">{missionState.primaryMission.cta}</Link>
+          <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
+          <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+        </div>
+      </Card>
+
       <section className="routine-sheet-card stack-md">
         <div className="active-program-head">
           <div>

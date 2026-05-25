@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 
@@ -9,6 +10,7 @@ const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
 
 const FitnessTracker = () => {
+  const todayKey = formatLocalDateKey();
   const [entries, setEntries] = useState<FitnessEntry[]>(() => loadData().fitnessEntries);
   const [activeLoadout, setActiveLoadout] = useState<ActiveLoadout | null>(() => loadData().activeLoadout);
   const [completedLoadouts, setCompletedLoadouts] = useState<CompletedLoadout[]>(() => loadData().completedLoadouts);
@@ -22,6 +24,15 @@ const FitnessTracker = () => {
 
   const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
   const thisWeek = useMemo(() => entries.slice(0, 7).length, [entries]);
+  const missionState = computeDailyMissionState(
+    {
+      checkIns: loadData().checkIns,
+      fitnessEntries: entries,
+      activeLoadout,
+      latestVictoryProof: completedLoadouts[0] || loadData().latestVictoryProof,
+    },
+    todayKey,
+  );
   const activeDay = useMemo(() => {
     if (!activeLoadout) return '';
     const dayIndex = new Date().getDay();
@@ -117,6 +128,33 @@ const FitnessTracker = () => {
       <PageHeader eyebrow="Training Log" title="Train like you’re rebuilding your life.">
         Log training sessions and show proof that your new habits are changing your body and mind.
       </PageHeader>
+
+      <Card className="command-card sober-mission-card stack-sm">
+        <div className="section-title-row mission-title-row">
+          <span className="tag">Sober Strength Mission</span>
+          <b>{missionState.completionLabel}</b>
+        </div>
+        <h2>{missionState.primaryMission.title}</h2>
+        <p>{missionState.nextBestMove}</p>
+        <div className="mission-step-strip" aria-label="Daily mission steps">
+          {missionState.missionSteps.map((step) => (
+            <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+              <b>{step.done ? '✓' : '•'}</b>
+              <span>{step.label}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mission-brief-grid">
+          <div><span>Proof action</span><strong>{missionState.proofAction}</strong></div>
+          <div><span>Next move</span><strong>{missionState.primaryMission.cta}</strong></div>
+          <div><span>Route</span><strong>{missionState.primaryMission.stage === 'check-in' ? 'Daily Check-In' : missionState.primaryMission.stage === 'train' ? 'Workout Mode' : missionState.primaryMission.stage === 'proof' ? 'Proof' : 'Victory Card'}</strong></div>
+        </div>
+        <div className="hero-actions">
+          <Link to={missionState.primaryMission.to} className="btn btn-primary">{missionState.primaryMission.cta}</Link>
+          <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
+          <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+        </div>
+      </Card>
 
       <div className="stats-grid">
         <Stat label="sessions" value={entries.length} />
