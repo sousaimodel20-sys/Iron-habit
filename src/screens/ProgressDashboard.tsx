@@ -57,7 +57,6 @@ const ProgressDashboard = () => {
   const checkIns = Object.values(data.checkIns);
   const soberCheckIns = checkIns.filter((entry) => entry.sober).length;
   const completionRate = getCompletionRate();
-  const nextMilestone = milestones.find((days) => days > streak) || 365;
   const nextMilestonePlan = milestonePlan.find((item) => item.days > streak) || milestonePlan.at(-1)!;
   const previousMilestone = [...milestones].reverse().find((days) => days <= streak) || 0;
   const milestoneSpan = Math.max(1, nextMilestonePlan.days - previousMilestone);
@@ -101,7 +100,6 @@ const ProgressDashboard = () => {
     cravingTrend.reduce((sum, day) => sum + day.craving, 0) / Math.max(1, cravingTrend.filter((day) => day.craving > 0).length),
   );
   const weeklyMinutes = weeklyTraining.reduce((sum, day) => sum + day.minutes, 0);
-  const weeklyWorkoutDays = weeklyTraining.filter((day) => day.minutes > 0).length;
   const weeklyCheckIns = getRecentDays(7).filter((date) => data.checkIns[date]).length;
   const weeklySoberDays = getRecentDays(7).filter((date) => data.checkIns[date]?.sober).length;
   const weeklyHabitBlocks = getRecentDays(7).reduce((sum, date) => sum + (data.checkIns[date]?.habitsCompleted.length || 0), 0);
@@ -116,6 +114,7 @@ const ProgressDashboard = () => {
     .map((entry) => new Date(`${entry.date}T12:00:00`).getTime())
     .sort((a, b) => a - b)[0];
   const daysTracked = firstCheckIn ? Math.max(1, Math.ceil((todayTime - firstCheckIn) / dayMs) + 1) : 0;
+  const proofNextStep = latestProof ? 'Build the Victory Card or stack one more session in Train.' : 'Finish a session, then turn the receipt into a Victory Card.';
 
   const selectProofForCard = (proof: CompletedLoadout) => {
     const next = saveData({ latestVictoryProof: proof });
@@ -125,15 +124,30 @@ const ProgressDashboard = () => {
   return (
     <div className="page stack-lg">
       <PageHeader eyebrow="Proof" title="Proof beats promises.">
-        See the scoreboard for sobriety, training, and daily follow-through.
+        See the evidence: sober days, check-ins, training, and the next Victory Card.
       </PageHeader>
 
-      <div className="scoreboard card">
-        <p>{data.profile.name ? `${data.profile.name}'s streak` : 'Current streak'}</p>
-        <strong>{streak}</strong>
-        <span>days of Iron Habit</span>
-        <small>{Math.max(0, nextMilestone - streak)} days until the next badge</small>
-      </div>
+      <Card className="proof-summary-card stack-sm">
+        <span className="tag">Weekly Proof</span>
+        <h2>This week’s receipts.</h2>
+        <div className="proof-grid mini-proof">
+          <div><strong>{weeklySoberDays}</strong><span>sober days checked</span></div>
+          <div><strong>{weeklyCheckIns}</strong><span>check-ins logged</span></div>
+          <div><strong>{weeklyMinutes}m</strong><span>training minutes</span></div>
+          <div><strong>{weeklyHabitBlocks}</strong><span>habit blocks stacked</span></div>
+        </div>
+        <p>{weeklyLoadouts > 0 ? `${weeklyLoadouts} routine conquest${weeklyLoadouts === 1 ? '' : 's'} logged this week. Proof is stacking.` : 'No routine conquest logged this week yet. Finish one session and make the receipt visible.'}</p>
+        <p className="proof-summary-note">{proofNextStep}</p>
+        <div className="hero-actions">
+          {latestProof ? (
+            <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Build Victory Card</Link>
+          ) : (
+            <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
+          )}
+          <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
+          <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+        </div>
+      </Card>
 
       <Card className="next-milestone-card stack-sm">
         <span className="tag">Next Target</span>
@@ -217,21 +231,6 @@ const ProgressDashboard = () => {
             );
           })}
         </div>
-      </Card>
-
-      <Card className="weekly-proof-card stack-md">
-        <div className="section-title-row">
-          <span>Weekly Proof</span>
-          <b>{weeklyWorkoutDays}/7 training days</b>
-        </div>
-        <h2>This week’s receipts.</h2>
-        <div className="proof-grid mini-proof">
-          <div><strong>{weeklySoberDays}</strong><span>sober days checked</span></div>
-          <div><strong>{weeklyCheckIns}</strong><span>check-ins logged</span></div>
-          <div><strong>{weeklyMinutes}m</strong><span>training minutes</span></div>
-          <div><strong>{weeklyHabitBlocks}</strong><span>habit blocks stacked</span></div>
-        </div>
-        <p>{weeklyLoadouts > 0 ? `${weeklyLoadouts} routine conquest${weeklyLoadouts === 1 ? '' : 's'} logged this week. Proof is stacking.` : 'No routine conquest logged this week yet. Finish one session and make the receipt visible.'}</p>
       </Card>
 
       <Card className="content-studio-card stack-sm">
