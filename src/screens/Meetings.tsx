@@ -57,9 +57,10 @@ const Meetings = () => {
     };
   }, []);
 
+  const cleanQuery = query.trim();
   const supportCards = useMemo(() => buildSupportCards(query), [query]);
-  const mapsUrl = useMemo(() => buildSearchUrl(query, 'maps'), [query]);
-  const helperLabel = query.trim() ? `Searching around ${query.trim()}.` : 'Enter a city/postal code or use near-me search.';
+  const helperLabel = cleanQuery ? `Searching around ${cleanQuery}.` : 'Enter a city/postal code or use near-me search.';
+  const primarySearchLabel = cleanQuery ? `Find meetings near ${cleanQuery}` : 'Find meetings near me';
 
   const saveSupportLocation = (location: string) => {
     const cleanLocation = location.trim();
@@ -70,15 +71,15 @@ const Meetings = () => {
     return cleanLocation;
   };
 
-  const runSearch = () => {
-    const cleanQuery = saveSupportLocation(query);
-    setQuery(cleanQuery);
-    if (cleanQuery) {
-      setSearchParams({ q: cleanQuery });
+  const openMeetingMap = () => {
+    const cleanLocation = saveSupportLocation(query);
+    setQuery(cleanLocation);
+    if (cleanLocation) {
+      setSearchParams({ q: cleanLocation });
     } else {
       setSearchParams({});
     }
-    window.open(buildSearchUrl(cleanQuery, 'maps'), '_blank', 'noopener,noreferrer');
+    window.open(buildSearchUrl(cleanLocation, 'maps'), '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -94,8 +95,8 @@ const Meetings = () => {
         </Field>
         <p className="meetings-note">{helperLabel} Open the map first, then use the room type below that feels safest right now.</p>
         <div className="hero-actions">
-          <button className="btn btn-primary" type="button" onClick={runSearch}>Find meetings near me</button>
-          <a className="btn btn-secondary" href={mapsUrl} target="_blank" rel="noreferrer">Open meeting map</a>
+          <button className="btn btn-primary" type="button" onClick={openMeetingMap}>{primarySearchLabel}</button>
+          <button className="btn btn-secondary" type="button" onClick={openMeetingMap}>Open meeting map</button>
           <Link to="/rescue" className="btn btn-danger">Open Rescue now</Link>
         </div>
         <div className="split-strip" aria-label="Quick location ideas">
