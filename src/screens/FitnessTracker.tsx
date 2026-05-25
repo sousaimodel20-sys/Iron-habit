@@ -17,6 +17,7 @@ const FitnessTracker = () => {
   const [intensity, setIntensity] = useState(intensities[1]);
   const [note, setNote] = useState('');
   const [quickProof, setQuickProof] = useState<CompletedLoadout | null>(null);
+  const [manualProof, setManualProof] = useState<FitnessEntry | null>(null);
 
 
   const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
@@ -42,6 +43,7 @@ const FitnessTracker = () => {
       note: note.trim(),
     };
     persist([entry, ...entries]);
+    setManualProof(entry);
     setNote('');
   };
 
@@ -186,7 +188,16 @@ const FitnessTracker = () => {
         </div>
       </Card>
 
-      <Card className="stack-md">
+      <Card className="stack-md training-log-card">
+        <div className="checkin-card-head">
+          <div>
+            <span className="tag">Train Anyway</span>
+            <h2>Log movement even without a saved routine.</h2>
+            <p>A walk, lift, run, or mobility session still counts as proof that you protected today.</p>
+          </div>
+          {manualProof && <span className="save-badge">Proof saved</span>}
+        </div>
+
         <Field label="Activity">
           <select value={type} onChange={(e) => setType(e.target.value)}>
             {activityTypes.map((item) => <option key={item}>{item}</option>)}
@@ -203,7 +214,15 @@ const FitnessTracker = () => {
         <Field label="Session note">
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="Push day. Felt strong. No cravings after." />
         </Field>
-        <Button onClick={addEntry}>Log workout</Button>
+        <div className="checkin-save-row">
+          <Button onClick={addEntry}>Log training proof</Button>
+          <Link to="/daily-check-in" className="btn btn-secondary">Check in next</Link>
+        </div>
+        {manualProof && (
+          <p className="success-msg">
+            {manualProof.type} proof saved for {manualProof.date}: {manualProof.durationMinutes} minutes, {manualProof.intensity.toLowerCase()} intensity. Stack the next win.
+          </p>
+        )}
       </Card>
 
       <section className="list-stack">
