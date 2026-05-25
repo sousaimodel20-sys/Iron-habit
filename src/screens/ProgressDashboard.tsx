@@ -204,7 +204,9 @@ const ProgressDashboard = () => {
         <h2>Create today’s post.</h2>
         <p>Turn this proof into a TikTok-ready hook, caption, hashtags, video idea, and 9:16 Victory Card.</p>
         <div className="proof-angle-strip" aria-label="TikTok Proof Pack shortcuts">
+          <Link to="/share-progress?template=comeback">Comeback</Link>
           <Link to="/share-progress?template=discipline">Workout proof</Link>
+          <Link to="/share-progress?template=receipts">Receipts</Link>
           <Link to="/share-progress?template=craving">Craving survival</Link>
           <Link to="/share-progress?template=weekly">Weekly boss</Link>
           <Link to="/share-progress?template=transformation">Transformation</Link>
