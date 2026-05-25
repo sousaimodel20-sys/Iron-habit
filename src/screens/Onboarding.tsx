@@ -4,7 +4,7 @@ import { Button, Field, PageHeader } from '../components/UI';
 import { formatLocalDateKey } from '../utils/date';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
+import { defaultData, getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
@@ -13,7 +13,14 @@ const Onboarding = () => {
   const [bodyProfile, setBodyProfile] = useState<BodyProfile>(loadData().bodyProfile);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
-  const [setupOpen, setSetupOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(() => {
+    const current = loadData().profile;
+    return !current.name.trim()
+      || !current.sobrietyDate.trim()
+      || current.why.trim() === defaultData.profile.why.trim()
+      || !current.supportName.trim()
+      || !current.supportPhone.trim();
+  });
   const setupSectionRef = useRef<HTMLDetailsElement | null>(null);
   const data = loadData();
   const todayKey = getTodayKey();
@@ -21,7 +28,18 @@ const Onboarding = () => {
   const latestProof = data.latestVictoryProof;
   const missionState = computeDailyMissionState(data, todayKey);
   const { todayCheckIn, trainedToday, primaryMission, missionSteps, nextBestMove, heroTag, proofAction, completionLabel } = missionState;
-  const needsSetup = !profile.name && Object.keys(data.checkIns).length === 0;
+  const baselineChecklist = [
+    { label: 'Name or nickname', ready: Boolean(profile.name.trim()) },
+    { label: 'Sobriety start date', ready: Boolean(profile.sobrietyDate.trim()) },
+    { label: 'Why / goal', ready: profile.why.trim() !== defaultData.profile.why.trim() },
+    { label: 'Support contact', ready: Boolean(profile.supportName.trim() && profile.supportPhone.trim()) },
+  ];
+  const needsSetup = ![
+    { ready: Boolean(data.profile.name.trim()) },
+    { ready: Boolean(data.profile.sobrietyDate.trim()) },
+    { ready: data.profile.why.trim() !== defaultData.profile.why.trim() },
+    { ready: Boolean(data.profile.supportName.trim() && data.profile.supportPhone.trim()) },
+  ].every((item) => item.ready);
   const displayDay = Math.max(1, calculateSobrietyStreak());
   const workoutDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const xp = Math.min(5000, (displayDay * 75) + (data.fitnessEntries.length * 120) + (Object.keys(data.checkIns).length * 80));
@@ -271,13 +289,21 @@ const Onboarding = () => {
         <section className="card first-user-card stack-sm">
           <span className="tag danger-tag">First launch</span>
           <h2>Get to a working baseline in three taps.</h2>
-          <p>Start with setup, save your first check-in, then use Talk or Rescue whenever the day gets loud.</p>
+          <p>Finish the baseline first: name, sobriety start date, why, and a real support contact. Then Today unlocks.</p>
           <div className="launch-step-strip" aria-label="First launch steps">
             {launchSteps.map((item) => (
               <div key={item.step} className="launch-step">
                 <span>{item.step}</span>
                 <b>{item.title}</b>
                 <small>{item.detail}</small>
+              </div>
+            ))}
+          </div>
+          <div className="baseline-checklist" aria-label="Baseline checklist">
+            {baselineChecklist.map((item) => (
+              <div key={item.label} className={`baseline-check ${item.ready ? 'baseline-check-ready' : ''}`}>
+                <b>{item.ready ? '✓' : '•'}</b>
+                <span>{item.label}</span>
               </div>
             ))}
           </div>
@@ -303,85 +329,107 @@ const Onboarding = () => {
         </section>
       )}
 
-      <section className="card command-card sober-mission-card stack-sm">
-        <div className="section-title-row mission-title-row">
-          <span className="tag">Sober Strength Mission</span>
-          <b>{completionLabel}</b>
-        </div>
-        <h2>{primaryMission.title}</h2>
-        <p>{primaryMission.detail}</p>
-        <div className="mission-step-strip" aria-label="Daily mission steps">
-          {missionSteps.map((step) => (
-            <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
-              <b>{step.done ? '✓' : '•'}</b>
-              <span>{step.label}</span>
-            </Link>
-          ))}
-        </div>
-        <div className="mission-brief-grid">
-          <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
-          <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
-          <div><span>Proof action</span><strong>{proofAction}</strong></div>
-        </div>
-        <div className="hero-actions">
-          <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
-          <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
-          <Link to="/rescue" className="btn btn-danger">Rescue</Link>
-          <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
-        </div>
-      </section>
+      {needsSetup ? (
+        <section className="card stack-sm setup-lock-card">
+          <span className="tag danger-tag">Today locked</span>
+          <h2>Unlock the full dashboard after baseline setup.</h2>
+          <p>Today stays simple until you save name, sobriety start date, why, and a safe person to text.</p>
+          <div className="mission-brief-grid">
+            {baselineChecklist.map((item) => (
+              <div key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.ready ? 'Ready' : 'Missing'}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="hero-actions">
+            <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
+            <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+          </div>
+        </section>
+      ) : (
+        <>
+          <section className="card command-card sober-mission-card stack-sm">
+            <div className="section-title-row mission-title-row">
+              <span className="tag">Sober Strength Mission</span>
+              <b>{completionLabel}</b>
+            </div>
+            <h2>{primaryMission.title}</h2>
+            <p>{primaryMission.detail}</p>
+            <div className="mission-step-strip" aria-label="Daily mission steps">
+              {missionSteps.map((step) => (
+                <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+                  <b>{step.done ? '✓' : '•'}</b>
+                  <span>{step.label}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="mission-brief-grid">
+              <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
+              <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
+              <div><span>Proof action</span><strong>{proofAction}</strong></div>
+            </div>
+            <div className="hero-actions">
+              <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
+              <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
+              <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+              <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
+            </div>
+          </section>
 
-      <section className="xp-card">
-        <div className="xp-head">
-          <span>XP SYSTEM</span>
-          <strong>LEVEL 12</strong>
-        </div>
-        <div className="xp-bar" aria-label="XP progress">
-          <i style={{ width: `${xpPercent}%` }} />
-        </div>
-        <div className="xp-foot">
-          <b>{xp.toLocaleString()} / {xpMax.toLocaleString()} XP</b>
-          <span>Every sober day levels up your character.</span>
-        </div>
-      </section>
+          <section className="xp-card">
+            <div className="xp-head">
+              <span>XP SYSTEM</span>
+              <strong>LEVEL 12</strong>
+            </div>
+            <div className="xp-bar" aria-label="XP progress">
+              <i style={{ width: `${xpPercent}%` }} />
+            </div>
+            <div className="xp-foot">
+              <b>{xp.toLocaleString()} / {xpMax.toLocaleString()} XP</b>
+              <span>Every sober day levels up your character.</span>
+            </div>
+          </section>
 
-      <section className="warrior-stats-grid">
-        <div><span>Sober Streak</span><strong>{displayDay} {displayDay === 1 ? 'day' : 'days'}</strong></div>
-        <div><span>Workout Days</span><strong>{workoutDays}</strong></div>
-        <div><span>Mood Stability</span><strong>{moodStability}</strong></div>
-        <div><span>Craving Level</span><strong>{craving}/10</strong></div>
-      </section>
+          <section className="warrior-stats-grid">
+            <div><span>Sober Streak</span><strong>{displayDay} {displayDay === 1 ? 'day' : 'days'}</strong></div>
+            <div><span>Workout Days</span><strong>{workoutDays}</strong></div>
+            <div><span>Mood Stability</span><strong>{moodStability}</strong></div>
+            <div><span>Craving Level</span><strong>{craving}/10</strong></div>
+          </section>
 
-      <section className="missions-card">
-        <div className="section-title-row">
-          <span>Today’s Missions</span>
-          <b>{missions.filter((mission) => mission.done).length}/{missions.length}</b>
-        </div>
-        <div className="warrior-mission-list">
-          {missions.map((mission) => (
-            <Link to={mission.to} key={mission.label} className={mission.done ? 'mission-complete' : ''}>
-              <span className="mission-checkbox">{mission.done ? '✓' : ''}</span>
-              <span>
-                <b>{mission.label}</b>
-                <small>{mission.detail}</small>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <section className="missions-card">
+            <div className="section-title-row">
+              <span>Today’s Missions</span>
+              <b>{missions.filter((mission) => mission.done).length}/{missions.length}</b>
+            </div>
+            <div className="warrior-mission-list">
+              {missions.map((mission) => (
+                <Link to={mission.to} key={mission.label} className={mission.done ? 'mission-complete' : ''}>
+                  <span className="mission-checkbox">{mission.done ? '✓' : ''}</span>
+                  <span>
+                    <b>{mission.label}</b>
+                    <small>{mission.detail}</small>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-      <section className="boss-card">
-        <div>
-          <span>Weekly Boss Battle</span>
-          <h2>Beat Last Week</h2>
-          <p>Outwork the old version. Win the week before it wins you.</p>
-        </div>
-        <div className="boss-progress">
-          <strong>{weeklyBossPercent}%</strong>
-          <div><i style={{ width: `${weeklyBossPercent}%` }} /></div>
-          <small>{weeklyBossCleared} / {missions.length} battles cleared</small>
-        </div>
-      </section>
+          <section className="boss-card">
+            <div>
+              <span>Weekly Boss Battle</span>
+              <h2>Beat Last Week</h2>
+              <p>Outwork the old version. Win the week before it wins you.</p>
+            </div>
+            <div className="boss-progress">
+              <strong>{weeklyBossPercent}%</strong>
+              <div><i style={{ width: `${weeklyBossPercent}%` }} /></div>
+              <small>{weeklyBossCleared} / {missions.length} battles cleared</small>
+            </div>
+          </section>
+        </>
+      )}
 
       <details
         id="setup-profile"
@@ -521,7 +569,7 @@ const Onboarding = () => {
           <div className="button-row">
             <Button onClick={handleSave}>Save profile</Button>
             <Button variant="secondary" onClick={loadDemoBaseline}>Load demo mode</Button>
-            <Button variant="ghost" onClick={quickStart}>Quick start today</Button>
+            <Button variant="ghost" onClick={quickStart}>Save starter draft</Button>
           </div>
           {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}
         </div>
