@@ -138,6 +138,7 @@ const quickCommands = [
   'I’m about to drink text my support person',
   'Open rescue and text my support person',
   'Set support contact Brother Mike 604-555-1234',
+  'Set support area Burnaby, BC',
   'Text my support person',
   'Build me a workout',
   'Start my workout',
@@ -631,7 +632,7 @@ const TalkCoach = () => {
       return;
     }
 
-    setCommandReply('I can route you to meetings, rescue, workouts, check-in, proof, or Victory Cards. Try a quick command.');
+    setCommandReply('I can route you to meetings, rescue, workouts, check-in, proof, support contact, or Victory Cards. Try a quick command.');
   };
 
   const startVoiceCommand = () => {
