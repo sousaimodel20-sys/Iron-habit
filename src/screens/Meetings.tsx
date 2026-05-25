@@ -41,7 +41,12 @@ const buildSupportCards = (query: string) => [
 
 const Meetings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [profile, setProfile] = useState(() => loadData().profile);
+  const [profile, setProfile] = useState(() => {
+    const data = loadData();
+    const routeLocation = searchParams.get('q')?.trim();
+    if (!routeLocation || routeLocation === data.profile.supportLocation.trim()) return data.profile;
+    return saveData({ profile: { ...data.profile, supportLocation: routeLocation } }).profile;
+  });
   const savedSupportLocation = profile.supportLocation;
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
