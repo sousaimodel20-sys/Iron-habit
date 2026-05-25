@@ -386,6 +386,9 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .today-grid h2 { margin-bottom: 14px; }
 .command-card { background: linear-gradient(145deg, rgba(246,196,83,.12), rgba(255,255,255,.06)); }
 .command-card .tag { display: inline-flex; margin-bottom: 12px; }
+.talk-safety-rail { border-color: rgba(239,68,68,.45); background: radial-gradient(circle at top right, rgba(239,68,68,.24), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); }
+.talk-safety-rail h2 { margin: 0; color: #fff; letter-spacing: -.04em; }
+.talk-safety-rail p { margin: 0; color: #fef3c7; line-height: 1.45; font-size: .92rem; }
 .command-card h2 { margin-bottom: 16px; }
 .collapse-card { padding: 0; overflow: hidden; }
 .collapse-card summary { list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; cursor: pointer; }

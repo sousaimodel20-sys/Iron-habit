@@ -707,6 +707,27 @@ const TalkCoach = () => {
         </div>
       </section>
 
+      <section className="coach-card talk-safety-rail stack-sm">
+        <div className="coach-head">
+          <span>Craving safety rail</span>
+          <b>{supportReady ? 'Safe person ready' : 'Add safe person'}</b>
+        </div>
+        <h2>If the urge spikes, do not negotiate.</h2>
+        <p>Talk will save the emergency check-in first, open the 10-minute Rescue chain, then hand off to your support contact or meetings.</p>
+        <div className="hero-actions command-actions">
+          <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Start emergency chain</button>
+          {supportReady ? (
+            <>
+              <a className="btn btn-secondary" href={buildSupportTelHref(supportProfile)}>Call {supportLabel}</a>
+              <a className="btn btn-ghost" href={buildSupportSmsHref(supportProfile, EMERGENCY_SUPPORT_SMS)}>Text {supportLabel}</a>
+            </>
+          ) : (
+            <Link to="/setup-profile" className="btn btn-secondary">Set support contact</Link>
+          )}
+          <button className="btn btn-ghost" type="button" onClick={() => handleCommand('I need a meeting')}>Find a meeting</button>
+        </div>
+      </section>
+
       <section className="loadout-console command-console">
         <label htmlFor="coach-message">Command Iron Habit</label>
         <textarea
