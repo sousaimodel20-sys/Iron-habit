@@ -183,6 +183,29 @@ const DailyCheckIn = () => {
         </div>
         {savedCheckIn && <p className="success-msg">Saved for {savedCheckIn.date}. Keep the chain alive. Next move: train, proof, or Rescue if the urge spikes.</p>}
       </Card>
+
+      {savedCheckIn && (
+        <Card className="stack-sm">
+          <span className="tag">Check-in Receipt</span>
+          <h2>Today is on the record.</h2>
+          <p>
+            {savedCheckIn.sober ? 'Sober check-in locked in.' : 'Slip noted. Reset clean and keep the comeback moving.'}
+            {' '}
+            {savedCheckIn.craving}/10 craving • {savedCheckIn.mood || 'Focused'} mood • {savedCheckIn.habitsCompleted.length} habits stacked.
+          </p>
+          <div className="proof-grid mini-proof">
+            <div><strong>{savedCheckIn.sober ? 'Yes' : 'No'}</strong><span>sober today</span></div>
+            <div><strong>{savedCheckIn.craving}/10</strong><span>craving</span></div>
+            <div><strong>{savedCheckIn.habitsCompleted.length}</strong><span>habits</span></div>
+            <div><strong>{savedCheckIn.note ? '✓' : '—'}</strong><span>note saved</span></div>
+          </div>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
+            <Link className="btn btn-secondary" to="/train">Train next</Link>
+            <Link className="btn btn-ghost" to={`/meetings?q=${encodeURIComponent(supportLocation)}`}>Find meetings near {supportLocation}</Link>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
