@@ -5,6 +5,7 @@ import type { IronHabitData } from '../utils/storage';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets } from '../utils/nutrition';
 import { formatLocalDateKey } from '../utils/date';
+import { getCravingReceipts } from '../utils/proofReceipts';
 
 export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly';
 
@@ -62,8 +63,11 @@ const ShareableProgressCard = ({
   const [status, setStatus] = useState('');
   const totalMinutes = data.fitnessEntries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
+  const latestCravingReceipt = getCravingReceipts(data.checkIns, 1)[0];
   const latestMood = latestCheckIn?.mood || 'Locked in';
+  const cravingMood = latestCravingReceipt?.mood || latestMood;
   const latestCraving = latestCheckIn?.craving ?? 0;
+  const receiptCraving = latestCravingReceipt?.craving ?? latestCraving;
   const metrics = getTransformationMetrics(data, streak);
   const copy = templateCopy[template];
   const firstName = data.profile.name || 'I';
@@ -108,7 +112,7 @@ const ShareableProgressCard = ({
     : `${firstName} ${copy.headline}`;
 
   const cardText = template === 'craving'
-    ? `${headline}\n${latestCraving || 10}/10 urge faced • Day ${streak} sober • ${latestMood}\nCraving hit. I did not bargain. Opened Rescue. Stayed in command.\n#IronHabit ${copy.footer}`
+    ? `${headline}\n${receiptCraving || 10}/10 urge faced • Day ${streak} sober • ${cravingMood}\nCraving hit. I did not bargain. Opened Rescue. Stayed in command.\n#IronHabit ${copy.footer}`
     : template === 'weekly'
       ? `${headline}\n${weeklySoberDays} sober check-ins • ${weeklyMinutes} training minutes • ${weeklyLoadouts} routine conquests\nWeekly Boss Battle receipts. Proof beats promises.\n#IronHabit ${copy.footer}`
       : template === 'transformation'
@@ -135,12 +139,12 @@ const ShareableProgressCard = ({
         {template === 'craving' ? (
           <>
             <div className="share-day workout-proof-day">
-              <strong>{latestCraving || '10'}</strong>
+              <strong>{receiptCraving || '10'}</strong>
               <span>urge faced / 10</span>
             </div>
             <div className="share-metrics">
               <span><b>{streak}</b> sober days</span>
-              <span><b>{latestMood}</b> mood</span>
+              <span><b>{cravingMood}</b> mood</span>
               <span><b>10</b> min rule</span>
             </div>
             <div className="share-proof-strip">
@@ -219,7 +223,7 @@ const ShareableProgressCard = ({
           </>
         )}
         <footer>
-          <span>{workoutProof ? '#IronHabitProof' : `#${latestMood.replaceAll(' ', '')}`}</span>
+          <span>{template === 'craving' ? `#${cravingMood.replaceAll(' ', '')}` : workoutProof ? '#IronHabitProof' : `#${latestMood.replaceAll(' ', '')}`}</span>
           <span>{copy.footer}</span>
         </footer>
       </div>
