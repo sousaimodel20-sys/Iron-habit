@@ -1,0 +1,48 @@
+---
+description: Iron Habit small-task shipping workflow
+alwaysApply: true
+---
+
+# Iron Habit Shipping Workflow
+
+Before editing:
+
+1. Inspect existing files/routes/helpers.
+2. State the smallest shippable task.
+3. List files expected to change.
+4. State what is out of scope.
+5. State verification commands.
+
+During editing:
+
+- Keep diffs narrow.
+- Prefer existing components and helpers.
+- Do not duplicate business logic.
+- Keep mobile layout usable.
+- Keep typed fallbacks for any voice/Talk behavior.
+- Preserve localStorage persistence and local-date semantics.
+
+After editing:
+
+Run relevant checks:
+
+```bash
+npm run lint
+npm run build
+```
+
+And, depending on touched area:
+
+```bash
+npm run test:daily-mission
+npm run test:proof-receipts
+npm run test:support-helpers
+npm run test:emergency-support-chain
+```
+
+Report:
+
+1. Files changed
+2. What changed
+3. Checks run + results
+4. Any remaining risks

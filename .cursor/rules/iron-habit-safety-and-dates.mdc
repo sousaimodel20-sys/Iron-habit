@@ -1,0 +1,43 @@
+---
+description: Iron Habit safety, sobriety, and date-key rules
+alwaysApply: true
+---
+
+# Iron Habit Safety and Date Rules
+
+## Sobriety safety
+
+Iron Habit supports sobriety and fitness. It must not claim to provide medical care, crisis counseling, diagnosis, or guaranteed relapse prevention.
+
+For emergency/craving flows:
+
+- Use clear supportive language.
+- Encourage contacting a trusted person/support contact.
+- Offer meeting/help resources when available.
+- If a user indicates urgent risk, route to Rescue/support resources rather than decorative UI.
+- Save useful durable state before navigation or handoff.
+
+## Talk/voice
+
+- Voice is progressive enhancement only.
+- Typed fallback is required.
+- Guard browser-only speech APIs.
+- Commands should create durable app state where appropriate.
+
+## Dates/streaks
+
+Never use UTC date slicing for user-facing daily buckets:
+
+```ts
+new Date().toISOString().slice(0, 10)
+```
+
+Use local date helpers/patterns for:
+
+- check-ins
+- streaks
+- daily missions
+- share cards
+- reset/clear-data QA
+
+Before shipping date-related changes, search for remaining UTC slice usage and verify refresh behavior.

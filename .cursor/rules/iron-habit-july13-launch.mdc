@@ -1,0 +1,49 @@
+---
+description: Iron Habit July 13 launch rules
+alwaysApply: true
+---
+
+# Iron Habit July 13 Launch Rules
+
+We are preparing Iron Habit for a public TikTok/user launch on July 13, tied to Joshua's one-year sober date.
+
+## Non-negotiables
+
+- Mobile-first. Assume phone use first.
+- Sober-fitness focus. Do not drift into generic habit app features.
+- One shippable chunk at a time.
+- No broad rewrites.
+- No new dependencies without approval.
+- Reuse current project patterns before creating new abstractions.
+- Do not remove existing safety/rescue behavior unless replacing it with safer verified behavior.
+
+## Desired user journey
+
+A new user should be able to:
+
+1. Understand Iron Habit in 30 seconds.
+2. Enter sober date, goal, support contact/reason if available.
+3. See today's sober-strength mission.
+4. Check in.
+5. Log training/habit progress.
+6. Use Rescue or Talk Coach during cravings.
+7. View progress/streaks.
+8. Share a milestone/proof card.
+
+## Copy tone
+
+Strong, direct, supportive, masculine-leaning sober fitness. Avoid cheesy therapy-speak. Avoid medical claims.
+
+Good language:
+- Today's mission
+- Stay sober. Move iron. Prove it today.
+- Craving defense
+- Call your support
+- Mission complete
+- Built from one year sober
+
+Avoid:
+- clinical overpromises
+- vague AI hype
+- pitch deck wording
+- fake community claims
