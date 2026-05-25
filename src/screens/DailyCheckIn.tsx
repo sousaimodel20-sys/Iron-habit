@@ -200,7 +200,11 @@ const DailyCheckIn = () => {
             <div><strong>{savedCheckIn.note ? '✓' : '—'}</strong><span>note saved</span></div>
           </div>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
+            {savedCheckIn.craving >= 3 ? (
+              <Link className="btn btn-primary" to={`/share-progress?template=craving&receipt=${savedCheckIn.date}`}>Make Craving Card</Link>
+            ) : (
+              <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
+            )}
             <Link className="btn btn-secondary" to="/train">Train next</Link>
             <Link className="btn btn-ghost" to={`/meetings?q=${encodeURIComponent(supportLocation)}`}>Find meetings near {supportLocation}</Link>
           </div>
