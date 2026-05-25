@@ -70,10 +70,9 @@ const isVictoryTemplate = (value: string | null): value is VictoryTemplate => Bo
 const ShareProgressScreen = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const routeTemplate = searchParams.get('template');
-  const initialTemplate = isVictoryTemplate(routeTemplate) ? routeTemplate : 'comeback';
+  const template: VictoryTemplate = isVictoryTemplate(routeTemplate) ? routeTemplate : 'comeback';
   const [data, setData] = useState<IronHabitData>(loadData());
   const [streak, setStreak] = useState(calculateSobrietyStreak());
-  const [template, setTemplate] = useState<VictoryTemplate>(initialTemplate);
   const [hookIndex, setHookIndex] = useState(0);
   const [copyStatus, setCopyStatus] = useState('');
 
@@ -88,7 +87,6 @@ const ShareProgressScreen = () => {
   }, []);
 
   const chooseTemplate = (nextTemplate: VictoryTemplate) => {
-    setTemplate(nextTemplate);
     setHookIndex(0);
     setSearchParams({ template: nextTemplate });
   };
