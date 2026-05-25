@@ -231,7 +231,7 @@ const CravingRescue = () => {
               <>
                 <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
                 <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
-                <Link to="/meetings?q=Vancouver%2C%20BC" className="btn btn-ghost">Find a meeting</Link>
+                <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-ghost">Find meetings near {supportLocation}</Link>
               </>
             )}
           </div>
