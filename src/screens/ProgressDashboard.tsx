@@ -203,11 +203,11 @@ const ProgressDashboard = () => {
         <span className="tag danger-tag">Content Studio</span>
         <h2>Create today’s post.</h2>
         <p>Turn this proof into a TikTok-ready hook, caption, hashtags, video idea, and 9:16 Victory Card.</p>
-        <div className="proof-angle-strip">
-          <span>Workout proof</span>
-          <span>Craving survival</span>
-          <span>Weekly boss</span>
-          <span>Transformation</span>
+        <div className="proof-angle-strip" aria-label="TikTok Proof Pack shortcuts">
+          <Link to="/share-progress?template=discipline">Workout proof</Link>
+          <Link to="/share-progress?template=craving">Craving survival</Link>
+          <Link to="/share-progress?template=weekly">Weekly boss</Link>
+          <Link to="/share-progress?template=transformation">Transformation</Link>
         </div>
         <div className="hero-actions">
           <Link to="/share-progress" className="btn btn-primary">Open TikTok Proof Pack</Link>

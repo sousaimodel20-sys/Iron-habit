@@ -534,7 +534,8 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .content-studio-page .page-header h1 { letter-spacing: -.07em; }
 .content-studio-hero { overflow: hidden; }
 .proof-angle-strip { display: flex; flex-wrap: wrap; gap: 8px; }
-.proof-angle-strip span { color: #fecaca; border: 1px solid rgba(239,68,68,.3); border-radius: 999px; padding: 9px 11px; background: rgba(127,16,16,.18); font-size: .78rem; font-weight: 950; }
+.proof-angle-strip span,
+.proof-angle-strip a { color: #fecaca; border: 1px solid rgba(239,68,68,.3); border-radius: 999px; padding: 9px 11px; background: rgba(127,16,16,.18); font-size: .78rem; font-weight: 950; text-decoration: none; }
 .proof-template-grid { grid-template-columns: repeat(2, 1fr); }
 .tiktok-post-card { border-color: rgba(246,196,83,.35); background: radial-gradient(circle at 0 0, rgba(246,196,83,.17), transparent 35%), linear-gradient(180deg, rgba(28,31,39,.92), rgba(7,7,9,.95)); }
 .tiktok-post-card h2 { color: #fff; font-size: clamp(1.55rem, 8vw, 2.6rem); line-height: .96; letter-spacing: -.06em; }
