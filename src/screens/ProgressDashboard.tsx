@@ -64,6 +64,7 @@ const ProgressDashboard = () => {
   const metrics = getTransformationMetrics(data, streak);
   const macroTargets = calculateMacroTargets(data.bodyProfile);
   const todayCheckIn = data.checkIns[getDateKey(0)] || null;
+  const supportLocation = data.profile.supportLocation || 'Vancouver, BC';
 
   const weeklyTraining = useMemo(() => {
     const days = getRecentDays(7);
@@ -187,7 +188,7 @@ const ProgressDashboard = () => {
           <div className="hero-actions">
             <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
             <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
-            <Link to="/meetings" className="btn btn-ghost">Find support</Link>
+            <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-ghost">Find meetings near {supportLocation}</Link>
           </div>
         </Card>
       )}
