@@ -186,7 +186,11 @@ const ProgressDashboard = () => {
             <div><strong>{todayCheckIn.note ? '✓' : '—'}</strong><span>note saved</span></div>
           </div>
           <div className="hero-actions">
-            <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
+            {todayCheckIn.craving >= 3 ? (
+              <Link to={`/share-progress?template=craving&receipt=${todayCheckIn.date}`} className="btn btn-primary">Make Craving Card</Link>
+            ) : (
+              <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
+            )}
             <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
             <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-ghost">Find meetings near {supportLocation}</Link>
           </div>
