@@ -80,7 +80,7 @@ const CravingRescue = () => {
       sober: existing?.sober ?? true,
       mood: 'Emergency rescue',
       craving: Math.max(existing?.craving ?? 0, 10),
-      habitsCompleted: existing?.habitsCompleted ?? [],
+      habitsCompleted: Array.from(new Set([...(existing?.habitsCompleted || []), 'No alcohol', 'Emergency support chain'])),
       note: appendNote(existing?.note || '', 'Emergency support chain opened from Talk.'),
     };
     saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
@@ -112,18 +112,20 @@ const CravingRescue = () => {
   };
 
   const logRescueWin = () => {
+    const currentCraving = loadData().checkIns[todayKey]?.craving ?? 3;
     setRunning(false);
     setOutcome('win');
     saveRescueCheckIn(
-      { sober: true, mood: 'Rescue win', craving: Math.min(todayCheckIn?.craving ?? 3, 3), note: 'Rescue win logged: craving wave passed without drinking.' },
+      { sober: true, mood: 'Rescue win', craving: Math.min(currentCraving, 3), note: 'Rescue win logged: craving wave passed without drinking.' },
       'Rescue win logged. Proof beats the old loop.',
     );
   };
 
   const makeCravingCard = () => {
+    const currentCraving = loadData().checkIns[todayKey]?.craving ?? 0;
     setOutcome('win');
     saveRescueCheckIn(
-      { sober: true, mood: 'Craving defeated', craving: Math.max(todayCheckIn?.craving ?? 0, mode === 'emergency' ? 10 : 7), note: 'Craving Victory Card created from Rescue.' },
+      { sober: true, mood: 'Craving defeated', craving: Math.max(currentCraving, mode === 'emergency' ? 10 : 7), note: 'Craving Victory Card created from Rescue.' },
       'Craving proof saved. Turn it into a Victory Card.',
     );
   };
@@ -189,6 +191,11 @@ const CravingRescue = () => {
           <div className="rescue-chain-panel">
             <span className="tag danger-tag">Emergency support chain</span>
             <p className="rescue-support-note">Talk already logged the craving and kicked off Rescue. Stack the next human-support moves fast.</p>
+            <div className="rescue-chain-steps" aria-label="Emergency chain checklist">
+              <span><b>1</b>Stay on this 10-minute timer.</span>
+              <span><b>2</b>Text or call your safe person.</span>
+              <span><b>3</b>Move toward a meeting or safer room.</span>
+            </div>
             <Link to={`/meetings?q=${encodeURIComponent(supportLocation)}`} className="btn btn-secondary">Find meetings near {supportLocation}</Link>
           </div>
         )}
@@ -270,6 +277,7 @@ const CravingRescue = () => {
         ) : (
           <small className="rescue-support-note">Add a safe-person phone on Setup so Rescue can text the right human in one tap.</small>
         )}
+        <small className="rescue-support-note">If you might hurt yourself or someone else, contact local emergency services now. Iron Habit is support, not emergency care.</small>
       </Card>
     </div>
   );
