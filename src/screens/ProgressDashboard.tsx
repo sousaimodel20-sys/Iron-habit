@@ -160,7 +160,11 @@ const ProgressDashboard = () => {
           </div>
         )}
         <div className="hero-actions">
-          <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Build Victory Card</Link>
+          {latestProof ? (
+            <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Build Victory Card</Link>
+          ) : (
+            <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
+          )}
           <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>
@@ -437,7 +441,11 @@ const ProgressDashboard = () => {
         <h2>Your why</h2>
         <p className="quote">“{data.profile.why || 'Build a body and life I am proud of.'}”</p>
         <div className="hero-actions">
-          <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Create Victory Card</Link>
+          {latestProof ? (
+            <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Create Victory Card</Link>
+          ) : (
+            <Link to="/talk" className="btn btn-primary">Generate Loadout</Link>
+          )}
           <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>
