@@ -206,7 +206,7 @@ const CravingRescue = () => {
 
         <div className="rescue-actions">
           <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
-          <Link to="/share-progress?template=craving" className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
+          <Link to={`/share-progress?template=craving&receipt=${todayKey}`} className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
           <Button variant="ghost" onClick={logSlip}>I slipped — restart</Button>
           <Button variant="secondary" onClick={reset}>Reset timer</Button>
         </div>
@@ -224,7 +224,7 @@ const CravingRescue = () => {
             {outcome === 'win' ? (
               <>
                 <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
-                <Link to="/share-progress?template=craving" className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
+                <Link to={`/share-progress?template=craving&receipt=${todayKey}`} className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
                 <Link to="/proof" className="btn btn-ghost">Open Proof Vault</Link>
               </>
             ) : (
