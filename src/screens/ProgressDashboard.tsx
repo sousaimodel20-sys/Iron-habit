@@ -63,6 +63,7 @@ const ProgressDashboard = () => {
   const milestoneProgress = Math.min(100, Math.round(((streak - previousMilestone) / milestoneSpan) * 100));
   const metrics = getTransformationMetrics(data, streak);
   const macroTargets = calculateMacroTargets(data.bodyProfile);
+  const todayCheckIn = data.checkIns[getDateKey(0)] || null;
 
   const weeklyTraining = useMemo(() => {
     const days = getRecentDays(7);
@@ -163,6 +164,29 @@ const ProgressDashboard = () => {
           <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>
+
+      {todayCheckIn && (
+        <Card className="stack-sm">
+          <span className="tag">Today’s Check-In</span>
+          <h2>Current sober receipt.</h2>
+          <p>
+            {todayCheckIn.sober ? 'Sober today and still in command.' : 'Slip noted. Use the proof loop to recover clean.'}
+            {' '}
+            {todayCheckIn.craving}/10 craving • {todayCheckIn.mood || 'Focused'} mood • {todayCheckIn.habitsCompleted.length} habits stacked.
+          </p>
+          <div className="proof-grid mini-proof">
+            <div><strong>{todayCheckIn.sober ? 'Yes' : 'No'}</strong><span>sober today</span></div>
+            <div><strong>{todayCheckIn.craving}/10</strong><span>craving</span></div>
+            <div><strong>{todayCheckIn.habitsCompleted.length}</strong><span>habits</span></div>
+            <div><strong>{todayCheckIn.note ? '✓' : '—'}</strong><span>note saved</span></div>
+          </div>
+          <div className="hero-actions">
+            <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
+            <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
+            <Link to="/meetings" className="btn btn-ghost">Find support</Link>
+          </div>
+        </Card>
+      )}
 
       <Card className="stack-sm">
         <span className="tag">Milestone Timeline</span>
