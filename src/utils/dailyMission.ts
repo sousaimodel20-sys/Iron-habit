@@ -70,7 +70,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
             stage: 'proof',
             title: 'Step 3: Stack today’s proof',
             detail: 'Training is done. Save the receipt so the old loop has evidence against it.',
-            to: data.latestVictoryProof ? '/share-progress' : '/profile',
+            to: data.latestVictoryProof ? '/share-progress' : '/proof',
             cta: data.latestVictoryProof ? 'Make Victory Card' : 'Open Proof',
           }
         : {
@@ -84,7 +84,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
   const missionSteps: DailyMissionStep[] = [
     { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in', to: '/daily-check-in' },
     { label: 'Train', done: trainedToday, active: primaryMission.stage === 'build-loadout' || primaryMission.stage === 'train', to: data.activeLoadout ? '/workout-mode' : '/talk' },
-    { label: 'Proof', done: proofDoneToday, active: primaryMission.stage === 'proof' || primaryMission.stage === 'complete', to: proofDoneToday || data.latestVictoryProof ? '/share-progress' : '/profile' },
+    { label: 'Proof', done: proofDoneToday, active: primaryMission.stage === 'proof' || primaryMission.stage === 'complete', to: proofDoneToday || data.latestVictoryProof ? '/share-progress' : '/proof' },
   ];
 
   const completedCount = missionSteps.filter((step) => step.done).length;
