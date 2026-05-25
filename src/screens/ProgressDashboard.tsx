@@ -159,7 +159,7 @@ const ProgressDashboard = () => {
           </div>
         )}
         <div className="hero-actions">
-          <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
+          <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Build Victory Card</Link>
           <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>
@@ -259,7 +259,7 @@ const ProgressDashboard = () => {
             {latestProof.exercises.slice(0, 5).map((exercise) => <span key={exercise}>{exercise}</span>)}
           </div>
           <div className="hero-actions">
-            <Link to="/share-progress" className="btn btn-primary">Build Victory Card</Link>
+            <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Build Victory Card</Link>
             <Link to="/train" className="btn btn-secondary">See Train Log</Link>
           </div>
         </Card>
@@ -291,7 +291,7 @@ const ProgressDashboard = () => {
                   <p>{proof.durationMinutes} min • {proof.completedSets}/{proof.totalSets} sets • {proof.exercises.length} moves</p>
                 </div>
                 <Link
-                  to="/share-progress"
+                  to={`/share-progress?template=receipts&proof=${proof.id}`}
                   className="btn btn-ghost"
                   onClick={() => selectProofForCard(proof)}
                 >
@@ -413,7 +413,7 @@ const ProgressDashboard = () => {
         <h2>Your why</h2>
         <p className="quote">“{data.profile.why || 'Build a body and life I am proud of.'}”</p>
         <div className="hero-actions">
-          <Link to="/share-progress" className="btn btn-primary">Create Victory Card</Link>
+          <Link to={`/share-progress?template=receipts&proof=${latestProof.id}`} className="btn btn-primary">Create Victory Card</Link>
           <Link to="/train" className="btn btn-secondary">Stack More Proof</Link>
         </div>
       </Card>

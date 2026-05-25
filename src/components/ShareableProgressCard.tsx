@@ -56,11 +56,13 @@ const ShareableProgressCard = ({
   streak,
   template = 'comeback',
   cravingReceipt = null,
+  selectedProof = null,
 }: {
   data: IronHabitData;
   streak: number;
   template?: VictoryTemplate;
   cravingReceipt?: CheckIn | null;
+  selectedProof?: IronHabitData['latestVictoryProof'];
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState('');
@@ -75,7 +77,7 @@ const ShareableProgressCard = ({
   const metrics = getTransformationMetrics(data, streak);
   const copy = templateCopy[template];
   const firstName = data.profile.name || 'I';
-  const workoutProof = data.latestVictoryProof;
+  const workoutProof = selectedProof || data.latestVictoryProof;
   const macros = calculateMacroTargets(data.bodyProfile);
   const recentDays = getRecentDateKeys(7);
   const weeklyMinutes = data.fitnessEntries

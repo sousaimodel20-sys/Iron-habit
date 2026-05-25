@@ -169,7 +169,7 @@ const FitnessTracker = () => {
             <span><b>{quickProof.exercises.length}</b><small>moves</small></span>
           </div>
           <div className="hero-actions">
-            <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+            <Link to={`/share-progress?template=receipts&proof=${quickProof.id}`} className="btn btn-primary">Make Victory Card</Link>
             <Link to="/profile" className="btn btn-secondary">View Proof Stack</Link>
             <Button variant="ghost" onClick={() => setQuickProof(null)}>Hide</Button>
           </div>
@@ -191,7 +191,7 @@ const FitnessTracker = () => {
                   <p>{proof.durationMinutes} min • {proof.completedSets} sets • {proof.exercises.length} exercises</p>
                 </div>
                 <Link
-                  to="/share-progress"
+                  to={`/share-progress?template=receipts&proof=${proof.id}`}
                   className="btn btn-ghost"
                   onClick={() => saveData({ latestVictoryProof: proof })}
                 >
@@ -244,7 +244,7 @@ const FitnessTracker = () => {
             <strong>{manualProof.title} saved for {manualProof.date}.</strong>
             <span>{manualProof.proofCopy}</span>
             <div className="hero-actions">
-              <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+              <Link to={`/share-progress?template=receipts&proof=${manualProof.id}`} className="btn btn-primary">Make Victory Card</Link>
               <Link to="/profile" className="btn btn-secondary">View Proof Stack</Link>
             </div>
           </div>
