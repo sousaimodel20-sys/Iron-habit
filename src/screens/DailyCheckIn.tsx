@@ -218,6 +218,7 @@ const DailyCheckIn = () => {
             ) : (
               <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
             )}
+            <Link className="btn btn-danger" to="/rescue">Open Rescue</Link>
             <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
             <Link className="btn btn-ghost" to={meetingsPath}>{meetingsLabel}</Link>
           </div>
