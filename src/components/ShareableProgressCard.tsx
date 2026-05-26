@@ -113,9 +113,7 @@ const ShareableProgressCard = ({
     }
   };
 
-  const headline = workoutProof && ['comeback', 'discipline', 'receipts'].includes(template)
-    ? `${workoutProof.title} conquered.`
-    : `${firstName} ${copy.headline}`;
+  const headline = `${firstName} ${copy.headline}`;
 
   const cardText = template === 'craving'
     ? `${headline}\n${receiptCraving || 10}/10 urge faced • Day ${streak} sober • ${cravingMood}\nCraving hit. I did not bargain. Opened Rescue. Stayed in command.\n#IronHabit ${copy.footer}`

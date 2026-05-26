@@ -67,6 +67,15 @@ const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, i
 const templateIds = templates.map((item) => item.id);
 const isVictoryTemplate = (value: string | null): value is VictoryTemplate => Boolean(value && templateIds.includes(value as VictoryTemplate));
 
+const heroTitles: Record<VictoryTemplate, string> = {
+  comeback: 'Make the comeback visible.',
+  discipline: 'Turn discipline into proof.',
+  receipts: 'Turn today\'s win into content.',
+  craving: 'Turn the urge into proof.',
+  transformation: 'Turn the body change into content.',
+  weekly: 'Turn the week into a boss battle recap.',
+};
+
 const ShareProgressScreen = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const routeTemplate = searchParams.get('template');
@@ -101,18 +110,22 @@ const ShareProgressScreen = () => {
   const routeCravingReceipt = cravingReceiptDate ? getCravingReceiptByDate(data.checkIns, cravingReceiptDate) : null;
   const latestCravingReceipt = routeCravingReceipt || getCravingReceipts(data.checkIns, 1)[0];
   const cravingProofReady = Boolean(latestCravingReceipt);
-  const activeProofLabel = template === 'craving'
-    ? cravingProofReady
-      ? `Craving proof ready: ${latestCravingReceipt?.craving ?? 0}/10 urge faced on ${latestCravingReceipt?.date} and streak protected.`
-      : 'Craving Card preview ready. Open Rescue first to save a real craving receipt.'
-    : workoutProof
-      ? `${workoutProof.title} • ${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets.`
-      : 'No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.';
   const recentDays = getRecentDateKeys(7);
   const weeklyMinutes = data.fitnessEntries
     .filter((entry) => recentDays.includes(entry.date))
     .reduce((sum, entry) => sum + entry.durationMinutes, 0);
   const weeklySoberDays = recentDays.filter((date) => data.checkIns[date]?.sober).length;
+  const activeProofLabel = template === 'craving'
+    ? cravingProofReady
+      ? `Craving proof ready: ${latestCravingReceipt?.craving ?? 0}/10 urge faced on ${latestCravingReceipt?.date} and streak protected.`
+      : 'Craving Card preview ready. Open Rescue first to save a real craving receipt.'
+    : template === 'receipts' && workoutProof
+      ? `Selected receipt: ${workoutProof.title} • ${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets.`
+      : template === 'weekly'
+        ? `Weekly receipts ready: ${weeklySoberDays} sober check-ins and ${weeklyMinutes} training minutes this week.`
+        : template === 'transformation'
+          ? `Transformation proof ready: ${data.bodyProfile.weightLbs || 'body stats'} and ${streak} sober days.`
+          : 'No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.';
 
   const captions: Record<VictoryTemplate, string> = useMemo(() => ({
     comeback: workoutProof
@@ -155,28 +168,14 @@ const ShareProgressScreen = () => {
 
   return (
     <div className="page stack-lg content-studio-page">
-      <PageHeader eyebrow="TikTok Proof Pack" title={template === 'craving' ? 'Turn the urge into proof.' : workoutProof ? 'Turn today’s win into content.' : 'Make the comeback visible.'}>
+      <PageHeader eyebrow="TikTok Proof Pack" title={heroTitles[template]}>
         Choose a proof angle, download a 9:16 Victory Card, then copy a hook, caption, hashtags, and video idea.
       </PageHeader>
 
       <Card className="victory-proof-brief content-studio-hero stack-sm">
         <span className="tag danger-tag">Content Studio</span>
-        {template === 'craving' ? (
-          <>
-            <h2>{cravingProofReady ? 'Craving proof is ready.' : 'Preview a Craving Victory Card.'}</h2>
-            <p>{activeProofLabel}</p>
-          </>
-        ) : workoutProof ? (
-          <>
-            <h2>{workoutProof.title}</h2>
-            <p>{activeProofLabel}</p>
-          </>
-        ) : (
-          <>
-            <h2>Build the next receipt.</h2>
-            <p>{activeProofLabel}</p>
-          </>
-        )}
+        <h2>{heroTitles[template]}</h2>
+        <p>{activeProofLabel}</p>
         <div className="proof-angle-strip">
           <span>{streak} day streak</span>
           <span>{weeklyMinutes}m this week</span>
