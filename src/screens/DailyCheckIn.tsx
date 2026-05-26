@@ -194,7 +194,7 @@ const DailyCheckIn = () => {
           <Button onClick={handleSave}>Save today’s check-in</Button>
           <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
         </div>
-        {savedCheckIn && <p className="success-msg">Saved for {savedCheckIn.date}. Keep the chain alive. Next move: train, proof, or Rescue if the urge spikes.</p>}
+        {savedCheckIn && <p className="success-msg">Saved for {savedCheckIn.date}. Keep the chain alive. Next move: train, proof, Rescue, or a quick support text if the urge spikes.</p>}
       </Card>
 
       {savedCheckIn && (
@@ -220,6 +220,16 @@ const DailyCheckIn = () => {
             )}
             <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
             <Link className="btn btn-ghost" to={meetingsPath}>{meetingsLabel}</Link>
+          </div>
+          <div className="hero-actions">
+            {supportReady ? (
+              <>
+                <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
+                <a className="btn btn-ghost" href={buildSupportSmsHref(profile, `I just logged my check-in and want a quick sober check-in. I’m at ${savedCheckIn.craving}/10 craving.`)}>Text {supportContactLabel}</a>
+              </>
+            ) : (
+              <Link className="btn btn-ghost" to="/setup-profile">Set support contact</Link>
+            )}
           </div>
         </Card>
       )}
