@@ -50,6 +50,7 @@ const Onboarding = () => {
   const macroTargets = calculateMacroTargets(bodyProfile);
   const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
+  const shareVictoryCardPath = latestProof ? `/share-progress?template=receipts&proof=${latestProof.id}` : '/share-progress?template=receipts';
 
   // Milestone badges
   const getMilestoneInfo = () => {
@@ -349,33 +350,54 @@ const Onboarding = () => {
         </section>
       ) : (
         <>
-          <section className="card command-card sober-mission-card stack-sm">
-            <div className="section-title-row mission-title-row">
-              <span className="tag">Sober Strength Mission</span>
-              <b>{completionLabel}</b>
-            </div>
-            <h2>{primaryMission.title}</h2>
-            <p>{primaryMission.detail}</p>
-            <div className="mission-step-strip" aria-label="Daily mission steps">
-              {missionSteps.map((step) => (
-                <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
-                  <b>{step.done ? '✓' : '•'}</b>
-                  <span>{step.label}</span>
-                </Link>
-              ))}
-            </div>
-            <div className="mission-brief-grid">
-              <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
-              <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
-              <div><span>Proof action</span><strong>{proofAction}</strong></div>
-            </div>
-            <div className="hero-actions">
-              <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
-              <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
-              <Link to="/rescue" className="btn btn-danger">Rescue</Link>
-              <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
-            </div>
-          </section>
+          {primaryMission.stage === 'complete' ? (
+            <section className="card command-card sober-mission-card mission-complete-card stack-sm">
+              <div className="section-title-row mission-title-row">
+                <span className="tag">Mission complete</span>
+                <b>{completionLabel}</b>
+              </div>
+              <h2>{primaryMission.title}</h2>
+              <p>{nextBestMove}</p>
+              <div className="mission-brief-grid">
+                <div><span>Streak</span><strong>Day {displayDay}</strong></div>
+                <div><span>Proof action</span><strong>Share Victory Card</strong></div>
+                <div><span>Route</span><strong>Victory Card</strong></div>
+              </div>
+              <div className="hero-actions">
+                <Link to={shareVictoryCardPath} className="btn btn-primary">Share Victory Card</Link>
+                <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
+                <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+              </div>
+            </section>
+          ) : (
+            <section className="card command-card sober-mission-card stack-sm">
+              <div className="section-title-row mission-title-row">
+                <span className="tag">Sober Strength Mission</span>
+                <b>{completionLabel}</b>
+              </div>
+              <h2>{primaryMission.title}</h2>
+              <p>{primaryMission.detail}</p>
+              <div className="mission-step-strip" aria-label="Daily mission steps">
+                {missionSteps.map((step) => (
+                  <Link to={step.to} key={step.label} className={`${step.done ? 'step-done' : ''} ${step.active ? 'step-active' : ''}`.trim()}>
+                    <b>{step.done ? '✓' : '•'}</b>
+                    <span>{step.label}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="mission-brief-grid">
+                <div><span>Craving defense</span><strong>{cravingDefense}</strong></div>
+                <div><span>Fuel target</span><strong>{proteinTarget}</strong></div>
+                <div><span>Proof action</span><strong>{proofAction}</strong></div>
+              </div>
+              <div className="hero-actions">
+                <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
+                <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
+                <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+                <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
+              </div>
+            </section>
+          )}
 
           <section className="xp-card">
             <div className="xp-head">
