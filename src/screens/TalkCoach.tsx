@@ -11,6 +11,7 @@ import {
 } from '../utils/emergencySupportChain';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { createStarterLoadout } from '../utils/starterLoadout';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
 
 type WebSpeechRecognitionResultEvent = {
@@ -331,7 +332,12 @@ const TalkCoach = () => {
   const todaysMission = !todaysCheckIn
     ? { label: 'First move', title: 'Log today’s check-in', detail: 'Lock in mood, craving level, and sober status before the day gets loud.', command: 'Next best move' }
     : !trainedToday
-      ? { label: 'Next rep', title: dataSnapshot.activeLoadout ? 'Run today’s workout' : 'Build and save a workout', detail: dataSnapshot.activeLoadout ? dataSnapshot.activeLoadout.title : 'Generate a loadout so Train knows what to run.', command: 'Next best move' }
+      ? {
+          label: 'Next rep',
+          title: dataSnapshot.activeLoadout ? 'Run today’s workout' : 'Start the starter loadout',
+          detail: dataSnapshot.activeLoadout ? dataSnapshot.activeLoadout.title : 'One tap seeds a 20-minute routine so Train has something to run.',
+          command: 'Next best move',
+        }
       : { label: 'Proof', title: 'Show the win', detail: 'Check-in and training are stacked. Turn it into proof or a Victory Card.', command: 'Show my proof' };
 
   const detectedId = useMemo(() => {
@@ -372,6 +378,12 @@ const TalkCoach = () => {
     setSavedMessage(`${loadout.title} saved to Train.`);
   };
 
+  const seedStarterLoadout = () => {
+    const activeLoadout = createStarterLoadout();
+    saveData({ activeLoadout });
+    return activeLoadout;
+  };
+
   const saveCravingCommandState = (rawCommand: string, fallback = 7, emergency = false) => {
     const data = loadData();
     const today = getTodayKey();
@@ -408,8 +420,14 @@ const TalkCoach = () => {
         setCommandReply('Next move: log today’s check-in. Opening it now.');
         navigate('/daily-check-in');
       } else if (!data.fitnessEntries.some((entry) => entry.date === today)) {
-        setCommandReply(data.activeLoadout ? 'Next move: run today’s routine. Opening Train.' : 'Next move: generate a workout loadout. Build one here, then save it.');
-        if (data.activeLoadout) navigate('/train');
+        if (data.activeLoadout) {
+          setCommandReply('Next move: run today’s routine. Opening Train.');
+          navigate('/train');
+        } else {
+          const starterLoadout = seedStarterLoadout();
+          setCommandReply(`Next move: starter loadout seeded. Opening ${starterLoadout.title} in Workout Mode.`);
+          navigate('/workout-mode');
+        }
       } else {
         setCommandReply('Next move: show proof and make the win visible. Opening Proof.');
         navigate('/proof');
@@ -593,9 +611,9 @@ const TalkCoach = () => {
         setCommandReply('Opening Workout Mode. Clean reps. No bargaining.');
         navigate('/workout-mode');
       } else {
-        setCommandReply('No active loadout yet. Building your workout loadout first.');
-        setSelectedId('ppl');
-        setMessage('Build me a workout');
+        const starterLoadout = seedStarterLoadout();
+        setCommandReply(`No active loadout yet. Starter loadout seeded. Opening ${starterLoadout.title}.`);
+        navigate('/workout-mode');
       }
       return;
     }
