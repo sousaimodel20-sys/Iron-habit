@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn, type Profile } from '../utils/storage';
+import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
 
@@ -28,6 +29,7 @@ const DailyCheckIn = () => {
   const [rescueActive, setRescueActive] = useState(false);
   const [rescueSeconds, setRescueSeconds] = useState(600);
   const [profile, setProfile] = useState<Profile>(() => loadData().profile);
+  const missionState = computeDailyMissionState(loadData(), today);
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
   const supportLocation = getSupportLocation(profile);
@@ -190,7 +192,7 @@ const DailyCheckIn = () => {
 
         <div className="checkin-save-row">
           <Button onClick={handleSave}>Save today’s check-in</Button>
-          <Link className="btn btn-secondary" to="/train">Train next</Link>
+          <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
         </div>
         {savedCheckIn && <p className="success-msg">Saved for {savedCheckIn.date}. Keep the chain alive. Next move: train, proof, or Rescue if the urge spikes.</p>}
       </Card>
@@ -216,7 +218,7 @@ const DailyCheckIn = () => {
             ) : (
               <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
             )}
-            <Link className="btn btn-secondary" to="/train">Train next</Link>
+            <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
             <Link className="btn btn-ghost" to={meetingsPath}>{meetingsLabel}</Link>
           </div>
         </Card>

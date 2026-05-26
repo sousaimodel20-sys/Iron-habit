@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
 import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
@@ -11,6 +12,7 @@ const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
 
 const FitnessTracker = () => {
   const todayKey = formatLocalDateKey();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<FitnessEntry[]>(() => loadData().fitnessEntries);
   const [activeLoadout, setActiveLoadout] = useState<ActiveLoadout | null>(() => loadData().activeLoadout);
   const [completedLoadouts, setCompletedLoadouts] = useState<CompletedLoadout[]>(() => loadData().completedLoadouts);
@@ -33,6 +35,13 @@ const FitnessTracker = () => {
     },
     todayKey,
   );
+  const startStarterLoadout = () => {
+    if (activeLoadout) return;
+    const nextLoadout = createStarterLoadout();
+    setActiveLoadout(nextLoadout);
+    saveData({ activeLoadout: nextLoadout });
+    navigate('/workout-mode');
+  };
   const activeDay = useMemo(() => {
     if (!activeLoadout) return '';
     const dayIndex = new Date().getDay();
@@ -189,9 +198,12 @@ const FitnessTracker = () => {
       ) : (
         <Card className="active-program-card stack-sm">
           <span className="tag">No Active Program</span>
-          <h2>Generate your next loadout with Coach.</h2>
-          <p>Save a PPL, Arnold, dumbbell, or craving-killer plan and it will appear here.</p>
-          <Link to="/talk" className="btn btn-primary">Open Coach Loadouts</Link>
+          <h2>Start a starter loadout in one tap.</h2>
+          <p>Use the 20-minute sober strength starter, jump into Workout Mode, and stack proof before you build custom splits.</p>
+          <div className="hero-actions">
+            <Button variant="primary" onClick={startStarterLoadout}>Start Starter Loadout</Button>
+            <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
+          </div>
         </Card>
       )}
 

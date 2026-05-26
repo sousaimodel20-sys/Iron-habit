@@ -62,8 +62,8 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
             stage: 'build-loadout',
             title: 'Step 2: Build today’s training loadout',
             detail: 'Stay sober. Move your body. Keep the promise small enough to win.',
-            to: '/talk',
-            cta: 'Build Workout',
+            to: '/train',
+            cta: 'Start Starter Loadout',
           }
       : !proofDoneToday
         ? {

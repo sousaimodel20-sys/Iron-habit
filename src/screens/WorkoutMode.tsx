@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
+import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
@@ -29,12 +30,19 @@ const WorkoutMode = () => {
   const missionRouteLabel = missionState.primaryMission.stage === 'check-in'
     ? 'Daily Check-In'
     : missionState.primaryMission.stage === 'build-loadout'
-      ? 'Talk Coach'
+      ? 'Workout Mode'
       : missionState.primaryMission.stage === 'train'
         ? 'Workout Mode'
         : missionState.primaryMission.stage === 'proof'
           ? 'Proof'
           : 'Victory Card';
+
+  const startStarterLoadout = () => {
+    if (loadout) return;
+    const nextLoadout = createStarterLoadout();
+    const nextData = saveData({ activeLoadout: nextLoadout });
+    setData(nextData);
+  };
 
   if (!loadout) {
     return (
@@ -67,9 +75,12 @@ const WorkoutMode = () => {
 
         <Card className="active-program-card stack-md">
           <span className="tag">No Active Routine</span>
-          <h1>Save a split first.</h1>
-          <p>Generate a PPL, Arnold, dumbbell, or craving-killer routine, then come back here to view the full plan.</p>
-          <Link to="/talk" className="btn btn-primary">Open Coach Loadouts</Link>
+          <h1>Start a starter loadout in one tap.</h1>
+          <p>Use the 20-minute sober strength starter, jump into Workout Mode, and stack proof before you build custom splits.</p>
+          <div className="hero-actions">
+            <button type="button" className="btn btn-primary" onClick={startStarterLoadout}>Start Starter Loadout</button>
+            <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
+          </div>
         </Card>
       </div>
     );
