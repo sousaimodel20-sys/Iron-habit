@@ -132,14 +132,14 @@ const Onboarding = () => {
     const createdAt = now.toISOString();
     const demoProfile: Profile = {
       ...profile,
-      name: profile.name || 'Iron Warrior',
+      name: 'Iron Warrior',
       sobrietyDate: soberStart,
-      why: profile.why || 'Discipline today. Freedom tomorrow.',
-      focus: profile.focus || 'sobriety-strength-discipline',
-      transformationGoal: profile.transformationGoal || 'Lean, sober, strong, and consistent.',
-      supportLocation: profile.supportLocation || 'Vancouver, BC',
-      supportName: profile.supportName || 'Brother Mike',
-      supportPhone: profile.supportPhone || '604-555-1234',
+      why: 'Discipline today. Freedom tomorrow.',
+      focus: 'sobriety-strength-discipline',
+      transformationGoal: 'Lean, sober, strong, and consistent.',
+      supportLocation: 'Vancouver, BC',
+      supportName: 'Brother Mike',
+      supportPhone: '604-555-1234',
     };
     const demoBodyProfile: BodyProfile = {
       ...bodyProfile,
