@@ -65,6 +65,14 @@ assert.equal(
   'build-loadout',
 );
 
+const starterMission = computeDailyMissionState({ ...baseData, checkIns: { [today]: checkIn } }, today);
+assert.equal(starterMission.primaryMission.to, '/train');
+assert.deepEqual(starterMission.missionSteps.map((step) => [step.label, step.to, step.active]), [
+  ['Check in', '/daily-check-in', false],
+  ['Train', '/train', true],
+  ['Proof', '/proof', false],
+]);
+
 assert.deepEqual(
   computeDailyMissionState({ ...baseData, checkIns: { [today]: checkIn }, activeLoadout }, today).primaryMission,
   {

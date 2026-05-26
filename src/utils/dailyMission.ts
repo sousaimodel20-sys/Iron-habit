@@ -83,7 +83,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
 
   const missionSteps: DailyMissionStep[] = [
     { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in', to: '/daily-check-in' },
-    { label: 'Train', done: trainedToday, active: primaryMission.stage === 'build-loadout' || primaryMission.stage === 'train', to: data.activeLoadout ? '/workout-mode' : '/talk' },
+    { label: 'Train', done: trainedToday, active: primaryMission.stage === 'build-loadout' || primaryMission.stage === 'train', to: data.activeLoadout ? '/workout-mode' : '/train' },
     { label: 'Proof', done: proofDoneToday, active: primaryMission.stage === 'proof' || primaryMission.stage === 'complete', to: proofDoneToday || data.latestVictoryProof ? '/share-progress' : '/proof' },
   ];
 
