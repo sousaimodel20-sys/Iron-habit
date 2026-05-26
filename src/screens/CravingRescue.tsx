@@ -31,6 +31,14 @@ const CravingRescue = () => {
   const supportTextMessage = chainMode
     ? 'I need support right now. I am in a high-craving moment and staying sober for the next 10 minutes.'
     : 'I’m riding out a craving. Can you check in with me?';
+  const supportActions = supportReady ? (
+    <>
+      <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
+      <a className="btn btn-ghost" href={buildSupportSmsHref(profile, supportTextMessage)}>Text {supportContactLabel}</a>
+    </>
+  ) : (
+    <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
+  );
   const initialChainStatus = supportReady
     ? `Emergency support chain live. Text ${supportContactLabel}, check the map, and win the next ten minutes.`
     : 'Emergency support chain live. Set a support contact, check the map, and win the next ten minutes.';
@@ -179,14 +187,7 @@ const CravingRescue = () => {
         <div className="rescue-actions primary-rescue-actions">
           <Button variant="danger" onClick={startEmergency}>I’m about to drink</Button>
           <Button onClick={start}>{running ? 'Restart 10 minutes' : 'Start 10-minute rescue'}</Button>
-          {supportReady ? (
-            <>
-              <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
-              <a className="btn btn-ghost" href={buildSupportSmsHref(profile, supportTextMessage)}>Text {supportContactLabel}</a>
-            </>
-          ) : (
-            <Link to="/setup-profile" className="btn btn-ghost">Set support contact</Link>
-          )}
+          {supportActions}
         </div>
 
         {chainMode && (
@@ -237,6 +238,7 @@ const CravingRescue = () => {
               </>
             )}
           </div>
+          <div className="rescue-actions">{supportActions}</div>
         </Card>
       )}
 
@@ -273,8 +275,7 @@ const CravingRescue = () => {
         <small className="rescue-support-note">Remember: win the next 10 minutes, then decide again.</small>
         {supportReady ? (
           <div className="hero-actions" style={{ marginTop: '0.25rem' }}>
-            <a className="btn btn-danger" href={supportCallHref}>Call {supportContactLabel}</a>
-            <a className="btn btn-ghost" href={buildSupportSmsHref(profile, supportTextMessage)}>Text {supportContactLabel}</a>
+            {supportActions}
           </div>
         ) : (
           <small className="rescue-support-note">Add a safe-person phone on Setup so Rescue can text the right human in one tap.</small>
