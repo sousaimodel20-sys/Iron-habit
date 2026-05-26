@@ -418,7 +418,7 @@ const TalkCoach = () => {
       const today = getTodayKey();
       if (!data.checkIns[today]) {
         setCommandReply('Next move: log today’s check-in. Opening it now.');
-        navigate('/daily-check-in');
+        navigate('/check-in');
       } else if (!data.fitnessEntries.some((entry) => entry.date === today)) {
         if (data.activeLoadout) {
           setCommandReply('Next move: run today’s routine. Opening Train.');
@@ -646,7 +646,7 @@ const TalkCoach = () => {
 
     if (/(check.?in|mood|sober today)/.test(command)) {
       setCommandReply('Opening check-in. Log the win before the day gets loud.');
-      navigate('/daily-check-in');
+      navigate('/check-in');
       return;
     }
 

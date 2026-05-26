@@ -226,14 +226,14 @@ const CravingRescue = () => {
           <div className="rescue-actions">
             {outcome === 'win' ? (
               <>
-                <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+                <Link to="/check-in" className="btn btn-secondary">Open check-in</Link>
                 <Link to={`/share-progress?template=craving&receipt=${todayKey}`} className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
                 <Link to="/proof" className="btn btn-ghost">Open Proof Vault</Link>
               </>
             ) : (
               <>
                 <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
-                <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+                <Link to="/check-in" className="btn btn-secondary">Open check-in</Link>
                 <Link to={meetingsPath} className="btn btn-ghost">{meetingsLabel}</Link>
               </>
             )}
@@ -254,7 +254,7 @@ const CravingRescue = () => {
           </div>
           <div className="rescue-actions">
             <Button variant="danger" onClick={setRestartDate}>Set comeback restart date</Button>
-            <Link to="/daily-check-in" className="btn btn-secondary">Open check-in</Link>
+            <Link to="/check-in" className="btn btn-secondary">Open check-in</Link>
           </div>
         </Card>
       )}

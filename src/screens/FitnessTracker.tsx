@@ -287,7 +287,7 @@ const FitnessTracker = () => {
         </Field>
         <div className="checkin-save-row">
           <Button onClick={addEntry}>Log training proof</Button>
-          <Link to="/daily-check-in" className="btn btn-secondary">Check in next</Link>
+          <Link to="/check-in" className="btn btn-secondary">Check in next</Link>
         </div>
         {manualProof && (
           <div className="success-msg stack-sm">

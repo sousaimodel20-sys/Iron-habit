@@ -73,7 +73,7 @@ const Onboarding = () => {
       done: trainedToday,
       to: activeLoadout ? '/workout-mode' : '/talk',
     },
-    { label: 'Recovery Goal', detail: '10-minute check-in', done: Boolean(todayCheckIn), to: '/daily-check-in' },
+    { label: 'Recovery Goal', detail: '10-minute check-in', done: Boolean(todayCheckIn), to: '/check-in' },
     {
       label: 'Proof Goal',
       detail: latestProof ? 'Create Victory Card' : 'Stack first proof',
@@ -326,7 +326,7 @@ const Onboarding = () => {
           <div className="hero-actions">
             <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
             <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
-            <Link to="/daily-check-in" className="btn btn-ghost">First check-in</Link>
+            <Link to="/check-in" className="btn btn-ghost">First check-in</Link>
           </div>
         </section>
       )}

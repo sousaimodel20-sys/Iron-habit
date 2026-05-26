@@ -39,6 +39,7 @@ function AppLayout() {
         <Routes>
           <Route path="/" element={<Onboarding />} />
           <Route path="/setup-profile" element={<Onboarding />} />
+          <Route path="/check-in" element={<DailyCheckIn />} />
           <Route path="/daily-check-in" element={<DailyCheckIn />} />
           <Route path="/habit-tracker" element={<HabitTracker />} />
           <Route path="/fitness-tracker" element={<FitnessTracker />} />

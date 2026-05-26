@@ -46,7 +46,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
         stage: 'check-in',
         title: "Step 1: Lock today's check-in",
         detail: 'No shame. No spiral. Just an honest check-in. Protect today first.',
-        to: '/daily-check-in',
+        to: '/check-in',
         cta: 'Lock In',
       }
     : !trainedToday
@@ -82,7 +82,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
           };
 
   const missionSteps: DailyMissionStep[] = [
-    { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in', to: '/daily-check-in' },
+    { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in', to: '/check-in' },
     { label: 'Train', done: trainedToday, active: primaryMission.stage === 'build-loadout' || primaryMission.stage === 'train', to: data.activeLoadout ? '/workout-mode' : '/train' },
     { label: 'Proof', done: proofDoneToday, active: primaryMission.stage === 'proof' || primaryMission.stage === 'complete', to: proofDoneToday || data.latestVictoryProof ? '/share-progress' : '/proof' },
   ];

@@ -205,7 +205,7 @@ const ProgressDashboard = () => {
             {todayCheckIn.craving >= 3 ? (
               <Link to={`/share-progress?template=craving&receipt=${todayCheckIn.date}`} className="btn btn-primary">Make Craving Card</Link>
             ) : (
-              <Link to="/daily-check-in" className="btn btn-primary">Open Check-In</Link>
+              <Link to="/check-in" className="btn btn-primary">Open Check-In</Link>
             )}
             <Link to="/rescue" className="btn btn-secondary">Open Rescue</Link>
             <Link to={meetingsPath} className="btn btn-ghost">{meetingsLabel}</Link>
