@@ -11,6 +11,7 @@ import { calculateSobrietyStreak } from '../utils/streaks';
 const Onboarding = () => {
   const [profile, setProfile] = useState<Profile>(loadData().profile);
   const [bodyProfile, setBodyProfile] = useState<BodyProfile>(loadData().bodyProfile);
+  const [celebratedMilestones, setCelebratedMilestones] = useState<number[]>(loadData().celebratedMilestones);
   const [saved, setSaved] = useState(false);
   const [backupStatus, setBackupStatus] = useState('');
   const [setupOpen, setSetupOpen] = useState(() => {
@@ -51,6 +52,9 @@ const Onboarding = () => {
   const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
   const shareVictoryCardPath = latestProof ? `/share-progress?template=receipts&proof=${latestProof.id}` : '/share-progress?template=receipts';
+  const shareableMilestones = [3, 7, 14, 30, 60, 90, 180, 365];
+  const todayMilestone = shareableMilestones.find((days) => days === displayDay);
+  const showMilestoneShare = Boolean(todayMilestone && !celebratedMilestones.includes(todayMilestone) && !needsSetup);
 
   // Milestone badges
   const getMilestoneInfo = () => {
@@ -119,6 +123,14 @@ const Onboarding = () => {
     setProfile(next);
     saveData({ profile: next, bodyProfile });
     setSaved(true);
+  };
+
+  const celebrateMilestone = () => {
+    if (!todayMilestone) return;
+
+    const nextCelebrated = Array.from(new Set([...loadData().celebratedMilestones, todayMilestone]));
+    setCelebratedMilestones(nextCelebrated);
+    saveData({ celebratedMilestones: nextCelebrated });
   };
 
   const loadDemoBaseline = () => {
@@ -205,6 +217,7 @@ const Onboarding = () => {
 
     setProfile(demoProfile);
     setBodyProfile(demoBodyProfile);
+    setCelebratedMilestones([]);
     saveData({
       profile: demoProfile,
       bodyProfile: demoBodyProfile,
@@ -213,6 +226,7 @@ const Onboarding = () => {
       activeLoadout: demoLoadout,
       completedLoadouts: [demoProof],
       latestVictoryProof: demoProof,
+      celebratedMilestones: [],
     });
     setSaved(true);
     setBackupStatus('Full demo mode loaded: Day 47 streak, weekly check-ins, active routine, workout proof, Victory Card data, and Brother Mike support contact.');
@@ -262,6 +276,7 @@ const Onboarding = () => {
       const next = replaceData(incoming as IronHabitData);
       setProfile(next.profile);
       setBodyProfile(next.bodyProfile);
+      setCelebratedMilestones(next.celebratedMilestones);
       setSaved(true);
       setBackupStatus('Backup restored. Progress is back on this device.');
     } catch {
@@ -326,6 +341,24 @@ const Onboarding = () => {
             <Link to="/workout-mode" className="btn btn-secondary">View Routine</Link>
             <Link to="/proof" className="btn btn-secondary">Proof Stack</Link>
             <Link to="/rescue?chain=1" className="btn btn-danger">Demo Emergency Chain</Link>
+          </div>
+        </section>
+      )}
+
+      {showMilestoneShare && todayMilestone && (
+        <section className="card stack-sm milestone-share-card">
+          <span className="tag danger-tag">Milestone unlocked</span>
+          <h2>Day {todayMilestone} sober — share the receipt.</h2>
+          <p>This is not just a streak. It is evidence that the old loop lost today. Turn it into a Victory Card while the win is fresh.</p>
+          <div className="mission-brief-grid">
+            <div><span>Receipt</span><strong>Day {todayMilestone}</strong></div>
+            <div><span>Angle</span><strong>Comeback proof</strong></div>
+            <div><span>Status</span><strong>Undefeated</strong></div>
+          </div>
+          <div className="hero-actions">
+            <Link to="/share-progress?template=comeback" className="btn btn-primary" onClick={celebrateMilestone}>Make Milestone Card</Link>
+            <Link to="/proof" className="btn btn-secondary" onClick={celebrateMilestone}>Open Proof Stack</Link>
+            <button type="button" className="btn btn-ghost" onClick={celebrateMilestone}>Hide for now</button>
           </div>
         </section>
       )}

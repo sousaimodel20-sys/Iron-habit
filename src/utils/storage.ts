@@ -105,6 +105,7 @@ export type IronHabitData = {
   activeLoadout: ActiveLoadout | null;
   completedLoadouts: CompletedLoadout[];
   latestVictoryProof: CompletedLoadout | null;
+  celebratedMilestones: number[];
 };
 
 const STORAGE_KEY = 'iron-habit-data';
@@ -158,6 +159,7 @@ export const defaultData: IronHabitData = {
   activeLoadout: null,
   completedLoadouts: [],
   latestVictoryProof: null,
+  celebratedMilestones: [],
 };
 
 export const loadData = (): IronHabitData => {
@@ -177,6 +179,7 @@ export const loadData = (): IronHabitData => {
       activeLoadout: parsed.activeLoadout || null,
       completedLoadouts: parsed.completedLoadouts || [],
       latestVictoryProof: parsed.latestVictoryProof || null,
+      celebratedMilestones: parsed.celebratedMilestones || [],
     };
   } catch {
     return defaultData;
@@ -208,6 +211,7 @@ export const replaceData = (data: IronHabitData) => {
     activeLoadout: data.activeLoadout || null,
     completedLoadouts: data.completedLoadouts || [],
     latestVictoryProof: data.latestVictoryProof || null,
+    celebratedMilestones: data.celebratedMilestones || [],
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   window.dispatchEvent(new Event('iron-habit-data-updated'));
