@@ -88,7 +88,9 @@ const ShareProgressScreen = () => {
 
   const chooseTemplate = (nextTemplate: VictoryTemplate) => {
     setHookIndex(0);
-    setSearchParams({ template: nextTemplate });
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('template', nextTemplate);
+    setSearchParams(nextParams);
   };
 
   const routeProofId = searchParams.get('proof');
