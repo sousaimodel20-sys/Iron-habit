@@ -13,9 +13,10 @@ const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
 const FitnessTracker = () => {
   const todayKey = formatLocalDateKey();
   const navigate = useNavigate();
-  const [entries, setEntries] = useState<FitnessEntry[]>(() => loadData().fitnessEntries);
-  const [activeLoadout, setActiveLoadout] = useState<ActiveLoadout | null>(() => loadData().activeLoadout);
-  const [completedLoadouts, setCompletedLoadouts] = useState<CompletedLoadout[]>(() => loadData().completedLoadouts);
+  const initialData = loadData();
+  const [entries, setEntries] = useState<FitnessEntry[]>(() => initialData.fitnessEntries);
+  const [activeLoadout, setActiveLoadout] = useState<ActiveLoadout | null>(() => initialData.activeLoadout);
+  const [completedLoadouts, setCompletedLoadouts] = useState<CompletedLoadout[]>(() => initialData.completedLoadouts);
   const [type, setType] = useState(activityTypes[0]);
   const [duration, setDuration] = useState(45);
   const [intensity, setIntensity] = useState(intensities[1]);
@@ -24,14 +25,17 @@ const FitnessTracker = () => {
   const [manualProof, setManualProof] = useState<CompletedLoadout | null>(null);
 
 
+  const todaysCheckIn = initialData.checkIns[todayKey];
+  const hasTrainingProof = entries.length > 0 || completedLoadouts.length > 0;
+  const showFirstCheckInTrainingBridge = Boolean(todaysCheckIn) && !hasTrainingProof && !activeLoadout;
   const totalMinutes = useMemo(() => entries.reduce((sum, entry) => sum + entry.durationMinutes, 0), [entries]);
   const thisWeek = useMemo(() => entries.slice(0, 7).length, [entries]);
   const missionState = computeDailyMissionState(
     {
-      checkIns: loadData().checkIns,
+      checkIns: initialData.checkIns,
       fitnessEntries: entries,
       activeLoadout,
-      latestVictoryProof: completedLoadouts[0] || loadData().latestVictoryProof,
+      latestVictoryProof: completedLoadouts[0] || initialData.latestVictoryProof,
     },
     todayKey,
   );
@@ -197,12 +201,24 @@ const FitnessTracker = () => {
         </Card>
       ) : (
         <Card className="active-program-card stack-sm">
-          <span className="tag">No Active Program</span>
-          <h2>Start a starter loadout in one tap.</h2>
-          <p>Use the 20-minute sober strength starter, jump into Workout Mode, and stack proof before you build custom splits.</p>
+          <span className="tag">{showFirstCheckInTrainingBridge ? 'Next Proof Step' : 'No Active Program'}</span>
+          <h2>{showFirstCheckInTrainingBridge ? 'Check-in saved. Stack the training receipt next.' : 'Start a starter loadout in one tap.'}</h2>
+          <p>
+            {showFirstCheckInTrainingBridge
+              ? 'Today’s sober receipt is locked. Start the 20-minute loadout now so Proof has check-in + training evidence, not just a quiet saved status.'
+              : 'Use the 20-minute sober strength starter, jump into Workout Mode, and stack proof before you build custom splits.'}
+          </p>
+          {showFirstCheckInTrainingBridge && (
+            <div className="mission-brief-grid">
+              <div><span>Saved</span><strong>Daily check-in</strong></div>
+              <div><span>Next</span><strong>Training proof</strong></div>
+              <div><span>Payoff</span><strong>Victory Card</strong></div>
+            </div>
+          )}
           <div className="hero-actions">
-            <Button variant="primary" onClick={startStarterLoadout}>Start Starter Loadout</Button>
-            <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
+            <Button variant="primary" onClick={startStarterLoadout}>{showFirstCheckInTrainingBridge ? 'Start Training Proof' : 'Start Starter Loadout'}</Button>
+            <Link to="/talk?command=first-proof" className="btn btn-secondary">Ask Talk What’s Next</Link>
+            {!showFirstCheckInTrainingBridge && <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>}
           </div>
         </Card>
       )}
