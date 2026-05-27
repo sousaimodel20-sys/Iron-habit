@@ -55,7 +55,7 @@ assert.deepEqual(
     stage: 'check-in',
     title: "Step 1: Lock today's check-in",
     detail: 'No shame. No spiral. Just an honest check-in. Protect today first.',
-    to: '/daily-check-in',
+    to: '/check-in',
     cta: 'Lock In',
   },
 );
@@ -68,7 +68,7 @@ assert.equal(
 const starterMission = computeDailyMissionState({ ...baseData, checkIns: { [today]: checkIn } }, today);
 assert.equal(starterMission.primaryMission.to, '/train');
 assert.deepEqual(starterMission.missionSteps.map((step) => [step.label, step.to, step.active]), [
-  ['Check in', '/daily-check-in', false],
+  ['Check in', '/check-in', false],
   ['Train', '/train', true],
   ['Proof', '/proof', false],
 ]);
