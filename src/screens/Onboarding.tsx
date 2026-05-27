@@ -50,9 +50,11 @@ const Onboarding = () => {
   const xpMax = 5000;
   const xpPercent = Math.round((xp / xpMax) * 100);
   const craving = todayCheckIn?.craving ?? 2;
+  const highCraving = craving >= 7;
+  const rescuePath = highCraving ? '/rescue?chain=1' : '/rescue';
   const moodStability = todayCheckIn ? 'Stable' : 'Locked';
   const macroTargets = calculateMacroTargets(bodyProfile);
-  const cravingDefense = craving >= 7 ? 'High urge: open Rescue now.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
+  const cravingDefense = highCraving ? 'High urge: start emergency chain.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
   const shareVictoryCardPath = latestProof ? `/share-progress?template=receipts&proof=${latestProof.id}` : '/share-progress?template=receipts';
   const shareableMilestones = [3, 7, 14, 30, 60, 90, 180, 365];
@@ -83,7 +85,7 @@ const Onboarding = () => {
       done: Boolean(latestProof?.date === todayKey),
       to: latestProof ? '/share-progress' : '/train',
     },
-    { label: 'Emergency Plan', detail: craving >= 7 ? 'Open Rescue now' : 'Rescue one tap away', done: craving < 4, to: '/rescue' },
+    { label: 'Emergency Plan', detail: highCraving ? 'Start emergency chain' : 'Rescue one tap away', done: craving < 4, to: rescuePath },
   ];
   const weeklyBossCleared = missions.filter((mission) => mission.done).length;
   const weeklyBossPercent = Math.round((weeklyBossCleared / missions.length) * 100);
@@ -310,8 +312,8 @@ const Onboarding = () => {
             <span className="hero-day">DAY {displayDay}</span>
             <h1>SOBER</h1>
           </div>
-          <Link to="/rescue" className="btn btn-danger btn-hero-rescue">
-            🆘 Rescue
+          <Link to={rescuePath} className="btn btn-danger btn-hero-rescue">
+            🆘 {highCraving ? 'Emergency Chain' : 'Rescue'}
           </Link>
         </div>
         <p className="hero-why">{nextBestMove}</p>
@@ -394,7 +396,7 @@ const Onboarding = () => {
           </div>
           <div className="hero-actions">
             <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
-            <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+            <Link to={rescuePath} className="btn btn-danger">{highCraving ? 'Start Emergency Chain' : 'Open Rescue'}</Link>
           </div>
         </section>
       ) : (
@@ -421,7 +423,7 @@ const Onboarding = () => {
                 <Link to={shareVictoryCardPath} className="btn btn-primary">Share Victory Card</Link>
                 <Link to="/talk?command=post-first-card" className="btn btn-secondary">Tell Talk it’s posted</Link>
                 <Link to="/talk?command=second-receipt" className="btn btn-secondary">Stack Second Receipt</Link>
-                <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+                <Link to={rescuePath} className="btn btn-danger">{highCraving ? 'Emergency Chain' : 'Rescue'}</Link>
               </div>
             </section>
           ) : (
@@ -448,7 +450,7 @@ const Onboarding = () => {
               <div className="hero-actions">
                 <Link to={primaryMission.to} className="btn btn-primary">{primaryMission.cta}</Link>
                 <Link to="/talk" className="btn btn-secondary">Talk Command</Link>
-                <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+                <Link to={rescuePath} className="btn btn-danger">{highCraving ? 'Emergency Chain' : 'Rescue'}</Link>
                 <Link to="/settings" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>⚙️ Settings</Link>
               </div>
             </section>

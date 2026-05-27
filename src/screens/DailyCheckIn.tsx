@@ -10,11 +10,13 @@ const defaultHabits = ['No alcohol', 'Gym / movement', 'Protein meal', 'Meditati
 const moodOptions = ['Focused', 'Strong', 'Calm', 'Restless', 'Low', 'Grateful'];
 
 const getCravingCue = (level: number) => {
-  if (level >= 8) return 'Emergency mode: open Rescue and text your safe person.';
+  if (level >= 7) return 'Emergency mode: start the chain before the urge gets a vote.';
   if (level >= 5) return 'High alert: walk, hydrate, eat protein, and do not negotiate.';
   if (level >= 3) return 'Stay ahead of it: stack one protective habit now.';
   return 'Low urge: keep the chain alive and protect the next hour.';
 };
+
+const emergencyChainPath = '/rescue?chain=1';
 
 const DailyCheckIn = () => {
   const today = getTodayKey();
@@ -43,6 +45,7 @@ const DailyCheckIn = () => {
   const rescueMinutes = Math.floor(rescueSeconds / 60);
   const rescueRemainder = String(rescueSeconds % 60).padStart(2, '0');
   const cravingCue = getCravingCue(craving);
+  const highCraving = craving >= 7;
 
   useEffect(() => {
     const refreshProfile = () => {
@@ -120,6 +123,9 @@ const DailyCheckIn = () => {
         </div>
 
         <div className="rescue-actions">
+          {highCraving && (
+            <Link className="btn btn-danger" to={emergencyChainPath}>Start emergency chain</Link>
+          )}
           <Button onClick={startRescue}>{rescueActive ? 'Restart timer' : 'Start rescue timer'}</Button>
           <Button variant="secondary" onClick={resetRescue}>Reset</Button>
           {supportReady ? (
@@ -130,7 +136,7 @@ const DailyCheckIn = () => {
           ) : (
             <Link className="btn btn-ghost" to="/setup-profile">Set support contact</Link>
           )}
-          <Link className="btn btn-secondary" to="/rescue">Open full Rescue</Link>
+          <Link className="btn btn-secondary" to={highCraving ? emergencyChainPath : '/rescue'}>{highCraving ? 'Open chain Rescue' : 'Open full Rescue'}</Link>
         </div>
 
         <div className="rescue-actions">
@@ -182,7 +188,10 @@ const DailyCheckIn = () => {
             <span>5 alert</span>
             <span>10 rescue</span>
           </div>
-          <p className={`craving-cue ${craving >= 8 ? 'danger' : craving >= 5 ? 'warning' : ''}`}>{cravingCue}</p>
+          <p className={`craving-cue ${craving >= 7 ? 'danger' : craving >= 5 ? 'warning' : ''}`}>{cravingCue}</p>
+          {highCraving && (
+            <Link className="btn btn-danger" to={emergencyChainPath}>Start emergency chain</Link>
+          )}
         </Field>
 
         <div>
@@ -219,11 +228,14 @@ const DailyCheckIn = () => {
           {isFirstReceipt && (
             <div className="reason-card">
               <span>First proof path unlocked</span>
-              <strong>{savedCheckIn.craving >= 3 ? 'Make the recovery card now, then stack training proof.' : 'Next: stack training proof while today is protected.'}</strong>
+              <strong>{savedCheckIn.craving >= 7 ? 'Start the emergency chain first, then turn the win into proof.' : savedCheckIn.craving >= 3 ? 'Make the recovery card now, then stack training proof.' : 'Next: stack training proof while today is protected.'}</strong>
               <p>
                 Your first sober receipt is saved. Turn it into a card if the urge was real, or go train and add the strength receipt next.
               </p>
               <div className="hero-actions">
+                {savedCheckIn.craving >= 7 && (
+                  <Link className="btn btn-danger" to={emergencyChainPath}>Start Emergency Chain</Link>
+                )}
                 {savedCheckIn.craving >= 3 && (
                   <Link className="btn btn-primary" to={`/share-progress?template=craving&receipt=${savedCheckIn.date}`}>Make Recovery Card</Link>
                 )}
@@ -244,7 +256,7 @@ const DailyCheckIn = () => {
             ) : (
               <Link className="btn btn-primary" to="/proof">Open Proof Stack</Link>
             )}
-            <Link className="btn btn-danger" to="/rescue">Open Rescue</Link>
+            <Link className="btn btn-danger" to={savedCheckIn.craving >= 7 ? emergencyChainPath : '/rescue'}>{savedCheckIn.craving >= 7 ? 'Start Emergency Chain' : 'Open Rescue'}</Link>
             <Link className="btn btn-secondary" to={missionState.primaryMission.to}>{missionState.primaryMission.cta}</Link>
             <Link className="btn btn-ghost" to={meetingsPath}>{meetingsLabel}</Link>
           </div>
