@@ -105,6 +105,13 @@ const ShareProgressScreen = () => {
   const routeProofId = searchParams.get('proof');
   const routeWorkoutProof = routeProofId ? getProofById(data.completedLoadouts, routeProofId) : null;
   const workoutProof = routeWorkoutProof || data.latestVictoryProof;
+  const sortedWorkoutProofs = [...data.completedLoadouts].sort((a, b) => a.date.localeCompare(b.date));
+  const firstWorkoutProof = sortedWorkoutProofs[0];
+  const isFirstVictoryShare = template === 'receipts'
+    && Boolean(workoutProof)
+    && Boolean(firstWorkoutProof)
+    && workoutProof?.id === firstWorkoutProof?.id
+    && data.completedLoadouts.length === 1;
   const latestCheckIn = Object.values(data.checkIns).sort((a, b) => b.date.localeCompare(a.date))[0];
   const cravingReceiptDate = searchParams.get('receipt');
   const routeCravingReceipt = cravingReceiptDate ? getCravingReceiptByDate(data.checkIns, cravingReceiptDate) : null;
@@ -193,6 +200,27 @@ const ShareProgressScreen = () => {
           )}
         </div>
       </Card>
+
+      {isFirstVictoryShare && workoutProof && (
+        <Card className="victory-proof-brief stack-sm first-victory-share-cue">
+          <span className="tag danger-tag">First public proof card</span>
+          <h2>Your first receipt is ready to post.</h2>
+          <p>
+            This is the first training proof in the vault: {workoutProof.title}, {workoutProof.durationMinutes} minutes,
+            {` ${workoutProof.completedSets}/${workoutProof.totalSets}`} sets. Copy the hook, save the 9:16 card, then stack the next receipt.
+          </p>
+          <div className="proof-angle-strip">
+            <span>1st victory receipt</span>
+            <span>{workoutProof.activeDay}</span>
+            <span>{workoutProof.durationMinutes}m locked</span>
+          </div>
+          <div className="hero-actions">
+            <a className="btn btn-primary" href="#post-idea">Copy caption next</a>
+            <a className="btn btn-secondary" href="#victory-card-preview">Download card</a>
+            <Link className="btn btn-ghost" to="/proof">Back to Proof Vault</Link>
+          </div>
+        </Card>
+      )}
 
       <Card className="stack-sm">
         <span className="tag">Choose proof angle</span>
