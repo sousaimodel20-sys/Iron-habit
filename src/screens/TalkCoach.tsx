@@ -138,9 +138,11 @@ const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const firstProofCommand = 'Help me create my first proof';
 const postFirstCardCommand = 'I made my first Victory Card';
+const secondReceiptCommand = 'Stack Second Receipt';
 const quickCommands = [
   firstProofCommand,
   postFirstCardCommand,
+  secondReceiptCommand,
   'I need help now',
   'I need a meeting',
   'I’m about to drink text my support person',
@@ -361,6 +363,49 @@ const getFirstProofPath = () => {
   };
 };
 
+const getSecondReceiptPath = () => {
+  const data = loadData();
+  const today = getTodayKey();
+  const todayReceipt = data.checkIns[today];
+  const trainedToday = data.fitnessEntries.some((entry) => entry.date === today)
+    || data.completedLoadouts.some((entry) => entry.date === today)
+    || data.latestVictoryProof?.date === today;
+
+  if (todayReceipt?.craving && todayReceipt.craving >= 7) {
+    return {
+      path: '/rescue?chain=1',
+      title: 'Protect the streak before more proof.',
+      reply: `${todayReceipt.craving}/10 craving is on the board. Second receipt starts with Rescue, then the Craving Card.`,
+      steps: ['Open Rescue chain', 'Text support if needed', 'Make Craving Card'],
+    };
+  }
+
+  if (!todayReceipt) {
+    return {
+      path: '/check-in',
+      title: 'Lock the sober receipt first.',
+      reply: 'Second receipt path: save today’s check-in, then stack training proof or a Craving Card.',
+      steps: ['Check in', 'Pick training or rescue', 'Make the card'],
+    };
+  }
+
+  if (data.activeLoadout) {
+    return {
+      path: '/workout-mode',
+      title: trainedToday ? 'Second training receipt is ready to start.' : 'Training receipt is the next move.',
+      reply: `Open ${data.activeLoadout.title}, finish the routine, and turn it into the next Victory Card.`,
+      steps: ['Open routine', 'Finish clean', 'Make Victory Card'],
+    };
+  }
+
+  return {
+    path: '/train',
+    title: trainedToday ? 'Stack another proof from Train.' : 'Build the training receipt now.',
+    reply: 'No active routine yet. Train can seed a starter loadout or log manual movement into the Proof Vault.',
+    steps: ['Open Train', 'Start or log movement', 'Save Victory proof'],
+  };
+};
+
 const TalkCoach = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -375,6 +420,7 @@ const TalkCoach = () => {
   const [dataSnapshot, setDataSnapshot] = useState(() => loadData());
   const [supportReward, setSupportReward] = useState('');
   const [firstProofMove, setFirstProofMove] = useState<ReturnType<typeof getFirstProofPath> | null>(null);
+  const [secondReceiptMove, setSecondReceiptMove] = useState<ReturnType<typeof getSecondReceiptPath> | null>(null);
   const [postFirstCardVisible, setPostFirstCardVisible] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
   const [listening, setListening] = useState(false);
@@ -400,13 +446,21 @@ const TalkCoach = () => {
 
   useEffect(() => {
     const commandParam = searchParams.get('command');
-    if (commandParam !== 'first-proof' && commandParam !== 'post-first-card') return undefined;
+    if (commandParam !== 'first-proof' && commandParam !== 'post-first-card' && commandParam !== 'second-receipt') return undefined;
 
     const frame = window.requestAnimationFrame(() => {
       if (commandParam === 'post-first-card') {
         setMessage(postFirstCardCommand);
         setPostFirstCardVisible(true);
         setCommandReply('First Victory Card debrief loaded. Pick the next move: stack a second receipt or protect today.');
+        return;
+      }
+
+      if (commandParam === 'second-receipt') {
+        const secondReceiptMove = getSecondReceiptPath();
+        setMessage(secondReceiptCommand);
+        setSecondReceiptMove(secondReceiptMove);
+        setCommandReply(`${secondReceiptMove.reply} Review the handoff below, then open the next receipt path.`);
         return;
       }
 
@@ -508,7 +562,15 @@ const TalkCoach = () => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
     setFirstProofMove(null);
+    setSecondReceiptMove(null);
     setPostFirstCardVisible(false);
+
+    if (/(stack|build|make|create|start|log).*(second|next|another).*(receipt|proof|victory)|(?:second|next|another).*(receipt|proof|victory)/.test(command)) {
+      const secondReceiptMove = getSecondReceiptPath();
+      setSecondReceiptMove(secondReceiptMove);
+      setCommandReply(`${secondReceiptMove.reply} Review the handoff below, then open the next receipt path.`);
+      return;
+    }
 
     if (/(first|made|posted|shared|finished).*(victory card|proof card|receipt card)|victory card.*(done|made|posted|shared|first)/.test(command)) {
       setPostFirstCardVisible(true);
@@ -942,9 +1004,26 @@ const TalkCoach = () => {
               <div><strong>3</strong><span>Protect today</span></div>
             </div>
             <div className="hero-actions command-actions">
-              <Link to="/train" className="btn btn-primary">Stack Second Receipt</Link>
+              <button className="btn btn-primary" type="button" onClick={() => handleCommand(secondReceiptCommand)}>Stack Second Receipt</button>
               <Link to="/rescue" className="btn btn-danger">Protect Today</Link>
               <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
+            </div>
+          </div>
+        )}
+        {secondReceiptMove && (
+          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk second receipt handoff">
+            <span className="tag">Second receipt path picked</span>
+            <h3>{secondReceiptMove.title}</h3>
+            <p>{secondReceiptMove.reply}</p>
+            <div className="proof-grid mini-proof macro-grid" aria-label="Second receipt handoff steps">
+              {secondReceiptMove.steps.map((step, index) => (
+                <div key={step}><strong>{index + 1}</strong><span>{step}</span></div>
+              ))}
+            </div>
+            <div className="hero-actions command-actions">
+              <Link to={secondReceiptMove.path} className="btn btn-primary">Open Second Receipt Path</Link>
+              <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
+              <Link to="/rescue" className="btn btn-danger">Rescue</Link>
             </div>
           </div>
         )}

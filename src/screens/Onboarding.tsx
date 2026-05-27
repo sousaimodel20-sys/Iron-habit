@@ -420,7 +420,7 @@ const Onboarding = () => {
               <div className="hero-actions">
                 <Link to={shareVictoryCardPath} className="btn btn-primary">Share Victory Card</Link>
                 <Link to="/talk?command=post-first-card" className="btn btn-secondary">Tell Talk it’s posted</Link>
-                <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
+                <Link to="/talk?command=second-receipt" className="btn btn-secondary">Stack Second Receipt</Link>
                 <Link to="/rescue" className="btn btn-danger">Rescue</Link>
               </div>
             </section>
