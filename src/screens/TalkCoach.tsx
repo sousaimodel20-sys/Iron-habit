@@ -1034,6 +1034,7 @@ const TalkCoach = () => {
             <p>{talkProof.proofCopy}</p>
             <div className="hero-actions command-actions">
               <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+              <button className="btn btn-secondary" type="button" onClick={() => handleCommand(secondReceiptCommand)}>Stack Second Receipt</button>
               <Link to="/proof" className="btn btn-secondary">View Proof Stack</Link>
             </div>
           </div>
@@ -1045,6 +1046,7 @@ const TalkCoach = () => {
             <p>Rescue win logged for today. No alcohol, craving rescue, proof stacked.</p>
             <div className="hero-actions command-actions">
               <Link to={latestCravingCardPath} className="btn btn-danger">Make Craving Card</Link>
+              <button className="btn btn-secondary" type="button" onClick={() => handleCommand(secondReceiptCommand)}>Stack Second Receipt</button>
               <button className="btn btn-secondary" type="button" onClick={() => handleCommand('Open latest Craving Card')}>Open latest receipt</button>
               <Link to="/proof" className="btn btn-secondary">View Proof Vault</Link>
             </div>
