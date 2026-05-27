@@ -137,8 +137,10 @@ const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const firstProofCommand = 'Help me create my first proof';
+const postFirstCardCommand = 'I made my first Victory Card';
 const quickCommands = [
   firstProofCommand,
+  postFirstCardCommand,
   'I need help now',
   'I need a meeting',
   'I’m about to drink text my support person',
@@ -373,6 +375,7 @@ const TalkCoach = () => {
   const [dataSnapshot, setDataSnapshot] = useState(() => loadData());
   const [supportReward, setSupportReward] = useState('');
   const [firstProofMove, setFirstProofMove] = useState<ReturnType<typeof getFirstProofPath> | null>(null);
+  const [postFirstCardVisible, setPostFirstCardVisible] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<WebSpeechRecognition | null>(null);
@@ -397,9 +400,16 @@ const TalkCoach = () => {
 
   useEffect(() => {
     const commandParam = searchParams.get('command');
-    if (commandParam !== 'first-proof') return undefined;
+    if (commandParam !== 'first-proof' && commandParam !== 'post-first-card') return undefined;
 
     const frame = window.requestAnimationFrame(() => {
+      if (commandParam === 'post-first-card') {
+        setMessage(postFirstCardCommand);
+        setPostFirstCardVisible(true);
+        setCommandReply('First Victory Card debrief loaded. Pick the next move: stack a second receipt or protect today.');
+        return;
+      }
+
       setMessage(firstProofCommand);
       setCommandReply('Proof sent you here. Run the first-proof command and Talk will pick the fastest real receipt path.');
     });
@@ -498,6 +508,13 @@ const TalkCoach = () => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
     setFirstProofMove(null);
+    setPostFirstCardVisible(false);
+
+    if (/(first|made|posted|shared|finished).*(victory card|proof card|receipt card)|victory card.*(done|made|posted|shared|first)/.test(command)) {
+      setPostFirstCardVisible(true);
+      setCommandReply('First Victory Card locked. Now pick the next clean move: stack another receipt or protect the streak if the day gets loud.');
+      return;
+    }
 
     if (/(first|start|create|make|build|help).*proof|proof.*(first|start|create|make|build)/.test(command)) {
       const firstProofMove = getFirstProofPath();
@@ -910,6 +927,23 @@ const TalkCoach = () => {
             </div>
             <div className="hero-actions command-actions">
               <Link to={firstProofMove.path} className="btn btn-primary">Open Recommended Path</Link>
+              <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
+            </div>
+          </div>
+        )}
+        {postFirstCardVisible && (
+          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk post first Victory Card handoff">
+            <span className="tag danger-tag">First card debrief</span>
+            <h3>Proof is public. Now protect the next decision.</h3>
+            <p>Do not let the first post become the finish line. Stack a second receipt, keep Rescue one tap away, and come back to Proof when the next win is locked.</p>
+            <div className="proof-grid mini-proof macro-grid" aria-label="Post first card next moves">
+              <div><strong>1</strong><span>Post or save the card</span></div>
+              <div><strong>2</strong><span>Stack second receipt</span></div>
+              <div><strong>3</strong><span>Protect today</span></div>
+            </div>
+            <div className="hero-actions command-actions">
+              <Link to="/train" className="btn btn-primary">Stack Second Receipt</Link>
+              <Link to="/rescue" className="btn btn-danger">Protect Today</Link>
               <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
             </div>
           </div>

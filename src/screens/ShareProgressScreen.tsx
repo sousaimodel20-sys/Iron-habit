@@ -217,7 +217,7 @@ const ShareProgressScreen = () => {
           <div className="hero-actions">
             <a className="btn btn-primary" href="#post-idea">Copy caption next</a>
             <a className="btn btn-secondary" href="#victory-card-preview">Download card</a>
-            <Link className="btn btn-ghost" to="/proof">Back to Proof Vault</Link>
+            <Link className="btn btn-ghost" to="/talk?command=post-first-card">Tell Talk it’s posted</Link>
           </div>
         </Card>
       )}
