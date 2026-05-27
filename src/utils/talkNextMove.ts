@@ -25,8 +25,13 @@ export const buildTalkNextMove = (data: IronHabitData, todayKey: string): TalkNe
   const trainedToday = hasTrainingToday(data, todayKey);
   const proofToday = hasWorkoutProofToday(data, todayKey);
   const supportReady = hasSupportContact(data);
+  const activeHighCraving = Boolean(
+    todaysCheckIn
+    && todaysCheckIn.craving >= 7
+    && !todaysCheckIn.habitsCompleted.includes('Craving rescue')
+  );
 
-  if (todaysCheckIn && todaysCheckIn.craving >= 7) {
+  if (todaysCheckIn && activeHighCraving) {
     return {
       label: 'Rescue first',
       title: supportReady ? 'Open the rescue chain now' : 'Open Rescue and add human backup',

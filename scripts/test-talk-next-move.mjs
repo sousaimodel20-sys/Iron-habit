@@ -122,4 +122,17 @@ assert.equal(buildTalkNextMove(highCraving, today).action, 'rescue');
 assert.equal(buildTalkNextMove(highCraving, today).path, '/rescue?chain=1');
 assert.match(buildTalkNextMove(highCraving, today).detail, /8\/10/);
 
+const highCravingResolved = {
+  ...highCraving,
+  checkIns: {
+    [today]: {
+      ...highCraving.checkIns[today],
+      habitsCompleted: ['No alcohol', 'Craving rescue'],
+    },
+  },
+};
+
+assert.equal(buildTalkNextMove(highCravingResolved, today).action, 'victory-card');
+assert.equal(buildTalkNextMove(highCravingResolved, today).path, '/share-progress');
+
 console.log('talk next move tests passed');
