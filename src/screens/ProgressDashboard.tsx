@@ -7,8 +7,8 @@ import { loadData, saveData, type CompletedLoadout, type IronHabitData } from '.
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
 import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/transformation';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
-import { getCravingReceipts, getLatestProof, getProofStack } from '../utils/proofReceipts';
-import { buildMeetingsPath, getMeetingsCtaLabel } from '../utils/support';
+import { getCravingReceipts, getLatestEmergencyCravingReceipt, getLatestProof, getProofStack } from '../utils/proofReceipts';
+import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
 const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
 const milestonePlan = [
@@ -106,6 +106,7 @@ const ProgressDashboard = () => {
   const weeklyLoadouts = data.completedLoadouts.filter((proof) => getRecentDays(7).includes(proof.date)).length;
   const cravingReceipts = getCravingReceipts(data.checkIns, 3);
   const latestCravingReceipt = cravingReceipts[0] || null;
+  const latestEmergencyReceipt = getLatestEmergencyCravingReceipt(data.checkIns);
   const latestProof = getLatestProof(data.latestVictoryProof, data.completedLoadouts);
   const proofStack = getProofStack(data.completedLoadouts, 5);
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
@@ -148,6 +149,33 @@ const ProgressDashboard = () => {
           <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
         </div>
       </Card>
+
+      {latestEmergencyReceipt && (
+        <Card className="proof-stack-card emergency-proof-card stack-sm">
+          <span className="tag danger-tag">Emergency Proof</span>
+          <h2>{latestEmergencyReceipt.craving}/10 craving survived.</h2>
+          <p>
+            {latestEmergencyReceipt.date} • {latestEmergencyReceipt.mood || 'Emergency survived'}.
+            {' '}
+            Keep the receipt close: make the card, text your safe person, or reopen the chain before the urge gets loud again.
+          </p>
+          <div className="proof-grid mini-proof">
+            <div><strong>{latestEmergencyReceipt.craving}/10</strong><span>peak urge faced</span></div>
+            <div><strong>{latestEmergencyReceipt.sober ? 'Protected' : 'Restart'}</strong><span>sober status</span></div>
+            <div><strong>{data.profile.supportName ? getSupportContactLabel(data.profile) : 'Set one'}</strong><span>safe person</span></div>
+            <div><strong>{data.profile.supportLocation || 'Near me'}</strong><span>meeting base</span></div>
+          </div>
+          <div className="hero-actions">
+            <Link to={`/share-progress?template=craving&receipt=${latestEmergencyReceipt.date}`} className="btn btn-danger">Make {latestEmergencyReceipt.craving}/10 Craving Card</Link>
+            {hasSupportContact(data.profile) ? (
+              <a className="btn btn-secondary" href={buildSupportSmsHref(data.profile, `I just survived a ${latestEmergencyReceipt.craving}/10 craving. Can you check in on me?`)}>Text {getSupportContactLabel(data.profile)}</a>
+            ) : (
+              <Link to="/setup-profile?focus=support" className="btn btn-secondary">Set safe person</Link>
+            )}
+            <Link to="/rescue?chain=1" className="btn btn-ghost">Reopen Emergency Chain</Link>
+          </div>
+        </Card>
+      )}
 
       <Card className="next-milestone-card stack-sm">
         <span className="tag">Next Target</span>

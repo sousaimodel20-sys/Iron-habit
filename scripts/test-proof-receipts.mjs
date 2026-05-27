@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { getCravingReceiptByDate, getCravingReceipts, getLatestProof, getProofById, getProofStack } from '../src/utils/proofReceipts.ts';
+import { getCravingReceiptByDate, getCravingReceipts, getLatestEmergencyCravingReceipt, getLatestProof, getProofById, getProofStack } from '../src/utils/proofReceipts.ts';
 
 const checkIns = {
   '2026-05-21': { date: '2026-05-21', sober: true, mood: 'Steady', craving: 2, note: 'Normal day', habitsCompleted: [] },
@@ -23,5 +23,6 @@ assert.equal(getLatestProof(proofA, [proofB, proofC])?.id, 'a');
 assert.equal(getProofById([proofA, proofB, proofC], 'c')?.title, 'Middle Lift');
 assert.equal(getCravingReceiptByDate(checkIns, '2026-05-22')?.mood, 'Emergency rescue');
 assert.equal(getCravingReceiptByDate(checkIns, '2026-05-23'), null);
+assert.equal(getLatestEmergencyCravingReceipt(checkIns)?.date, '2026-05-22');
 
 console.log('proof receipt tests passed');
