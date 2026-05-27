@@ -125,12 +125,24 @@ const CravingRescue = () => {
   };
 
   const logRescueWin = () => {
-    const currentCraving = loadData().checkIns[todayKey]?.craving ?? 3;
+    const current = loadData();
+    const currentCheckIn = current.checkIns[todayKey];
+    const facedCraving = Math.max(currentCheckIn?.craving ?? 3, mode === 'emergency' ? 10 : 3);
     setRunning(false);
     setOutcome('win');
     saveRescueCheckIn(
-      { sober: true, mood: 'Rescue win', craving: Math.min(currentCraving, 3), note: 'Rescue win logged: craving wave passed without drinking.' },
-      'Rescue win logged. Proof beats the old loop.',
+      {
+        sober: true,
+        mood: mode === 'emergency' ? 'Emergency survived' : 'Rescue win',
+        craving: facedCraving,
+        habitsCompleted: Array.from(new Set([...(currentCheckIn?.habitsCompleted || []), 'No alcohol', 'Craving rescue'])),
+        note: mode === 'emergency'
+          ? 'Emergency rescue win logged: 10/10 craving wave passed without drinking.'
+          : 'Rescue win logged: craving wave passed without drinking.',
+      },
+      mode === 'emergency'
+        ? 'Emergency win logged. Make the 10/10 Craving Card while the proof is fresh.'
+        : 'Rescue win logged. Proof beats the old loop.',
     );
   };
 
@@ -237,14 +249,14 @@ const CravingRescue = () => {
 
       {outcome !== 'idle' && (
         <Card className={`rescue-outcome-card stack-md ${outcome === 'win' ? 'is-win' : 'is-slip'}`}>
-          <span className="tag">{outcome === 'win' ? 'Rescue win' : 'Restart now'}</span>
-          <h2>{outcome === 'win' ? 'You just beat the urge.' : 'No shame. Restart the next 24 hours.'}</h2>
-          <p>{outcome === 'win' ? 'Treat this as proof. Lock the win, keep the streak alive, and move to the next right action.' : 'Stop the bleed, reset the day, and use the proof loop to start clean.'}</p>
+          <span className="tag">{outcome === 'win' ? (mode === 'emergency' ? 'Emergency proof ready' : 'Rescue win') : 'Restart now'}</span>
+          <h2>{outcome === 'win' ? (mode === 'emergency' ? 'Emergency chain survived.' : 'You just beat the urge.') : 'No shame. Restart the next 24 hours.'}</h2>
+          <p>{outcome === 'win' ? (mode === 'emergency' ? 'Talk saved the 10/10 moment. You stayed sober. Convert this into a Craving Card or Proof Vault receipt before the win fades.' : 'Treat this as proof. Lock the win, keep the streak alive, and move to the next right action.') : 'Stop the bleed, reset the day, and use the proof loop to start clean.'}</p>
           <div className="rescue-actions">
             {outcome === 'win' ? (
               <>
                 <Link to="/check-in" className="btn btn-secondary">Open check-in</Link>
-                <Link to={`/share-progress?template=craving&receipt=${todayKey}`} className="btn btn-primary" onClick={makeCravingCard}>Make Craving Card</Link>
+                <Link to={`/share-progress?template=craving&receipt=${todayKey}`} className="btn btn-primary" onClick={makeCravingCard}>{mode === 'emergency' ? 'Make 10/10 Craving Card' : 'Make Craving Card'}</Link>
                 <Link to="/proof" className="btn btn-ghost">Open Proof Vault</Link>
               </>
             ) : (
