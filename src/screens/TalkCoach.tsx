@@ -137,6 +137,7 @@ const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const quickCommands = [
+  'Help me create my first proof',
   'I need help now',
   'I need a meeting',
   'I’m about to drink text my support person',
@@ -317,6 +318,46 @@ const makeTalkTrainingProof = (entry: FitnessEntry): CompletedLoadout => {
 
 const appendCommandNote = (existingNote: string | undefined, rawCommand: string) => [existingNote, rawCommand].filter(Boolean).join('\n');
 
+const getFirstProofPath = () => {
+  const data = loadData();
+  const today = getTodayKey();
+  const todayReceipt = data.checkIns[today];
+
+  if (todayReceipt && isCravingRescueReceipt(todayReceipt)) {
+    return {
+      path: `/share-progress?template=craving&receipt=${todayReceipt.date}`,
+      reply: `First proof is already ready: opening today's ${todayReceipt.craving}/10 Craving Card.`,
+    };
+  }
+
+  const latestProof = data.latestVictoryProof || data.completedLoadouts[0];
+  if (latestProof) {
+    return {
+      path: `/share-progress?template=receipts&proof=${latestProof.id}`,
+      reply: `First workout proof is ready: opening ${latestProof.title} as a Victory Card.`,
+    };
+  }
+
+  if (data.activeLoadout) {
+    return {
+      path: '/workout-mode',
+      reply: 'Fastest first proof: finish the active routine, then build the Victory Card.',
+    };
+  }
+
+  if (todayReceipt) {
+    return {
+      path: '/train',
+      reply: 'Check-in is logged. Fastest first proof now: log training and turn it into a receipt.',
+    };
+  }
+
+  return {
+    path: '/check-in',
+    reply: 'Fastest first proof: start with one honest check-in, then stack training or a Craving Card.',
+  };
+};
+
 const TalkCoach = () => {
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState('ppl');
@@ -441,6 +482,13 @@ const TalkCoach = () => {
   const handleCommand = (rawCommand = message) => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
+
+    if (/(first|start|create|make|build|help).*proof|proof.*(first|start|create|make|build)/.test(command)) {
+      const firstProofMove = getFirstProofPath();
+      setCommandReply(firstProofMove.reply);
+      navigate(firstProofMove.path);
+      return;
+    }
 
     if (/(next best|what should i do|next move|today'?s move)/.test(command)) {
       const nextMove = buildTalkNextMove(loadData(), getTodayKey());
