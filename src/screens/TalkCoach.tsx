@@ -355,6 +355,12 @@ const TalkCoach = () => {
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
   const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
+  const firstUserTalk = !supportReady || !todaysCheckIn || !dataSnapshot.activeLoadout;
+  const starterCommands = [
+    !todaysCheckIn ? 'Log check-in' : null,
+    !supportReady ? 'Set support contact' : 'Text my support person',
+    !dataSnapshot.activeLoadout ? 'Build me a workout' : 'Start my workout',
+  ].filter((command): command is string => Boolean(command));
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -786,6 +792,18 @@ const TalkCoach = () => {
           <Link to="/rescue" className="btn btn-danger">Rescue</Link>
         </div>
         <p className="voice-status">{voiceStatus}</p>
+        {firstUserTalk && (
+          <div className="first-user-command-stack" aria-label="First-user starter commands">
+            <span className="mission-label">Start here</span>
+            <h3>Three commands before the full grid.</h3>
+            <p>Lock the daily check-in, safe person, and first workout before the app gets loud.</p>
+            <div className="command-chip-grid starter-command-grid">
+              {starterCommands.map((command) => (
+                <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="command-chip-grid" aria-label="Quick commands">
           {quickCommands.map((command) => (
             <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
