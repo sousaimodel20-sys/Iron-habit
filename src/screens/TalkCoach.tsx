@@ -479,9 +479,9 @@ const TalkCoach = () => {
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
   const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
-  const highCravingToday = Boolean(todaysCheckIn?.craving && todaysCheckIn.craving >= 7);
-  const rescuePath = highCravingToday ? emergencyRescuePath : '/rescue';
-  const rescueLabel = highCravingToday ? 'Start emergency chain' : 'Rescue';
+  const activeRescueNextMove = talkNextMove.action === 'rescue';
+  const rescuePath = activeRescueNextMove ? emergencyRescuePath : '/rescue';
+  const rescueLabel = activeRescueNextMove ? 'Start emergency chain' : 'Rescue';
   const latestCravingCardPath = talkCravingReceipt
     ? `/share-progress?template=craving&receipt=${talkCravingReceipt.date}`
     : '/share-progress?template=craving';
@@ -1008,7 +1008,7 @@ const TalkCoach = () => {
             </div>
             <div className="hero-actions command-actions">
               <button className="btn btn-primary" type="button" onClick={() => handleCommand(secondReceiptCommand)}>Stack Second Receipt</button>
-              <Link to={rescuePath} className="btn btn-danger">{highCravingToday ? 'Start emergency chain' : 'Protect Today'}</Link>
+              <Link to={rescuePath} className="btn btn-danger">{activeRescueNextMove ? 'Start emergency chain' : 'Protect Today'}</Link>
               <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
             </div>
           </div>
@@ -1202,7 +1202,7 @@ const TalkCoach = () => {
         <div className="hero-actions">
           <Link to="/train" className="btn btn-primary">Log Training</Link>
           <button className="btn btn-secondary" onClick={saveLoadout}>Save Program</button>
-          <Link to={rescuePath} className="btn btn-ghost">{highCravingToday ? 'Start emergency chain' : 'Open Rescue'}</Link>
+          <Link to={rescuePath} className="btn btn-ghost">{activeRescueNextMove ? 'Start emergency chain' : 'Open Rescue'}</Link>
         </div>
       </section>
     </div>
