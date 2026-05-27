@@ -160,7 +160,7 @@ const FitnessTracker = () => {
         <div className="mission-brief-grid">
           <div><span>Proof action</span><strong>{missionState.proofAction}</strong></div>
           <div><span>Next move</span><strong>{missionState.primaryMission.cta}</strong></div>
-          <div><span>Route</span><strong>{missionState.primaryMission.stage === 'check-in' ? 'Daily Check-In' : missionState.primaryMission.stage === 'build-loadout' || missionState.primaryMission.stage === 'train' ? 'Workout Mode' : missionState.primaryMission.stage === 'proof' ? 'Proof' : 'Victory Card'}</strong></div>
+          <div><span>Route</span><strong>{missionState.primaryMission.stage === 'check-in' ? 'Daily Check-In' : missionState.primaryMission.stage === 'rescue' ? 'Emergency Chain' : missionState.primaryMission.stage === 'build-loadout' || missionState.primaryMission.stage === 'train' ? 'Workout Mode' : missionState.primaryMission.stage === 'proof' ? 'Proof' : 'Victory Card'}</strong></div>
         </div>
         <div className="hero-actions">
           <Link to={missionState.primaryMission.to} className="btn btn-primary">{missionState.primaryMission.cta}</Link>

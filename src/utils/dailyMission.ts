@@ -1,6 +1,6 @@
 import type { ActiveLoadout, CompletedLoadout, CheckIn, FitnessEntry } from './storage';
 
-export type DailyMissionStage = 'check-in' | 'build-loadout' | 'train' | 'proof' | 'complete';
+export type DailyMissionStage = 'check-in' | 'rescue' | 'build-loadout' | 'train' | 'proof' | 'complete';
 
 export type DailyMissionInput = {
   checkIns: Record<string, CheckIn>;
@@ -40,6 +40,11 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
   const todayCheckIn = data.checkIns[todayKey];
   const trainedToday = data.fitnessEntries.some((entry) => entry.date === todayKey);
   const proofDoneToday = data.latestVictoryProof?.date === todayKey;
+  const highCravingActive = Boolean(
+    todayCheckIn
+    && todayCheckIn.craving >= 7
+    && !todayCheckIn.habitsCompleted.includes('Craving rescue')
+  );
 
   const primaryMission: DailyMissionAction = !todayCheckIn
     ? {
@@ -49,6 +54,14 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
         to: '/check-in',
         cta: 'Lock In',
       }
+    : highCravingActive
+      ? {
+          stage: 'rescue',
+          title: 'Rescue first. Do not train through the urge.',
+          detail: `${todayCheckIn.craving}/10 craving is on the board. Start the emergency chain before training, proof, or anything else.`,
+          to: '/rescue?chain=1',
+          cta: 'Start emergency chain',
+        }
     : !trainedToday
       ? data.activeLoadout
         ? {
@@ -82,7 +95,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
           };
 
   const missionSteps: DailyMissionStep[] = [
-    { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in', to: '/check-in' },
+    { label: 'Check in', done: Boolean(todayCheckIn), active: primaryMission.stage === 'check-in' || primaryMission.stage === 'rescue', to: primaryMission.stage === 'rescue' ? '/rescue?chain=1' : '/check-in' },
     { label: 'Train', done: trainedToday, active: primaryMission.stage === 'build-loadout' || primaryMission.stage === 'train', to: data.activeLoadout ? '/workout-mode' : '/train' },
     { label: 'Proof', done: proofDoneToday, active: primaryMission.stage === 'proof' || primaryMission.stage === 'complete', to: proofDoneToday || data.latestVictoryProof ? '/share-progress' : '/proof' },
   ];
@@ -98,11 +111,15 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
     ? 'TODAY PROTECTED'
     : primaryMission.stage === 'check-in'
       ? 'ACTION: LOCK IN'
-      : primaryMission.stage === 'proof'
-        ? 'ACTION: STACK PROOF'
-        : 'ACTION: MOVE BODY';
+      : primaryMission.stage === 'rescue'
+        ? 'ACTION: RESCUE FIRST'
+        : primaryMission.stage === 'proof'
+          ? 'ACTION: STACK PROOF'
+          : 'ACTION: MOVE BODY';
 
-  const proofAction = proofDoneToday
+  const proofAction = primaryMission.stage === 'rescue'
+    ? 'Survive craving first'
+    : proofDoneToday
     ? 'Victory Card ready'
     : trainedToday
       ? 'Stack today’s proof'

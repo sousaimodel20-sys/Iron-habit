@@ -29,13 +29,15 @@ const WorkoutMode = () => {
   const missionState = computeDailyMissionState(data, today());
   const missionRouteLabel = missionState.primaryMission.stage === 'check-in'
     ? 'Daily Check-In'
-    : missionState.primaryMission.stage === 'build-loadout'
-      ? 'Workout Mode'
-      : missionState.primaryMission.stage === 'train'
+    : missionState.primaryMission.stage === 'rescue'
+      ? 'Emergency Chain'
+      : missionState.primaryMission.stage === 'build-loadout'
         ? 'Workout Mode'
-        : missionState.primaryMission.stage === 'proof'
-          ? 'Proof'
-          : 'Victory Card';
+        : missionState.primaryMission.stage === 'train'
+          ? 'Workout Mode'
+          : missionState.primaryMission.stage === 'proof'
+            ? 'Proof'
+            : 'Victory Card';
 
   const startStarterLoadout = () => {
     if (loadout) return;

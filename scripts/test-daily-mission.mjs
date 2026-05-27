@@ -19,6 +19,17 @@ const checkIn = {
   habitsCompleted: [],
 };
 
+const highCravingCheckIn = {
+  ...checkIn,
+  craving: 8,
+  note: 'High urge logged.',
+};
+
+const highCravingResolvedCheckIn = {
+  ...highCravingCheckIn,
+  habitsCompleted: ['No alcohol', 'Craving rescue'],
+};
+
 const activeLoadout = {
   id: 'loadout-1',
   templateId: 'ppl',
@@ -72,6 +83,28 @@ assert.deepEqual(starterMission.missionSteps.map((step) => [step.label, step.to,
   ['Train', '/train', true],
   ['Proof', '/proof', false],
 ]);
+
+
+const rescueMission = computeDailyMissionState({ ...baseData, checkIns: { [today]: highCravingCheckIn }, activeLoadout }, today);
+assert.deepEqual(rescueMission.primaryMission, {
+  stage: 'rescue',
+  title: 'Rescue first. Do not train through the urge.',
+  detail: '8/10 craving is on the board. Start the emergency chain before training, proof, or anything else.',
+  to: '/rescue?chain=1',
+  cta: 'Start emergency chain',
+});
+assert.equal(rescueMission.heroTag, 'ACTION: RESCUE FIRST');
+assert.equal(rescueMission.proofAction, 'Survive craving first');
+assert.deepEqual(rescueMission.missionSteps.map((step) => [step.label, step.to, step.active]), [
+  ['Check in', '/rescue?chain=1', true],
+  ['Train', '/workout-mode', false],
+  ['Proof', '/proof', false],
+]);
+
+assert.equal(
+  computeDailyMissionState({ ...baseData, checkIns: { [today]: highCravingResolvedCheckIn }, activeLoadout }, today).primaryMission.stage,
+  'train',
+);
 
 assert.deepEqual(
   computeDailyMissionState({ ...baseData, checkIns: { [today]: checkIn }, activeLoadout }, today).primaryMission,
