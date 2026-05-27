@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
-import { getTodayKey, loadData, saveData, type CheckIn, type Profile } from '../utils/storage';
+import { getTodayKey, loadData, saveData, type CheckIn, type IronHabitData, type Profile } from '../utils/storage';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
@@ -29,7 +29,11 @@ const DailyCheckIn = () => {
   const [rescueActive, setRescueActive] = useState(false);
   const [rescueSeconds, setRescueSeconds] = useState(600);
   const [profile, setProfile] = useState<Profile>(() => loadData().profile);
-  const missionState = computeDailyMissionState(loadData(), today);
+  const [dataSnapshot, setDataSnapshot] = useState<IronHabitData>(() => loadData());
+  const missionState = computeDailyMissionState(dataSnapshot, today);
+  const checkInCount = Object.keys(dataSnapshot.checkIns).length;
+  const hasTrainingProof = dataSnapshot.completedLoadouts.length > 0 || dataSnapshot.fitnessEntries.length > 0;
+  const isFirstReceipt = Boolean(savedCheckIn && checkInCount <= 1 && !hasTrainingProof);
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
   const supportLocation = getSupportLocation(profile);
@@ -41,7 +45,11 @@ const DailyCheckIn = () => {
   const cravingCue = getCravingCue(craving);
 
   useEffect(() => {
-    const refreshProfile = () => setProfile(loadData().profile);
+    const refreshProfile = () => {
+      const next = loadData();
+      setProfile(next.profile);
+      setDataSnapshot(next);
+    };
     window.addEventListener('iron-habit-data-updated', refreshProfile);
     return () => window.removeEventListener('iron-habit-data-updated', refreshProfile);
   }, []);
@@ -74,6 +82,8 @@ const DailyCheckIn = () => {
     const data = loadData();
     const entry: CheckIn = { date: today, sober, mood, craving, note, habitsCompleted: selectedHabits };
     const next = saveData({ checkIns: { ...data.checkIns, [today]: entry } });
+    setDataSnapshot(next);
+    setProfile(next.profile);
     setSavedCheckIn(next.checkIns[today]);
     setStreak(calculateSobrietyStreak());
   };
@@ -206,6 +216,22 @@ const DailyCheckIn = () => {
             {' '}
             {savedCheckIn.craving}/10 craving • {savedCheckIn.mood || 'Focused'} mood • {savedCheckIn.habitsCompleted.length} habits stacked.
           </p>
+          {isFirstReceipt && (
+            <div className="reason-card">
+              <span>First proof path unlocked</span>
+              <strong>{savedCheckIn.craving >= 3 ? 'Make the recovery card now, then stack training proof.' : 'Next: stack training proof while today is protected.'}</strong>
+              <p>
+                Your first sober receipt is saved. Turn it into a card if the urge was real, or go train and add the strength receipt next.
+              </p>
+              <div className="hero-actions">
+                {savedCheckIn.craving >= 3 && (
+                  <Link className="btn btn-primary" to={`/share-progress?template=craving&receipt=${savedCheckIn.date}`}>Make Recovery Card</Link>
+                )}
+                <Link className="btn btn-secondary" to="/train">Stack Training Proof</Link>
+                <Link className="btn btn-ghost" to="/talk?command=first-proof">Ask Talk what’s next</Link>
+              </div>
+            </div>
+          )}
           <div className="proof-grid mini-proof">
             <div><strong>{savedCheckIn.sober ? 'Yes' : 'No'}</strong><span>sober today</span></div>
             <div><strong>{savedCheckIn.craving}/10</strong><span>craving</span></div>
