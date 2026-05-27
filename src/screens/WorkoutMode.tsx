@@ -86,6 +86,8 @@ const WorkoutMode = () => {
     );
   }
 
+  const todayKey = today();
+  const isFirstVictoryProof = Boolean(data.checkIns[todayKey]) && data.completedLoadouts.length === 0 && !data.latestVictoryProof;
   const totalSets = loadout.exercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0);
   const completedSets = loadout.exercises.reduce((sum, item) => sum + Math.min(setProof[item.name] || 0, setsAsNumber(item.sets)), 0);
   const progressPercent = Math.round((completedSets / totalSets) * 100);
@@ -247,6 +249,18 @@ const WorkoutMode = () => {
           <i><em style={{ width: `${progressPercent}%` }} /></i>
           <p>{allSetsDone ? 'All sets checked. Finish and make the Victory Card.' : 'Tap each set as you complete it. Finish unlocks when the work is checked.'}</p>
         </div>
+        {isFirstVictoryProof && (
+          <div className="first-victory-cue" aria-label="First Victory Card cue">
+            <span className="tag">First Victory Card</span>
+            <h2>Finish this routine to create your first training receipt.</h2>
+            <p>Your check-in is already locked. Complete the sets, tap Finish + Make Proof, then Iron Habit builds the Victory Card from this exact session.</p>
+            <div className="first-proof-steps" aria-label="First training proof path">
+              <div><strong>✓</strong><span>Check-in saved</span></div>
+              <div><strong>2</strong><span>Finish routine</span></div>
+              <div><strong>3</strong><span>Build Victory Card</span></div>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="routine-exercise-list" aria-label="Routine exercises">
@@ -291,8 +305,8 @@ const WorkoutMode = () => {
       <Card className="workout-nav-card routine-log-card">
         <div>
           <span className="tag">Finish</span>
-          <h2>Done with the routine?</h2>
-          <p>{allSetsDone ? 'All sets checked. Proof is ready for the Victory Card.' : `${totalSets - completedSets} sets left. Check them off to unlock proof.`}</p>
+          <h2>{isFirstVictoryProof ? 'First training proof is ready to lock.' : 'Done with the routine?'}</h2>
+          <p>{allSetsDone ? (isFirstVictoryProof ? 'All sets checked. Finish now and this becomes your first Victory Card receipt.' : 'All sets checked. Proof is ready for the Victory Card.') : `${totalSets - completedSets} sets left. Check them off to unlock proof.`}</p>
         </div>
         <button type="button" className="btn btn-primary" onClick={logRoutineComplete} disabled={!allSetsDone}>Finish + Make Proof</button>
       </Card>
