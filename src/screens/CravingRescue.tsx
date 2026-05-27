@@ -52,6 +52,10 @@ const CravingRescue = () => {
   const [outcome, setOutcome] = useState<RescueOutcome>('idle');
   const todayKey = getTodayKey();
   const todayCheckIn = data.checkIns[todayKey];
+  const chainOpenedFromTalk = Boolean(todayCheckIn?.note?.toLowerCase().includes('talk') || todayCheckIn?.note?.toLowerCase().includes('about to drink'));
+  const chainSavedBrief = chainOpenedFromTalk
+    ? 'Talk saved this as a 10/10 emergency.'
+    : 'Iron Habit opened this from your high-craving check-in.';
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = String(secondsLeft % 60).padStart(2, '0');
 
@@ -82,7 +86,7 @@ const CravingRescue = () => {
   };
 
   useEffect(() => {
-    if (!chainMode || todayCheckIn?.note?.includes('Emergency support chain opened from Talk.')) return;
+    if (!chainMode || todayCheckIn?.note?.includes('Emergency support chain opened')) return;
     const chainKey = `iron-habit-chain-${todayKey}`;
     if (window.sessionStorage.getItem(chainKey) === '1') return;
     window.sessionStorage.setItem(chainKey, '1');
@@ -94,10 +98,10 @@ const CravingRescue = () => {
       mood: 'Emergency rescue',
       craving: Math.max(existing?.craving ?? 0, 10),
       habitsCompleted: Array.from(new Set([...(existing?.habitsCompleted || []), 'No alcohol', 'Emergency support chain'])),
-      note: appendNote(existing?.note || '', 'Emergency support chain opened from Talk.'),
+      note: appendNote(existing?.note || '', `Emergency support chain opened from ${chainOpenedFromTalk ? 'Talk' : 'high-craving route'}.`),
     };
     saveData({ checkIns: { ...current.checkIns, [todayKey]: nextCheckIn } });
-  }, [chainMode, todayCheckIn?.note, todayKey]);
+  }, [chainMode, chainOpenedFromTalk, todayCheckIn?.note, todayKey]);
 
   const rescueStepMessage = useMemo(() => {
     if (outcome === 'win') return 'Win state: stack proof, keep the day sober, and move to the next right action.';
@@ -200,7 +204,7 @@ const CravingRescue = () => {
         </div>
 
         <div className="rescue-actions primary-rescue-actions">
-          <Button variant="danger" onClick={startEmergency}>I’m about to drink</Button>
+          {!chainMode && <Button variant="danger" onClick={startEmergency}>I’m about to drink</Button>}
           <Button onClick={start}>{running ? 'Restart 10 minutes' : 'Start 10-minute rescue'}</Button>
           {supportActions}
         </div>
@@ -209,7 +213,7 @@ const CravingRescue = () => {
           <div className="rescue-chain-panel">
             <span className="tag danger-tag">Emergency support chain</span>
             <div className="rescue-chain-brief">
-              <strong>Talk saved this as a 10/10 emergency.</strong>
+              <strong>{chainSavedBrief}</strong>
               <span>{chainSupportSummary}</span>
             </div>
             <p className="rescue-support-note">Do the next three moves in order. No bargaining, no scrolling, no waiting for motivation.</p>
@@ -232,9 +236,11 @@ const CravingRescue = () => {
           </div>
         )}
 
-        <div className="rescue-actions">
-          <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
-        </div>
+        {!chainMode && (
+          <div className="rescue-actions">
+            <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
+          </div>
+        )}
 
         <div className="rescue-actions">
           <Button variant="secondary" onClick={logRescueWin}>I made it through</Button>
@@ -288,14 +294,14 @@ const CravingRescue = () => {
         </Card>
       )}
 
-      <Card className="stack-sm">
+      {!chainMode && <Card className="stack-sm">
         <span className="tag">10-minute protocol</span>
         <div className="rescue-steps">
           {protocol.map((step, index) => (
             <span key={step}><b>{String(index + 1).padStart(2, '0')}</b>{step}</span>
           ))}
         </div>
-      </Card>
+      </Card>}
 
       <Card className="reason-card">
         <span>Reason to stay in command</span>
