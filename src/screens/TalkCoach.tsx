@@ -372,6 +372,7 @@ const TalkCoach = () => {
   const [bodyProfile, setBodyProfile] = useState(() => loadData().bodyProfile);
   const [dataSnapshot, setDataSnapshot] = useState(() => loadData());
   const [supportReward, setSupportReward] = useState('');
+  const [firstProofMove, setFirstProofMove] = useState<ReturnType<typeof getFirstProofPath> | null>(null);
   const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<WebSpeechRecognition | null>(null);
@@ -496,11 +497,12 @@ const TalkCoach = () => {
   const handleCommand = (rawCommand = message) => {
     const command = rawCommand.toLowerCase();
     setMessage(rawCommand);
+    setFirstProofMove(null);
 
     if (/(first|start|create|make|build|help).*proof|proof.*(first|start|create|make|build)/.test(command)) {
       const firstProofMove = getFirstProofPath();
-      setCommandReply(firstProofMove.reply);
-      navigate(firstProofMove.path);
+      setFirstProofMove(firstProofMove);
+      setCommandReply(`${firstProofMove.reply} Review the handoff below, then open the recommended path.`);
       return;
     }
 
@@ -896,6 +898,22 @@ const TalkCoach = () => {
           ))}
         </div>
         <p className="command-reply">{commandReply}</p>
+        {firstProofMove && (
+          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk first proof handoff">
+            <span className="tag">First proof path picked</span>
+            <h3>{firstProofMove.path.startsWith('/share-progress') ? 'Your card is already ready.' : 'Next receipt move selected.'}</h3>
+            <p>{firstProofMove.reply}</p>
+            <div className="proof-grid mini-proof macro-grid" aria-label="First proof handoff steps">
+              <div><strong>1</strong><span>Talk scanned today</span></div>
+              <div><strong>2</strong><span>Picked fastest proof</span></div>
+              <div><strong>3</strong><span>You open the next step</span></div>
+            </div>
+            <div className="hero-actions command-actions">
+              <Link to={firstProofMove.path} className="btn btn-primary">Open Recommended Path</Link>
+              <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
+            </div>
+          </div>
+        )}
         {talkProof && (
           <div className="talk-proof-reward stack-sm" aria-label="Talk proof saved">
             <span className="tag">Talk proof saved</span>
