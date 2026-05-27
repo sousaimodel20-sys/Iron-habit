@@ -13,6 +13,7 @@ import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 import { createStarterLoadout } from '../utils/starterLoadout';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
+import { buildTalkNextMove } from '../utils/talkNextMove';
 
 type WebSpeechRecognitionResultEvent = {
   results: {
@@ -329,16 +330,9 @@ const TalkCoach = () => {
   const todayKey = getTodayKey();
   const todaysCheckIn = dataSnapshot.checkIns[todayKey];
   const trainedToday = dataSnapshot.fitnessEntries.some((entry) => entry.date === todayKey);
-  const todaysMission = !todaysCheckIn
-    ? { label: 'First move', title: 'Log today’s check-in', detail: 'Lock in mood, craving level, and sober status before the day gets loud.', command: 'Next best move' }
-    : !trainedToday
-      ? {
-          label: 'Next rep',
-          title: dataSnapshot.activeLoadout ? 'Run today’s workout' : 'Start the starter loadout',
-          detail: dataSnapshot.activeLoadout ? dataSnapshot.activeLoadout.title : 'One tap seeds a 20-minute routine so Train has something to run.',
-          command: 'Next best move',
-        }
-      : { label: 'Proof', title: 'Show the win', detail: 'Check-in and training are stacked. Turn it into proof or a Victory Card.', command: 'Show my proof' };
+  const talkNextMove = buildTalkNextMove(dataSnapshot, todayKey);
+  const proofReadyToday = dataSnapshot.completedLoadouts.some((entry) => entry.date === todayKey)
+    || dataSnapshot.latestVictoryProof?.date === todayKey;
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -414,24 +408,15 @@ const TalkCoach = () => {
     setMessage(rawCommand);
 
     if (/(next best|what should i do|next move|today'?s move)/.test(command)) {
-      const data = loadData();
-      const today = getTodayKey();
-      if (!data.checkIns[today]) {
-        setCommandReply('Next move: log today’s check-in. Opening it now.');
-        navigate('/check-in');
-      } else if (!data.fitnessEntries.some((entry) => entry.date === today)) {
-        if (data.activeLoadout) {
-          setCommandReply('Next move: run today’s routine. Opening Train.');
-          navigate('/train');
-        } else {
-          const starterLoadout = seedStarterLoadout();
-          setCommandReply(`Next move: starter loadout seeded. Opening ${starterLoadout.title} in Workout Mode.`);
-          navigate('/workout-mode');
-        }
-      } else {
-        setCommandReply('Next move: show proof and make the win visible. Opening Proof.');
-        navigate('/proof');
+      const nextMove = buildTalkNextMove(loadData(), getTodayKey());
+      if (nextMove.action === 'seed-workout') {
+        const starterLoadout = seedStarterLoadout();
+        setCommandReply(`Next move: starter loadout seeded. Opening ${starterLoadout.title} in Workout Mode.`);
+        navigate('/workout-mode');
+        return;
       }
+      setCommandReply(nextMove.reply);
+      navigate(nextMove.path);
       return;
     }
 
@@ -715,13 +700,19 @@ const TalkCoach = () => {
       <section className="coach-card command-mission-card">
         <div className="coach-head">
           <span>Today’s command stack</span>
-          <b>{todaysCheckIn ? 'Check-in done' : 'Check-in open'} • {trainedToday ? 'Training done' : 'Training open'}</b>
+          <b>{todaysCheckIn ? 'Check-in done' : 'Check-in open'} • {trainedToday ? 'Training done' : 'Training open'} • {proofReadyToday ? 'Proof ready' : 'Proof open'}</b>
         </div>
-        <span className="mission-label">{todaysMission.label}</span>
-        <h2>{todaysMission.title}</h2>
-        <p>{todaysMission.detail}</p>
+        <span className="mission-label">{talkNextMove.label}</span>
+        <h2>{talkNextMove.title}</h2>
+        <p>{talkNextMove.detail}</p>
+        <div className="proof-grid mini-proof macro-grid" aria-label="Talk state snapshot">
+          <div><strong>{todaysCheckIn ? `${todaysCheckIn.craving}/10` : 'Open'}</strong><span>craving</span></div>
+          <div><strong>{supportReady ? 'Ready' : 'Missing'}</strong><span>safe person</span></div>
+          <div><strong>{dataSnapshot.activeLoadout ? 'Loaded' : 'Starter'}</strong><span>workout</span></div>
+          <div><strong>{talkNextMove.status}</strong><span>next</span></div>
+        </div>
         <div className="hero-actions command-actions">
-          <button className="btn btn-primary" type="button" onClick={() => handleCommand(todaysMission.command)}>Do Next Move</button>
+          <button className="btn btn-primary" type="button" onClick={() => handleCommand('Next best move')}>Do Next Move</button>
           <button className="btn btn-secondary" type="button" onClick={() => handleCommand('I trained today')}>Log Training</button>
         </div>
       </section>

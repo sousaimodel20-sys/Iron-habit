@@ -11,6 +11,7 @@
     "test:proof-receipts": "node --experimental-transform-types scripts/test-proof-receipts.mjs",
     "test:support-helpers": "node --experimental-transform-types scripts/test-support-helpers.mjs",
     "test:emergency-support-chain": "node --experimental-transform-types scripts/test-emergency-support-chain.mjs",
+    "test:talk-next-move": "node --experimental-transform-types scripts/test-talk-next-move.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
