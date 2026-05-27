@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   buildEmergencyCommandCheckIn,
   EMERGENCY_SUPPORT_SMS,
@@ -136,8 +136,9 @@ const loadouts: Loadout[] = [
 const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
+const firstProofCommand = 'Help me create my first proof';
 const quickCommands = [
-  'Help me create my first proof',
+  firstProofCommand,
   'I need help now',
   'I need a meeting',
   'I’m about to drink text my support person',
@@ -360,6 +361,7 @@ const getFirstProofPath = () => {
 
 const TalkCoach = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState('ppl');
   const [goal, setGoal] = useState(goals[0]);
   const [time, setTime] = useState(times[2]);
@@ -391,6 +393,18 @@ const TalkCoach = () => {
       window.removeEventListener('storage', refreshData);
     };
   }, []);
+
+  useEffect(() => {
+    const commandParam = searchParams.get('command');
+    if (commandParam !== 'first-proof') return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      setMessage(firstProofCommand);
+      setCommandReply('Proof sent you here. Run the first-proof command and Talk will pick the fastest real receipt path.');
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [searchParams]);
 
   const todayKey = getTodayKey();
   const todaysCheckIn = dataSnapshot.checkIns[todayKey];

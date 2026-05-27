@@ -164,7 +164,7 @@ const ProgressDashboard = () => {
             <div><strong>3</strong><span>Make the card</span></div>
           </div>
           <div className="hero-actions">
-            <Link to="/talk" className="btn btn-primary">Start in Talk</Link>
+            <Link to="/talk?command=first-proof" className="btn btn-primary">Ask Talk for First Proof</Link>
             <Link to="/train" className="btn btn-secondary">Log Training</Link>
             <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
           </div>
