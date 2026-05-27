@@ -149,6 +149,7 @@ const quickCommands = [
   'I’m craving',
   'Show my proof',
   'Make a Victory Card',
+  'Open latest Craving Card',
   'Log check-in',
   'I trained 45 min hard',
   'Still sober craving 2/10 and I trained 45 min hard',
@@ -358,6 +359,9 @@ const TalkCoach = () => {
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
   const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
+  const latestCravingCardPath = talkCravingReceipt
+    ? `/share-progress?template=craving&receipt=${talkCravingReceipt.date}`
+    : '/share-progress?template=craving';
   const firstUserTalk = !supportReady || !supportLocationReady || !todaysCheckIn || !dataSnapshot.activeLoadout;
   const starterCommands = [
     !todaysCheckIn ? 'Log check-in' : null,
@@ -508,6 +512,20 @@ const TalkCoach = () => {
 
       setCommandReply(`Emergency logged at ${cravingLevel}/10. Opening the support chain now.`);
       navigate(emergencyRescuePath);
+      return;
+    }
+
+    if (/(latest|last|today'?s|make|open|show).*(craving|rescue).*(card|receipt|proof)|(?:craving|rescue).*(card|receipt|proof)/.test(command)) {
+      const data = loadData();
+      const today = getTodayKey();
+      const todayReceipt = data.checkIns[today];
+      const receiptPath = todayReceipt && isCravingRescueReceipt(todayReceipt)
+        ? `/share-progress?template=craving&receipt=${todayReceipt.date}`
+        : '/share-progress?template=craving';
+      setCommandReply(todayReceipt && isCravingRescueReceipt(todayReceipt)
+        ? `Opening today's ${todayReceipt.craving}/10 Craving Card. Proof beats white-knuckling.`
+        : 'Opening the Craving Card studio. Log a rescue win to lock in an exact receipt.');
+      navigate(receiptPath);
       return;
     }
 
@@ -833,7 +851,8 @@ const TalkCoach = () => {
             <h3>{talkCravingReceipt.craving}/10 urge survived</h3>
             <p>Rescue win logged for today. No alcohol, craving rescue, proof stacked.</p>
             <div className="hero-actions command-actions">
-              <Link to={`/share-progress?template=craving&receipt=${talkCravingReceipt.date}`} className="btn btn-danger">Make Craving Card</Link>
+              <Link to={latestCravingCardPath} className="btn btn-danger">Make Craving Card</Link>
+              <button className="btn btn-secondary" type="button" onClick={() => handleCommand('Open latest Craving Card')}>Open latest receipt</button>
               <Link to="/proof" className="btn btn-secondary">View Proof Vault</Link>
             </div>
           </div>
