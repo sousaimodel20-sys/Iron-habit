@@ -104,7 +104,7 @@ const complete = computeDailyMissionState({
 
 assert.equal(complete.primaryMission.stage, 'complete');
 assert.equal(complete.completionLabel, '3/3 locked');
-assert.equal(complete.nextBestMove, 'Today is protected. Open the Victory Card or come back tomorrow and defend the chain again.');
+assert.equal(complete.nextBestMove, 'Today is protected. Share the Victory Card, tell Talk it is posted, then come back tomorrow and defend the chain again.');
 assert.deepEqual(complete.missionSteps.map((step) => [step.label, step.done, step.active]), [
   ['Check in', true, false],
   ['Train', true, false],

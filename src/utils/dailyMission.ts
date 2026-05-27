@@ -91,7 +91,7 @@ export const computeDailyMissionState = (data: DailyMissionInput, todayKey: stri
   const completionLabel = `${completedCount}/3 locked`;
 
   const nextBestMove = primaryMission.stage === 'complete'
-    ? 'Today is protected. Open the Victory Card or come back tomorrow and defend the chain again.'
+    ? 'Today is protected. Share the Victory Card, tell Talk it is posted, then come back tomorrow and defend the chain again.'
     : primaryMission.detail;
 
   const heroTag = primaryMission.stage === 'complete'

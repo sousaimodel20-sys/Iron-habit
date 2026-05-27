@@ -408,6 +408,9 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .talk-safety-rail h2 { margin: 0; color: #fff; letter-spacing: -.04em; }
 .talk-safety-rail p { margin: 0; color: #fef3c7; line-height: 1.45; font-size: .92rem; }
 .command-card h2 { margin-bottom: 16px; }
+.mission-complete-next { padding: 14px; border: 1px solid rgba(246,196,83,.34); border-radius: 22px; background: radial-gradient(circle at 0 0, rgba(246,196,83,.18), transparent 42%), rgba(0,0,0,.28); }
+.mission-complete-next h3 { margin: 0; color: #fff; font-size: 1.2rem; line-height: 1.05; }
+.mission-complete-next p { margin: 0; color: #fde68a; font-weight: 800; line-height: 1.4; }
 .collapse-card { padding: 0; overflow: hidden; }
 .collapse-card summary { list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; cursor: pointer; }
 .collapse-card summary::-webkit-details-marker { display: none; }

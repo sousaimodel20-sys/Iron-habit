@@ -410,10 +410,16 @@ const Onboarding = () => {
               <div className="mission-brief-grid">
                 <div><span>Streak</span><strong>Day {displayDay}</strong></div>
                 <div><span>Proof action</span><strong>Share Victory Card</strong></div>
-                <div><span>Route</span><strong>Victory Card</strong></div>
+                <div><span>Next loop</span><strong>Tell Talk it’s posted</strong></div>
+              </div>
+              <div className="mission-complete-next stack-sm" aria-label="Today post-card next move">
+                <span className="tag danger-tag">Next decision</span>
+                <h3>Proof posted? Debrief it before the day gets loud.</h3>
+                <p>Talk will help you stack a second receipt, protect today, or reopen the Proof Vault without hunting through the app.</p>
               </div>
               <div className="hero-actions">
                 <Link to={shareVictoryCardPath} className="btn btn-primary">Share Victory Card</Link>
+                <Link to="/talk?command=post-first-card" className="btn btn-secondary">Tell Talk it’s posted</Link>
                 <Link to="/proof" className="btn btn-secondary">Open Proof Stack</Link>
                 <Link to="/rescue" className="btn btn-danger">Rescue</Link>
               </div>
