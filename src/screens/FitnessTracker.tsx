@@ -236,6 +236,7 @@ const FitnessTracker = () => {
           </div>
           <div className="hero-actions">
             <Link to={`/share-progress?template=receipts&proof=${quickProof.id}`} className="btn btn-primary">Make Victory Card</Link>
+            <Link to="/talk?command=second-receipt" className="btn btn-secondary">Stack Second Receipt</Link>
             <Link to="/proof" className="btn btn-secondary">View Proof Stack</Link>
             <Button variant="ghost" onClick={() => setQuickProof(null)}>Hide</Button>
           </div>
@@ -311,6 +312,7 @@ const FitnessTracker = () => {
             <span>{manualProof.proofCopy}</span>
             <div className="hero-actions">
               <Link to={`/share-progress?template=receipts&proof=${manualProof.id}`} className="btn btn-primary">Make Victory Card</Link>
+              <Link to="/talk?command=second-receipt" className="btn btn-secondary">Stack Second Receipt</Link>
               <Link to="/proof" className="btn btn-secondary">View Proof Stack</Link>
             </div>
           </div>
