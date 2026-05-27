@@ -12,7 +12,8 @@ import {
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 import { createStarterLoadout } from '../utils/starterLoadout';
-import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type FitnessEntry } from '../utils/storage';
+import { calculateSobrietyStreak } from '../utils/streaks';
+import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { buildTalkNextMove } from '../utils/talkNextMove';
 
 type WebSpeechRecognitionResultEvent = {
@@ -294,6 +295,24 @@ const makeTrainingEntryFromCommand = (rawCommand: string): FitnessEntry => {
   };
 };
 
+const makeTalkTrainingProof = (entry: FitnessEntry): CompletedLoadout => {
+  const soberDay = Math.max(1, calculateSobrietyStreak());
+  return {
+    id: entry.id,
+    date: entry.date,
+    title: `${entry.type} Command Proof`,
+    label: entry.type,
+    activeDay: 'Talk Command',
+    durationMinutes: entry.durationMinutes,
+    intensity: entry.intensity,
+    exercises: [entry.type],
+    completedSets: 1,
+    totalSets: 1,
+    finisher: entry.note || 'Training proof logged from Talk.',
+    proofCopy: `Day ${soberDay} sober. ${entry.type} command logged: ${entry.durationMinutes} minutes, ${entry.intensity.toLowerCase()} intensity. Proof stacked from Talk.`,
+  };
+};
+
 const appendCommandNote = (existingNote: string | undefined, rawCommand: string) => [existingNote, rawCommand].filter(Boolean).join('\n');
 
 const TalkCoach = () => {
@@ -333,6 +352,7 @@ const TalkCoach = () => {
   const talkNextMove = buildTalkNextMove(dataSnapshot, todayKey);
   const proofReadyToday = dataSnapshot.completedLoadouts.some((entry) => entry.date === todayKey)
     || dataSnapshot.latestVictoryProof?.date === todayKey;
+  const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -540,11 +560,14 @@ const TalkCoach = () => {
       const data = loadData();
       const checkIn = makeCheckInFromCommand(rawCommand, true);
       const training = makeTrainingEntryFromCommand(rawCommand);
+      const proof = makeTalkTrainingProof(training);
       saveData({
         checkIns: { ...data.checkIns, [checkIn.date]: checkIn },
         fitnessEntries: [training, ...data.fitnessEntries],
+        completedLoadouts: [proof, ...data.completedLoadouts],
+        latestVictoryProof: proof,
       });
-      setCommandReply(`Saved both: sober check-in craving ${checkIn.craving}/10 + ${training.durationMinutes} min ${training.type}.`);
+      setCommandReply(`Saved both: sober check-in craving ${checkIn.craving}/10 + ${training.durationMinutes} min ${training.type}. Victory proof is ready.`);
       return;
     }
 
@@ -559,8 +582,13 @@ const TalkCoach = () => {
     if (/(trained|worked out|workout done|lifted|gym done|log workout|log training)/.test(command)) {
       const data = loadData();
       const entry = makeTrainingEntryFromCommand(rawCommand);
-      saveData({ fitnessEntries: [entry, ...data.fitnessEntries] });
-      setCommandReply(`Training logged: ${entry.type}, ${entry.durationMinutes} min, ${entry.intensity}. Proof stacked.`);
+      const proof = makeTalkTrainingProof(entry);
+      saveData({
+        fitnessEntries: [entry, ...data.fitnessEntries],
+        completedLoadouts: [proof, ...data.completedLoadouts],
+        latestVictoryProof: proof,
+      });
+      setCommandReply(`Training logged: ${entry.type}, ${entry.durationMinutes} min, ${entry.intensity}. Victory proof is ready.`);
       return;
     }
 
@@ -761,6 +789,17 @@ const TalkCoach = () => {
           ))}
         </div>
         <p className="command-reply">{commandReply}</p>
+        {talkProof && (
+          <div className="talk-proof-reward stack-sm" aria-label="Talk proof saved">
+            <span className="tag">Talk proof saved</span>
+            <h3>{talkProof.title}</h3>
+            <p>{talkProof.proofCopy}</p>
+            <div className="hero-actions command-actions">
+              <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
+              <Link to="/proof" className="btn btn-secondary">View Proof Stack</Link>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="coach-card body-target-card stack-sm">
