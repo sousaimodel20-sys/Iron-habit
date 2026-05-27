@@ -109,6 +109,7 @@ const ProgressDashboard = () => {
   const latestEmergencyReceipt = getLatestEmergencyCravingReceipt(data.checkIns);
   const latestProof = getLatestProof(data.latestVictoryProof, data.completedLoadouts);
   const proofStack = getProofStack(data.completedLoadouts, 5);
+  const needsFirstProof = !latestProof && !todayCheckIn && !latestCravingReceipt;
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const soberRate = checkIns.length ? Math.round((soberCheckIns / checkIns.length) * 100) : 0;
   const firstCheckIn = checkIns
@@ -149,6 +150,26 @@ const ProgressDashboard = () => {
           <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
         </div>
       </Card>
+
+      {needsFirstProof && (
+        <Card className="proof-stack-card first-proof-card stack-md">
+          <span className="tag danger-tag">First Proof Mission</span>
+          <h2>Build your first receipt in under 3 minutes.</h2>
+          <p>
+            Your vault is empty because nothing has been logged yet. Start with one honest command, one routine, or one rescue action — then Iron Habit turns it into proof.
+          </p>
+          <div className="first-proof-steps" aria-label="First proof path">
+            <div><strong>1</strong><span>Tell Talk what happened</span></div>
+            <div><strong>2</strong><span>Train or check in</span></div>
+            <div><strong>3</strong><span>Make the card</span></div>
+          </div>
+          <div className="hero-actions">
+            <Link to="/talk" className="btn btn-primary">Start in Talk</Link>
+            <Link to="/train" className="btn btn-secondary">Log Training</Link>
+            <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+          </div>
+        </Card>
+      )}
 
       {latestEmergencyReceipt && (
         <Card className="proof-stack-card emergency-proof-card stack-sm">
