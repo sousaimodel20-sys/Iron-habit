@@ -37,7 +37,7 @@ button { cursor: pointer; }
 .brand small { display: block; color: var(--muted); font-size: .74rem; margin-top: 1px; }
 .live-pill, .tag { border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; color: var(--gold); font-size: .75rem; background: rgba(255,255,255,.05); }
 .danger-tag { color: #fecaca; border-color: rgba(239,68,68,.38); background: rgba(239,68,68,.13); }
-.screen-frame { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; overscroll-behavior: contain; animation: rise .3s ease both; }
+.screen-frame { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: max(192px, calc(168px + env(safe-area-inset-bottom))); scroll-padding-bottom: max(192px, calc(168px + env(safe-area-inset-bottom))); overscroll-behavior: contain; animation: rise .3s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .bottom-nav { position: relative; z-index: 50; flex: 0 0 auto; width: min(88vw, 432px); margin: 26px auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border: 1px solid rgba(220,38,38,.34); border-radius: 23px; background: rgba(5,5,7,.92); backdrop-filter: blur(20px); box-shadow: 0 14px 56px rgba(220,38,38,.16), var(--shadow); }
