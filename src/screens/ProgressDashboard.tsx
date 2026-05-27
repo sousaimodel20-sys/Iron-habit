@@ -188,8 +188,8 @@ const ProgressDashboard = () => {
           </div>
           <div className="hero-actions">
             <Link to={`/share-progress?template=receipts&proof=${firstWorkoutProof.id}`} className="btn btn-primary">Make First Victory Card</Link>
-            <Link to="/train" className="btn btn-secondary">Stack Second Receipt</Link>
-            <Link to="/talk?command=first-proof" className="btn btn-ghost">Ask Talk What’s Next</Link>
+            <Link to="/talk?command=second-receipt" className="btn btn-secondary">Stack Second Receipt</Link>
+            <Link to="/talk?command=second-receipt" className="btn btn-ghost">Ask Talk What’s Next</Link>
           </div>
         </Card>
       )}
