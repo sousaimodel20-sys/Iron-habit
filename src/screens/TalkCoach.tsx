@@ -336,6 +336,8 @@ const TalkCoach = () => {
   const supportProfile = dataSnapshot.profile;
   const supportReady = hasSupportContact(supportProfile);
   const supportLabel = getSupportContactLabel(supportProfile);
+  const supportLocation = supportProfile.supportLocation.trim();
+  const supportLocationReady = Boolean(supportLocation);
 
   useEffect(() => {
     const refreshData = () => setDataSnapshot(loadData());
@@ -356,10 +358,10 @@ const TalkCoach = () => {
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
   const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
-  const firstUserTalk = !supportReady || !todaysCheckIn || !dataSnapshot.activeLoadout;
+  const firstUserTalk = !supportReady || !supportLocationReady || !todaysCheckIn || !dataSnapshot.activeLoadout;
   const starterCommands = [
     !todaysCheckIn ? 'Log check-in' : null,
-    !supportReady ? 'Set support contact' : 'Text my support person',
+    !supportReady ? 'Set support contact' : !supportLocationReady ? 'Set support area' : 'Text my support person',
     !dataSnapshot.activeLoadout ? 'Build me a workout' : 'Start my workout',
   ].filter((command): command is string => Boolean(command));
 
@@ -518,6 +520,7 @@ const TalkCoach = () => {
       const current = loadData();
       saveData({ profile: { ...current.profile, supportLocation: location } });
       setCommandReply(`Support area saved as ${location}. Meetings and Rescue will reuse it.`);
+      setSupportReward(`${location} is now the default meeting base for Talk, Rescue, and first-user handoffs.`);
       return;
     }
 
@@ -747,7 +750,7 @@ const TalkCoach = () => {
         <p>{talkNextMove.detail}</p>
         <div className="proof-grid mini-proof macro-grid" aria-label="Talk state snapshot">
           <div><strong>{todaysCheckIn ? `${todaysCheckIn.craving}/10` : 'Open'}</strong><span>craving</span></div>
-          <div><strong>{supportReady ? 'Ready' : 'Missing'}</strong><span>safe person</span></div>
+          <div><strong>{supportReady ? (supportLocationReady ? 'Ready' : 'Add area') : 'Missing'}</strong><span>support</span></div>
           <div><strong>{dataSnapshot.activeLoadout ? 'Loaded' : 'Starter'}</strong><span>workout</span></div>
           <div><strong>{talkNextMove.status}</strong><span>next</span></div>
         </div>
@@ -799,7 +802,7 @@ const TalkCoach = () => {
           <div className="first-user-command-stack" aria-label="First-user starter commands">
             <span className="mission-label">Start here</span>
             <h3>Three commands before the full grid.</h3>
-            <p>Lock the daily check-in, safe person, and first workout before the app gets loud.</p>
+            <p>Lock the daily check-in, safe person, support area, and first workout before the app gets loud.</p>
             <div className="command-chip-grid starter-command-grid">
               {starterCommands.map((command) => (
                 <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
@@ -837,13 +840,17 @@ const TalkCoach = () => {
         )}
         {supportReady && (
           <div className="talk-support-reward stack-sm" aria-label="Talk support handoff live">
-            <span className="tag">Safe-person handoff live</span>
-            <h3>{supportLabel} is on deck.</h3>
-            <p>{supportReward || 'Talk can now text your safe person, open Rescue, and carry your support base into meeting searches.'}</p>
+            <span className="tag">{supportLocationReady ? 'Support chain fully wired' : 'Safe-person handoff live'}</span>
+            <h3>{supportLocationReady ? `${supportLabel} + ${supportLocation} are on deck.` : `${supportLabel} is on deck.`}</h3>
+            <p>{supportReward || (supportLocationReady
+              ? `Talk can text ${supportLabel}, open Rescue, and search meetings near ${supportLocation}.`
+              : 'Talk can text your safe person and open Rescue. Add a support area so meetings are one tap too.')}</p>
             <div className="hero-actions command-actions">
               <a className="btn btn-secondary" href={buildSupportSmsHref(supportProfile, 'I need support right now. Can you check in with me for the next 10 minutes?')}>Text {supportLabel}</a>
               <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Test emergency chain</button>
-              <button className="btn btn-ghost" type="button" onClick={() => handleCommand('I need a meeting')}>Find meetings</button>
+              <button className="btn btn-ghost" type="button" onClick={() => handleCommand(supportLocationReady ? 'I need a meeting' : 'Set support area Burnaby, BC')}>
+                {supportLocationReady ? `Find meetings near ${supportLocation}` : 'Set support area'}
+              </button>
             </div>
           </div>
         )}
@@ -857,7 +864,7 @@ const TalkCoach = () => {
         <h2>{supportReady ? supportLabel : 'Add your safe person to Talk.'}</h2>
         <p>
           {supportReady
-            ? `${supportProfile.supportPhone || 'Phone saved'} • ${supportProfile.supportLocation || 'Support base ready'}`
+            ? `${supportProfile.supportPhone || 'Phone saved'} • ${supportLocationReady ? supportLocation : 'Add support area for meetings'}`
             : 'Try: “Set support contact Brother Mike 604-555-1234” or “Set support area Burnaby, BC.”'}
         </p>
         <div className="hero-actions command-actions">
@@ -867,6 +874,7 @@ const TalkCoach = () => {
             <Link to="/setup-profile?focus=support" className="btn btn-secondary">Set support contact</Link>
           )}
           <button className="btn btn-ghost" type="button" onClick={() => handleCommand('Set support area Burnaby, BC')}>Set support area</button>
+          {supportLocationReady && <button className="btn btn-ghost" type="button" onClick={() => handleCommand('I need a meeting')}>Meetings near {supportLocation}</button>}
         </div>
       </section>
 
