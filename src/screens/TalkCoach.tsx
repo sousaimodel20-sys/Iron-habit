@@ -524,7 +524,7 @@ const TalkCoach = () => {
       const profile = loadData().profile;
       if (!hasSupportContact(profile)) {
         setCommandReply('No support contact saved yet. Opening Setup so you can lock one in.');
-        navigate('/setup-profile');
+        navigate('/setup-profile?focus=support');
         return;
       }
       setCommandReply(`Opening SMS to ${getSupportContactLabel(profile)} now.`);
@@ -539,7 +539,8 @@ const TalkCoach = () => {
       const supportLocation = extractSupportBase(rawCommand) || current.profile.supportLocation;
 
       if (!supportPhone && !supportName) {
-        setCommandReply('Tell me the contact name and phone. Example: “Set support contact Brother Mike 604-555-1234.”');
+        setCommandReply('Opening Setup to lock in your safe person. Add their name, phone, and support area there.');
+        navigate('/setup-profile?focus=support');
         return;
       }
 
@@ -769,7 +770,7 @@ const TalkCoach = () => {
               <a className="btn btn-ghost" href={buildSupportSmsHref(supportProfile, EMERGENCY_SUPPORT_SMS)}>Text {supportLabel}</a>
             </>
           ) : (
-            <Link to="/setup-profile" className="btn btn-secondary">Set support contact</Link>
+            <Link to="/setup-profile?focus=support" className="btn btn-secondary">Set support contact</Link>
           )}
           <button className="btn btn-ghost" type="button" onClick={() => handleCommand('I need a meeting')}>Find a meeting</button>
         </div>
@@ -849,7 +850,7 @@ const TalkCoach = () => {
           {supportReady ? (
             <a className="btn btn-secondary" href={buildSupportSmsHref(supportProfile, 'I need support right now. Can you check in with me for the next 10 minutes?')}>Text {supportLabel}</a>
           ) : (
-            <Link to="/setup-profile" className="btn btn-secondary">Set support contact</Link>
+            <Link to="/setup-profile?focus=support" className="btn btn-secondary">Set support contact</Link>
           )}
           <button className="btn btn-ghost" type="button" onClick={() => handleCommand('Set support area Burnaby, BC')}>Set support area</button>
         </div>

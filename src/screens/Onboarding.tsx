@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Field, PageHeader } from '../components/UI';
 import { formatLocalDateKey } from '../utils/date';
 import { computeDailyMissionState } from '../utils/dailyMission';
@@ -9,6 +9,7 @@ import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const Onboarding = () => {
+  const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState<Profile>(loadData().profile);
   const [bodyProfile, setBodyProfile] = useState<BodyProfile>(loadData().bodyProfile);
   const [celebratedMilestones, setCelebratedMilestones] = useState<number[]>(loadData().celebratedMilestones);
@@ -16,13 +17,15 @@ const Onboarding = () => {
   const [backupStatus, setBackupStatus] = useState('');
   const [setupOpen, setSetupOpen] = useState(() => {
     const current = loadData().profile;
-    return !current.name.trim()
+    return searchParams.get('focus') === 'support'
+      || !current.name.trim()
       || !current.sobrietyDate.trim()
       || current.why.trim() === defaultData.profile.why.trim()
       || !current.supportName.trim()
       || !current.supportPhone.trim();
   });
   const setupSectionRef = useRef<HTMLDetailsElement | null>(null);
+  const supportSectionRef = useRef<HTMLDivElement | null>(null);
   const data = loadData();
   const todayKey = getTodayKey();
   const activeLoadout = data.activeLoadout;
@@ -91,6 +94,19 @@ const Onboarding = () => {
     { step: '2', title: 'Save the first check-in', detail: 'Lock in mood, craving, and sober status before the day gets loud.' },
     { step: '3', title: 'Use Talk or Rescue', detail: 'Route commands to meetings, proof, training, and emergency help.' },
   ];
+
+  useEffect(() => {
+    if (searchParams.get('focus') !== 'support') return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setSetupOpen(true);
+      window.requestAnimationFrame(() => {
+        supportSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [searchParams]);
 
   const update = (key: keyof Profile, value: string) => {
     setSaved(false);
@@ -536,7 +552,7 @@ const Onboarding = () => {
             <input value={profile.transformationGoal} onChange={(e) => update('transformationGoal', e.target.value)} placeholder="Lean, sober, strong, and consistent." />
           </Field>
 
-          <div className="card support-contact-card stack-sm">
+          <div ref={supportSectionRef} className="card support-contact-card stack-sm">
             <span className="tag">Recovery contact</span>
             <h2>Choose the safe person before the craving shows up.</h2>
             <p>Iron Habit will use this contact for Rescue and Meetings text actions instead of a generic blank SMS sheet.</p>
