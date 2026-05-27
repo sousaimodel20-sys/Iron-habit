@@ -424,6 +424,9 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .emergency-rescue-card.is-emergency { border-color: rgba(239,68,68,.72); background: radial-gradient(circle at 50% 20%, rgba(239,68,68,.42), transparent 36%), linear-gradient(180deg, rgba(127,16,16,.34), rgba(8,8,10,.96)); box-shadow: 0 0 60px rgba(239,68,68,.24), var(--shadow); }
 .primary-rescue-actions .btn-danger { flex-basis: 100%; min-height: 58px; font-size: 1rem; }
 .rescue-chain-panel { display: grid; gap: 10px; padding-top: 2px; }
+.rescue-chain-brief { display: grid; gap: 4px; padding: 12px; border: 1px solid rgba(239,68,68,.38); border-radius: 18px; background: radial-gradient(circle at 100% 0, rgba(239,68,68,.24), transparent 42%), rgba(0,0,0,.32); }
+.rescue-chain-brief strong { color: #fff; font-size: 1rem; line-height: 1.2; }
+.rescue-chain-brief span { color: #fecaca; font-size: .86rem; font-weight: 800; line-height: 1.35; }
 .rescue-chain-steps { display: grid; gap: 8px; }
 .rescue-chain-steps span { display: flex; gap: 9px; align-items: center; padding: 10px 12px; border: 1px solid rgba(239,68,68,.24); border-radius: 16px; color: #fff; background: rgba(0,0,0,.26); font-size: .86rem; line-height: 1.35; }
 .rescue-chain-steps b { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 999px; color: #111; background: #fecaca; font-size: .78rem; }

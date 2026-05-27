@@ -42,6 +42,9 @@ const CravingRescue = () => {
   const initialChainStatus = supportReady
     ? `Emergency support chain live. Text ${supportContactLabel}, check the map, and win the next ten minutes.`
     : 'Emergency support chain live. Set a support contact, check the map, and win the next ten minutes.';
+  const chainSupportSummary = supportReady
+    ? `${supportContactLabel} is the first human handoff${supportLocation ? ` • meetings near ${supportLocation}` : ''}.`
+    : 'No safe person saved yet. Lock one in after this wave so the chain is ready next time.';
   const [secondsLeft, setSecondsLeft] = useState(600);
   const [running, setRunning] = useState(chainMode);
   const [mode, setMode] = useState<'steady' | 'emergency' | 'slip'>(chainMode ? 'emergency' : 'steady');
@@ -193,13 +196,27 @@ const CravingRescue = () => {
         {chainMode && (
           <div className="rescue-chain-panel">
             <span className="tag danger-tag">Emergency support chain</span>
-            <p className="rescue-support-note">Talk already logged the craving and kicked off Rescue. Stack the next human-support moves fast.</p>
+            <div className="rescue-chain-brief">
+              <strong>Talk saved this as a 10/10 emergency.</strong>
+              <span>{chainSupportSummary}</span>
+            </div>
+            <p className="rescue-support-note">Do the next three moves in order. No bargaining, no scrolling, no waiting for motivation.</p>
             <div className="rescue-chain-steps" aria-label="Emergency chain checklist">
               <span><b>1</b>Stay on this 10-minute timer.</span>
-              <span><b>2</b>Text or call your safe person.</span>
-              <span><b>3</b>Move toward a meeting or safer room.</span>
+              <span><b>2</b>{supportReady ? `Text or call ${supportContactLabel}.` : 'Set a safe person after the timer.'}</span>
+              <span><b>3</b>{supportLocation ? `Move toward meetings near ${supportLocation} or a safer room.` : 'Move toward a meeting search or safer room.'}</span>
             </div>
-            <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
+            <div className="rescue-actions rescue-chain-actions">
+              {supportReady ? (
+                <>
+                  <a className="btn btn-danger" href={buildSupportSmsHref(profile, supportTextMessage)}>Text {supportContactLabel}</a>
+                  <a className="btn btn-secondary" href={supportCallHref}>Call {supportContactLabel}</a>
+                </>
+              ) : (
+                <Link to="/setup-profile?focus=support" className="btn btn-secondary">Set support contact</Link>
+              )}
+              <Link to={meetingsPath} className="btn btn-ghost">{meetingsLabel}</Link>
+            </div>
           </div>
         )}
 
