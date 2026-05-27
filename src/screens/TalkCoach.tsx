@@ -327,6 +327,7 @@ const TalkCoach = () => {
   const [commandReply, setCommandReply] = useState('Talk is your command layer. Ask for meetings, workouts, rescue, proof, or check-in.');
   const [bodyProfile, setBodyProfile] = useState(() => loadData().bodyProfile);
   const [dataSnapshot, setDataSnapshot] = useState(() => loadData());
+  const [supportReward, setSupportReward] = useState('');
   const [voiceStatus, setVoiceStatus] = useState('Voice ready on supported browsers. Typed command always works.');
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<WebSpeechRecognition | null>(null);
@@ -554,6 +555,7 @@ const TalkCoach = () => {
       });
 
       setCommandReply(`Support contact saved: ${supportName || 'safe person'}${supportPhone ? ` • ${supportPhone}` : ''}${supportLocation ? ` • ${supportLocation}` : ''}.`);
+      setSupportReward(`${supportName || 'Safe person'} is now live in Rescue, Meetings, and emergency Talk commands.`);
       return;
     }
 
@@ -830,6 +832,18 @@ const TalkCoach = () => {
             <div className="hero-actions command-actions">
               <Link to={`/share-progress?template=craving&receipt=${talkCravingReceipt.date}`} className="btn btn-danger">Make Craving Card</Link>
               <Link to="/proof" className="btn btn-secondary">View Proof Vault</Link>
+            </div>
+          </div>
+        )}
+        {supportReady && (
+          <div className="talk-support-reward stack-sm" aria-label="Talk support handoff live">
+            <span className="tag">Safe-person handoff live</span>
+            <h3>{supportLabel} is on deck.</h3>
+            <p>{supportReward || 'Talk can now text your safe person, open Rescue, and carry your support base into meeting searches.'}</p>
+            <div className="hero-actions command-actions">
+              <a className="btn btn-secondary" href={buildSupportSmsHref(supportProfile, 'I need support right now. Can you check in with me for the next 10 minutes?')}>Text {supportLabel}</a>
+              <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Test emergency chain</button>
+              <button className="btn btn-ghost" type="button" onClick={() => handleCommand('I need a meeting')}>Find meetings</button>
             </div>
           </div>
         )}

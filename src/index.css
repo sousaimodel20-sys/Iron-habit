@@ -228,6 +228,9 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .talk-proof-reward { padding: 14px; border: 1px solid rgba(239,68,68,.38); border-radius: 22px; background: radial-gradient(circle at 100% 0, rgba(239,68,68,.22), transparent 42%), rgba(0,0,0,.32); }
 .talk-proof-reward h3 { margin: 4px 0 0; color: #fff; font-size: 1.25rem; line-height: 1.05; }
 .talk-proof-reward p { margin: 0; color: #fecaca; font-weight: 800; line-height: 1.45; }
+.talk-support-reward { padding: 14px; border: 1px solid rgba(34,197,94,.38); border-radius: 22px; background: radial-gradient(circle at 100% 0, rgba(34,197,94,.2), transparent 42%), rgba(0,0,0,.32); }
+.talk-support-reward h3 { margin: 4px 0 0; color: #fff; font-size: 1.25rem; line-height: 1.05; }
+.talk-support-reward p { margin: 0; color: #bbf7d0; font-weight: 800; line-height: 1.45; }
 .voice-command-btn { flex: 1 1 100%; min-height: 58px; font-size: 1rem; }
 .voice-status { margin: 0; padding: 11px 13px; border: 1px solid rgba(239,68,68,.24); border-radius: 16px; background: rgba(127,16,16,.14); color: #fecaca; font-size: .86rem; font-weight: 850; }
 .meetings-page { padding-bottom: 34px; }
