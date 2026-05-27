@@ -10,6 +10,7 @@ import {
   wantsEmergencySupportText,
 } from '../utils/emergencySupportChain';
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
+import { isCravingRescueReceipt } from '../utils/proofReceipts';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
 import { createStarterLoadout } from '../utils/starterLoadout';
 import { calculateSobrietyStreak } from '../utils/streaks';
@@ -353,6 +354,7 @@ const TalkCoach = () => {
   const proofReadyToday = dataSnapshot.completedLoadouts.some((entry) => entry.date === todayKey)
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
+  const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
 
   const detectedId = useMemo(() => {
     const lower = message.toLowerCase();
@@ -444,16 +446,17 @@ const TalkCoach = () => {
       const data = loadData();
       const today = getTodayKey();
       const existing = data.checkIns[today];
+      const facedCraving = Math.max(existing?.craving ?? parseCravingLevel(command, 7), 3);
       const entry: CheckIn = {
         date: today,
         sober: true,
         mood: 'Rescue win',
-        craving: Math.min(existing?.craving ?? 3, 3),
+        craving: facedCraving,
         habitsCompleted: Array.from(new Set([...(existing?.habitsCompleted || []), 'No alcohol', 'Craving rescue'])),
         note: appendCommandNote(existing?.note, rawCommand),
       };
       saveData({ checkIns: { ...data.checkIns, [today]: entry } });
-      setCommandReply('Rescue win saved. Craving wave survived, sober proof stacked.');
+      setCommandReply(`Rescue win saved. ${entry.craving}/10 craving survived, sober proof stacked. Craving Card is ready.`);
       return;
     }
 
@@ -797,6 +800,17 @@ const TalkCoach = () => {
             <div className="hero-actions command-actions">
               <Link to="/share-progress" className="btn btn-primary">Make Victory Card</Link>
               <Link to="/proof" className="btn btn-secondary">View Proof Stack</Link>
+            </div>
+          </div>
+        )}
+        {talkCravingReceipt && (
+          <div className="talk-proof-reward stack-sm" aria-label="Talk craving receipt saved">
+            <span className="tag">Craving receipt saved</span>
+            <h3>{talkCravingReceipt.craving}/10 urge survived</h3>
+            <p>Rescue win logged for today. No alcohol, craving rescue, proof stacked.</p>
+            <div className="hero-actions command-actions">
+              <Link to={`/share-progress?template=craving&receipt=${talkCravingReceipt.date}`} className="btn btn-danger">Make Craving Card</Link>
+              <Link to="/proof" className="btn btn-secondary">View Proof Vault</Link>
             </div>
           </div>
         )}
