@@ -375,8 +375,8 @@ const getSecondReceiptPath = () => {
     return {
       path: '/rescue?chain=1',
       title: 'Protect the streak before more proof.',
-      reply: `${todayReceipt.craving}/10 craving is on the board. Second receipt starts with Rescue, then the Craving Card.`,
-      steps: ['Open Rescue chain', 'Text support if needed', 'Make Craving Card'],
+      reply: `${todayReceipt.craving}/10 craving is on the board. Second receipt starts with the emergency chain, then the Craving Card.`,
+      steps: ['Start emergency chain', 'Text support if needed', 'Make Craving Card'],
     };
   }
 
@@ -479,6 +479,9 @@ const TalkCoach = () => {
     || dataSnapshot.latestVictoryProof?.date === todayKey;
   const talkProof = dataSnapshot.latestVictoryProof?.date === todayKey ? dataSnapshot.latestVictoryProof : null;
   const talkCravingReceipt = todaysCheckIn && isCravingRescueReceipt(todaysCheckIn) ? todaysCheckIn : null;
+  const highCravingToday = Boolean(todaysCheckIn?.craving && todaysCheckIn.craving >= 7);
+  const rescuePath = highCravingToday ? emergencyRescuePath : '/rescue';
+  const rescueLabel = highCravingToday ? 'Start emergency chain' : 'Rescue';
   const latestCravingCardPath = talkCravingReceipt
     ? `/share-progress?template=craving&receipt=${talkCravingReceipt.date}`
     : '/share-progress?template=craving';
@@ -956,7 +959,7 @@ const TalkCoach = () => {
             {listening ? 'Listening… tap to stop' : '🎙 Talk Command'}
           </button>
           <button className="btn btn-primary" type="button" onClick={() => handleCommand()}>Run Typed Command</button>
-          <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+          <Link to={rescuePath} className="btn btn-danger">{rescueLabel}</Link>
         </div>
         <p className="voice-status">{voiceStatus}</p>
         {firstUserTalk && (
@@ -1005,7 +1008,7 @@ const TalkCoach = () => {
             </div>
             <div className="hero-actions command-actions">
               <button className="btn btn-primary" type="button" onClick={() => handleCommand(secondReceiptCommand)}>Stack Second Receipt</button>
-              <Link to="/rescue" className="btn btn-danger">Protect Today</Link>
+              <Link to={rescuePath} className="btn btn-danger">{highCravingToday ? 'Start emergency chain' : 'Protect Today'}</Link>
               <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
             </div>
           </div>
@@ -1023,7 +1026,7 @@ const TalkCoach = () => {
             <div className="hero-actions command-actions">
               <Link to={secondReceiptMove.path} className="btn btn-primary">Open Second Receipt Path</Link>
               <Link to="/proof" className="btn btn-secondary">Back to Proof Vault</Link>
-              <Link to="/rescue" className="btn btn-danger">Rescue</Link>
+              <Link to={rescuePath} className="btn btn-danger">{rescueLabel}</Link>
             </div>
           </div>
         )}
@@ -1061,7 +1064,7 @@ const TalkCoach = () => {
               : 'Talk can text your safe person and open Rescue. Add a support area so meetings are one tap too.')}</p>
             <div className="hero-actions command-actions">
               <a className="btn btn-secondary" href={buildSupportSmsHref(supportProfile, 'I need support right now. Can you check in with me for the next 10 minutes?')}>Text {supportLabel}</a>
-              <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Test emergency chain</button>
+              <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Start emergency chain</button>
               <button className="btn btn-ghost" type="button" onClick={() => handleCommand(supportLocationReady ? 'I need a meeting' : 'Set support area Burnaby, BC')}>
                 {supportLocationReady ? `Find meetings near ${supportLocation}` : 'Set support area'}
               </button>
@@ -1199,7 +1202,7 @@ const TalkCoach = () => {
         <div className="hero-actions">
           <Link to="/train" className="btn btn-primary">Log Training</Link>
           <button className="btn btn-secondary" onClick={saveLoadout}>Save Program</button>
-          <Link to="/rescue" className="btn btn-ghost">Open Rescue</Link>
+          <Link to={rescuePath} className="btn btn-ghost">{highCravingToday ? 'Start emergency chain' : 'Open Rescue'}</Link>
         </div>
       </section>
     </div>
