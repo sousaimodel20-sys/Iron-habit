@@ -109,6 +109,7 @@ const ProgressDashboard = () => {
   const latestEmergencyReceipt = getLatestEmergencyCravingReceipt(data.checkIns);
   const latestProof = getLatestProof(data.latestVictoryProof, data.completedLoadouts);
   const proofStack = getProofStack(data.completedLoadouts, 5);
+  const firstWorkoutProof = data.completedLoadouts.length === 1 && latestProof?.id === data.completedLoadouts[0]?.id ? latestProof : null;
   const needsFirstProof = !latestProof && !todayCheckIn && !latestCravingReceipt;
   const activeDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
   const soberRate = checkIns.length ? Math.round((soberCheckIns / checkIns.length) * 100) : 0;
@@ -167,6 +168,28 @@ const ProgressDashboard = () => {
             <Link to="/talk?command=first-proof" className="btn btn-primary">Ask Talk for First Proof</Link>
             <Link to="/train" className="btn btn-secondary">Log Training</Link>
             <Link to="/rescue" className="btn btn-danger">Open Rescue</Link>
+          </div>
+        </Card>
+      )}
+
+      {firstWorkoutProof && (
+        <Card className="proof-stack-card first-proof-card stack-md">
+          <span className="tag danger-tag">First Victory Receipt</span>
+          <h2>Your first training proof is locked.</h2>
+          <p>
+            {firstWorkoutProof.title} is now saved in the vault: {firstWorkoutProof.durationMinutes} minutes,
+            {' '}{firstWorkoutProof.completedSets}/{firstWorkoutProof.totalSets} sets, {firstWorkoutProof.exercises.length} moves conquered.
+            Make the Victory Card while the win is fresh.
+          </p>
+          <div className="first-proof-steps" aria-label="First victory card path">
+            <div><strong>✓</strong><span>Sober check-in saved</span></div>
+            <div><strong>✓</strong><span>Training receipt stacked</span></div>
+            <div><strong>3</strong><span>Build Victory Card</span></div>
+          </div>
+          <div className="hero-actions">
+            <Link to={`/share-progress?template=receipts&proof=${firstWorkoutProof.id}`} className="btn btn-primary">Make First Victory Card</Link>
+            <Link to="/train" className="btn btn-secondary">Stack Second Receipt</Link>
+            <Link to="/talk?command=first-proof" className="btn btn-ghost">Ask Talk What’s Next</Link>
           </div>
         </Card>
       )}
