@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   buildEmergencyCommandCheckIn,
   EMERGENCY_SUPPORT_SMS,
@@ -322,6 +322,7 @@ const getSecondReceiptPath = () => {
 
 const TalkCoach = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState('ppl');
   const [goal, setGoal] = useState(goals[0]);
@@ -384,6 +385,16 @@ const TalkCoach = () => {
 
     return () => window.cancelAnimationFrame(frame);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (location.hash !== '#workout-library') return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById('workout-library')?.scrollIntoView({ block: 'start' });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.hash]);
 
   const todayKey = getTodayKey();
   const todaysCheckIn = dataSnapshot.checkIns[todayKey];
