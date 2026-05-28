@@ -3,18 +3,23 @@ import DailyCheckIn from './screens/DailyCheckIn';
 import FitnessTracker from './screens/FitnessTracker';
 import HabitTracker from './screens/HabitTracker';
 import LaunchKit from './screens/LaunchKit';
-import Meetings from './screens/Meetings';
 import Onboarding from './screens/Onboarding';
 import ProgressDashboard from './screens/ProgressDashboard';
 import CravingRescue from './screens/CravingRescue';
 import Settings from './screens/Settings';
 import ShareProgressScreen from './screens/ShareProgressScreen';
-import TalkCoach from './screens/TalkCoach';
-import WorkoutMode from './screens/WorkoutMode';
 import {
   ExerciseDetail,
   FuelPage,
+  MeetingsPage as MockMeetingsPage,
+  OnboardingFlow,
+  ProofPage as MockProofPage,
+  RescuePage as MockRescuePage,
+  TalkPage as MockTalkPage,
+  TodayPage,
+  TrainPage,
   WelcomeSplash,
+  WorkoutLogger,
 } from './screens/IronHabitMockup';
 
 const navItems = [
@@ -43,19 +48,19 @@ function AppLayout() {
       <main className="screen-frame ih-screen-frame">
         <Routes>
           <Route path="/" element={<WelcomeSplash />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding" element={<OnboardingFlow />} />
           <Route path="/setup-profile" element={<Onboarding />} />
-          <Route path="/today" element={<Onboarding />} />
-          <Route path="/talk" element={<TalkCoach />} />
-          <Route path="/meetings" element={<Meetings />} />
-          <Route path="/train" element={<FitnessTracker />} />
+          <Route path="/today" element={<TodayPage />} />
+          <Route path="/talk" element={<MockTalkPage />} />
+          <Route path="/meetings" element={<MockMeetingsPage />} />
+          <Route path="/train" element={<TrainPage />} />
           <Route path="/fitness-tracker" element={<FitnessTracker />} />
           <Route path="/exercise" element={<ExerciseDetail />} />
-          <Route path="/workout-mode" element={<WorkoutMode />} />
+          <Route path="/workout-mode" element={<WorkoutLogger />} />
           <Route path="/fuel" element={<FuelPage />} />
-          <Route path="/rescue" element={<CravingRescue />} />
+          <Route path="/rescue" element={<MockRescuePage />} />
           <Route path="/craving-rescue" element={<CravingRescue />} />
-          <Route path="/proof" element={<ProgressDashboard />} />
+          <Route path="/proof" element={<MockProofPage />} />
           <Route path="/profile" element={<ProgressDashboard />} />
           <Route path="/progress-dashboard" element={<ProgressDashboard />} />
           <Route path="/share-progress" element={<ShareProgressScreen />} />
