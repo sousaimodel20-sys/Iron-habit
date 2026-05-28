@@ -188,9 +188,17 @@ const FitnessTracker = () => {
           <div className="split-strip" aria-label="Saved weekly split">
             {activeLoadout.days.map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
           </div>
-          <div className="active-exercise-list">
+          <div className="active-exercise-list active-exercise-media-list">
             {activeLoadout.exercises.map((exercise) => (
-              <span key={exercise.name}><b>{exercise.name}</b>{exercise.sets}×{exercise.reps}</span>
+              <span key={exercise.name}>
+                {exercise.mediaUrl ? (
+                  <img src={exercise.mediaUrl} alt={exercise.mediaAlt || `${exercise.name} exercise demo`} loading="lazy" />
+                ) : (
+                  <i aria-hidden="true">{exercise.icon}</i>
+                )}
+                <b>{exercise.name}</b>
+                <em>{exercise.sets}×{exercise.reps}</em>
+              </span>
             ))}
           </div>
           <div className="hero-actions">
@@ -216,9 +224,9 @@ const FitnessTracker = () => {
             </div>
           )}
           <div className="hero-actions">
-            <Button variant="primary" onClick={startStarterLoadout}>{showFirstCheckInTrainingBridge ? 'Start Training Proof' : 'Start Starter Loadout'}</Button>
+            <Link to="/talk#workout-library" className="btn btn-primary">Open Workout Library</Link>
+            <Button variant="secondary" onClick={startStarterLoadout}>{showFirstCheckInTrainingBridge ? 'Start Training Proof' : 'Start Starter Loadout'}</Button>
             <Link to="/talk?command=first-proof" className="btn btn-secondary">Ask Talk What’s Next</Link>
-            {!showFirstCheckInTrainingBridge && <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>}
           </div>
         </Card>
       )}

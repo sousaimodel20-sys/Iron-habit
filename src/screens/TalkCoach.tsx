@@ -1028,7 +1028,7 @@ const TalkCoach = () => {
         )}
       </section>
 
-      <section className="loadout-console">
+      <section id="workout-library" className="loadout-console">
         <label>Coach Loadout settings</label>
         <div className="loadout-control-grid">
           <select value={goal} onChange={(event) => setGoal(event.target.value)} aria-label="Goal">
