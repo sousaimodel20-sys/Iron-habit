@@ -10,15 +10,13 @@ import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getCravingReceipts, getLatestEmergencyCravingReceipt, getLatestProof, getProofStack } from '../utils/proofReceipts';
 import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
 
-const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
+const milestones = [7, 14, 30, 60, 90, 365];
 const milestonePlan = [
-  { days: 3, title: 'First wall broken', reward: 'Cravings lost the first round.' },
   { days: 7, title: 'One clean week', reward: 'Sleep, skin, and discipline start changing.' },
   { days: 14, title: 'Two-week lock', reward: 'Momentum becomes identity.' },
   { days: 30, title: '30-day proof', reward: 'You are not trying — you are becoming.' },
   { days: 60, title: 'New baseline', reward: 'Old routines lose their grip.' },
   { days: 90, title: 'Transformation block', reward: 'Body, mind, and schedule look different.' },
-  { days: 180, title: 'Half-year iron', reward: 'The comeback is visible.' },
   { days: 365, title: 'One-year legacy', reward: 'A full sober year of proof.' },
 ];
 const dayMs = 24 * 60 * 60 * 1000;
@@ -314,6 +312,7 @@ const ProgressDashboard = () => {
           <Link to="/share-progress?template=discipline">Workout proof</Link>
           <Link to="/share-progress?template=receipts">Receipts</Link>
           <Link to="/share-progress?template=craving">Craving survival</Link>
+          <Link to="/share-progress?template=milestone">Milestone</Link>
           <Link to="/share-progress?template=weekly">Weekly boss</Link>
           <Link to="/share-progress?template=transformation">Transformation</Link>
         </div>

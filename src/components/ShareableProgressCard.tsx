@@ -8,7 +8,7 @@ import { formatLocalDateKey } from '../utils/date';
 import { getCravingReceiptByDate, getCravingReceipts } from '../utils/proofReceipts';
 import type { CheckIn } from '../utils/storage';
 
-export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly';
+export type VictoryTemplate = 'comeback' | 'discipline' | 'receipts' | 'craving' | 'transformation' | 'weekly' | 'milestone';
 
 type TemplateCopy = { kicker: string; headline: string; footer: string };
 
@@ -43,6 +43,34 @@ const templateCopy: Record<VictoryTemplate, TemplateCopy> = {
     headline: 'stacked another week of receipts.',
     footer: '#WeeklyReceipts',
   },
+  milestone: {
+    kicker: 'MILESTONE UNLOCKED',
+    headline: 'made the comeback impossible to ignore.',
+    footer: '#SoberMilestone',
+  },
+};
+
+const shareMilestones = [7, 14, 30, 60, 90, 365];
+
+const getMilestoneShare = (streak: number) => {
+  const current = [...shareMilestones].reverse().find((days) => streak >= days) || 7;
+  const next = shareMilestones.find((days) => days > streak);
+
+  if (current >= 365) {
+    return {
+      days: 365,
+      label: 'ONE YEAR SOBER',
+      line: 'One year ago I got sober. Today I am building the app I wish I had on day one.',
+      nextLabel: 'Launch season',
+    };
+  }
+
+  return {
+    days: current,
+    label: `${current} DAY MILESTONE`,
+    line: `${current} days of choosing the new life. No speech. Just receipts.`,
+    nextLabel: next ? `${next - streak} days to ${next}` : 'Keep stacking',
+  };
 };
 
 const getRecentDateKeys = (count: number) => Array.from({ length: count }, (_, index) => {
@@ -86,6 +114,7 @@ const ShareableProgressCard = ({
   const weeklyCheckIns = recentDays.filter((date) => data.checkIns[date]).length;
   const weeklySoberDays = recentDays.filter((date) => data.checkIns[date]?.sober).length;
   const weeklyLoadouts = data.completedLoadouts.filter((proof) => recentDays.includes(proof.date)).length;
+  const milestone = getMilestoneShare(streak);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -117,6 +146,8 @@ const ShareableProgressCard = ({
 
   const cardText = template === 'craving'
     ? `${headline}\n${receiptCraving || 10}/10 urge faced • Day ${streak} sober • ${cravingMood}\nCraving hit. I did not bargain. Opened Rescue. Stayed in command.\n#IronHabit ${copy.footer}`
+    : template === 'milestone'
+      ? `${headline}\n${milestone.label} • Day ${streak} sober • ${data.fitnessEntries.length} workouts logged\n${milestone.line}\n#IronHabit ${copy.footer}`
     : template === 'weekly'
       ? `${headline}\n${weeklySoberDays} sober check-ins • ${weeklyMinutes} training minutes • ${weeklyLoadouts} routine conquests\nWeekly Boss Battle receipts. Proof beats promises.\n#IronHabit ${copy.footer}`
       : template === 'transformation'
@@ -156,6 +187,23 @@ const ShareableProgressCard = ({
               <span>Opened Rescue. Stayed in command.</span>
             </div>
             <p className="share-why">The urge passed. The proof stayed.</p>
+          </>
+        ) : template === 'milestone' ? (
+          <>
+            <div className="share-day milestone-proof-day">
+              <strong>{milestone.days}</strong>
+              <span>{milestone.label}</span>
+            </div>
+            <div className="share-metrics">
+              <span><b>{streak}</b> sober</span>
+              <span><b>{data.fitnessEntries.length}</b> workouts</span>
+              <span><b>{milestone.nextLabel}</b> next</span>
+            </div>
+            <div className="share-proof-strip">
+              <span>{milestone.line}</span>
+              <span>Proof beats promises.</span>
+            </div>
+            <p className="share-why">{data.profile.why || 'Discipline today. Freedom tomorrow.'}</p>
           </>
         ) : template === 'transformation' ? (
           <>
@@ -227,7 +275,7 @@ const ShareableProgressCard = ({
           </>
         )}
         <footer>
-          <span>{template === 'craving' ? `#${cravingMood.replaceAll(' ', '')}` : workoutProof ? '#IronHabitProof' : `#${latestMood.replaceAll(' ', '')}`}</span>
+          <span>{template === 'craving' ? `#${cravingMood.replaceAll(' ', '')}` : template === 'milestone' ? '#MilestoneUnlocked' : workoutProof ? '#IronHabitProof' : `#${latestMood.replaceAll(' ', '')}`}</span>
           <span>{copy.footer}</span>
         </footer>
       </div>

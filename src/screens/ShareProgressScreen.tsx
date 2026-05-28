@@ -12,6 +12,7 @@ const templates: { id: VictoryTemplate; label: string; description: string }[] =
   { id: 'discipline', label: 'Discipline', description: 'Gym/recovery lock-in proof.' },
   { id: 'receipts', label: 'Receipts', description: 'Stats-first proof card.' },
   { id: 'craving', label: 'Craving Destroyed', description: 'Urge survived, streak protected.' },
+  { id: 'milestone', label: 'Milestone', description: '7/14/30/60/90/365 day celebration.' },
   { id: 'transformation', label: 'Transformation', description: 'Body, macros, streak, and identity.' },
   { id: 'weekly', label: 'Weekly Boss', description: 'Seven-day receipt wall.' },
 ];
@@ -37,6 +38,11 @@ const hooks: Record<VictoryTemplate, string[]> = {
     'The urge said drink. I chose ten minutes.',
     'Recovery is winning one wave at a time.',
   ],
+  milestone: [
+    'Milestone unlocked. The old life lost another round.',
+    'I used to count drinks. Now I count sober days.',
+    'This is what the comeback looks like when nobody claps yet.',
+  ],
   transformation: [
     'Sober body. Clear mind. New life.',
     'The transformation started when I stopped escaping.',
@@ -54,6 +60,7 @@ const hashtags: Record<VictoryTemplate, string> = {
   discipline: '#IronHabit #Discipline #SoberGym #LockIn #FitnessTok',
   receipts: '#IronHabit #ProofBeatsPromises #RecoveryTok #SoberLife #GymProof',
   craving: '#IronHabit #CravingDestroyed #SoberLife #RecoveryTok #OneDayAtATime',
+  milestone: '#IronHabit #SoberMilestone #RecoveryTok #SoberFitness #Comeback',
   transformation: '#IronHabit #SoberTransformation #FitnessJourney #RecoveryTok #GymTok',
   weekly: '#IronHabit #WeeklyReceipts #SoberFitness #Discipline #RecoveryTok',
 };
@@ -72,6 +79,7 @@ const heroTitles: Record<VictoryTemplate, string> = {
   discipline: 'Turn discipline into proof.',
   receipts: 'Turn today\'s win into content.',
   craving: 'Turn the urge into proof.',
+  milestone: 'Turn the milestone into a launch moment.',
   transformation: 'Turn the body change into content.',
   weekly: 'Turn the week into a boss battle recap.',
 };
@@ -122,6 +130,10 @@ const ShareProgressScreen = () => {
     .filter((entry) => recentDays.includes(entry.date))
     .reduce((sum, entry) => sum + entry.durationMinutes, 0);
   const weeklySoberDays = recentDays.filter((date) => data.checkIns[date]?.sober).length;
+  const milestoneDays = [7, 14, 30, 60, 90, 365];
+  const currentMilestone = [...milestoneDays].reverse().find((days) => streak >= days) || 7;
+  const nextMilestone = milestoneDays.find((days) => days > streak);
+  const milestoneLabel = currentMilestone >= 365 ? 'one-year sober launch moment' : `${currentMilestone}-day sober milestone`;
   const activeProofLabel = template === 'craving'
     ? cravingProofReady
       ? `Craving proof ready: ${latestCravingReceipt?.craving ?? 0}/10 urge faced on ${latestCravingReceipt?.date} and streak protected.`
@@ -130,6 +142,8 @@ const ShareProgressScreen = () => {
       ? `Selected receipt: ${workoutProof.title} • ${workoutProof.durationMinutes} minutes • ${workoutProof.completedSets}/${workoutProof.totalSets} sets.`
       : template === 'weekly'
         ? `Weekly receipts ready: ${weeklySoberDays} sober check-ins and ${weeklyMinutes} training minutes this week.`
+        : template === 'milestone'
+          ? `Milestone card ready: ${milestoneLabel}${nextMilestone ? `, ${nextMilestone - streak} days from the next share moment.` : '.'}`
         : template === 'transformation'
           ? `Transformation proof ready: ${data.bodyProfile.weightLbs || 'body stats'} and ${streak} sober days.`
           : 'No workout proof saved yet. You can still post streak, craving, transformation, or weekly proof — then stack a stronger workout card after Train.';
@@ -145,13 +159,18 @@ const ShareProgressScreen = () => {
       ? `Receipts: ${workoutProof.label}, ${workoutProof.durationMinutes} minutes, ${workoutProof.completedSets} sets completed. Proof beats promises. ${hashtags.receipts}`
       : `Proof beats promises: ${streak} days sober, ${data.fitnessEntries.length} workouts logged, ${data.habits.length} habits stacked. ${hashtags.receipts}`,
     craving: `Craving hit${latestCravingReceipt?.craving ? ` at ${latestCravingReceipt.craving}/10` : ''}. I did not bargain with it. I protected the streak and stayed in command. ${hashtags.craving}`,
+    milestone: currentMilestone >= 365
+      ? `One year ago I got sober. Today I am launching the app I wish I had on day one. Day ${streak} proof is real. ${hashtags.milestone}`
+      : `${currentMilestone} days sober. I used to count drinks. Now I count proof. The comeback is getting visible. ${hashtags.milestone}`,
     transformation: `${data.bodyProfile.weightLbs ? `${data.bodyProfile.weightLbs} lb today` : `Day ${streak} sober`}${data.bodyProfile.goalWeightLbs ? `, goal ${data.bodyProfile.goalWeightLbs}` : ''}. This is not just fitness. This is the new life getting visible. ${hashtags.transformation}`,
     weekly: `Weekly receipts: ${weeklySoberDays} sober check-ins, ${weeklyMinutes} training minutes, and another boss battle against the old pattern. ${hashtags.weekly}`,
-  }), [data.bodyProfile.goalWeightLbs, data.bodyProfile.weightLbs, data.fitnessEntries.length, data.habits.length, latestCravingReceipt?.craving, streak, weeklyMinutes, weeklySoberDays, workoutProof]);
+  }), [currentMilestone, data.bodyProfile.goalWeightLbs, data.bodyProfile.weightLbs, data.fitnessEntries.length, data.habits.length, latestCravingReceipt?.craving, streak, weeklyMinutes, weeklySoberDays, workoutProof]);
 
   const hook = hooks[template][hookIndex % hooks[template].length];
   const videoIdea = template === 'craving'
     ? 'Film: close-up of timer/water bottle → shoes on → quick walk or pushups → screenshot the Victory Card.'
+    : template === 'milestone'
+      ? 'Film: sober day counter → quick gym/walk proof → milestone card screenshot → founder line on screen.'
     : template === 'weekly'
       ? 'Film: scroll through the week’s receipts → gym clip → final Victory Card screenshot.'
       : template === 'transformation'
@@ -191,6 +210,7 @@ const ShareProgressScreen = () => {
         <div className="hero-actions">
           <a className="btn btn-primary" href="#victory-card-preview">Preview Card</a>
           <a className="btn btn-secondary" href="#post-idea">Post Idea</a>
+          <a className="btn btn-ghost" href="#founder-launch-copy">Founder Launch Copy</a>
           {cravingProofReady && <Button variant="danger" onClick={() => chooseTemplate('craving')}>Make Craving Victory Card</Button>}
           {template === 'craving' && !cravingProofReady && (
             <>
@@ -198,6 +218,27 @@ const ShareProgressScreen = () => {
               <Link className="btn btn-secondary" to="/rescue">Open Rescue now</Link>
             </>
           )}
+        </div>
+      </Card>
+
+      <Card id="founder-launch-copy" className="stack-sm founder-launch-card">
+        <span className="tag danger-tag">Founder launch script</span>
+        <h2>One year ago I got sober. Today I’m launching the app I wish I had on day one.</h2>
+        <p>
+          Use this when the app needs to make sense in the first 10 seconds: it is not a generic habit tracker — it is sober fitness proof for cravings, training, and visible comeback moments.
+        </p>
+        <div className="post-idea-box">
+          <strong>Launch caption</strong>
+          <span>One year ago I got sober. Today I’m launching Iron Habit — the sober fitness app I wish I had on day one. Check in, survive cravings, train, save proof, and turn the comeback into receipts. #IronHabit #SoberFitness #RecoveryTok</span>
+        </div>
+        <div className="proof-angle-strip">
+          <span>0–3s: sober founder hook</span>
+          <span>3–7s: craving → rescue → proof</span>
+          <span>7–10s: Victory Card screenshot</span>
+        </div>
+        <div className="button-row">
+          <Button variant="secondary" onClick={() => copyText('One year ago I got sober. Today I’m launching Iron Habit — the sober fitness app I wish I had on day one. Check in, survive cravings, train, save proof, and turn the comeback into receipts. #IronHabit #SoberFitness #RecoveryTok', 'Founder launch caption copied.')}>Copy founder caption</Button>
+          <Button variant="ghost" onClick={() => chooseTemplate('milestone')}>Open milestone card</Button>
         </div>
       </Card>
 

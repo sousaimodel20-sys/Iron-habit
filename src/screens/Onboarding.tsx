@@ -57,7 +57,7 @@ const Onboarding = () => {
   const cravingDefense = highCraving ? 'High urge: start emergency chain.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
   const shareVictoryCardPath = latestProof ? `/share-progress?template=receipts&proof=${latestProof.id}` : '/share-progress?template=receipts';
-  const shareableMilestones = [3, 7, 14, 30, 60, 90, 180, 365];
+  const shareableMilestones = [7, 14, 30, 60, 90, 365];
   const todayMilestone = shareableMilestones.find((days) => days === displayDay);
   const showMilestoneShare = Boolean(todayMilestone && !celebratedMilestones.includes(todayMilestone) && !needsSetup);
 
@@ -374,7 +374,7 @@ const Onboarding = () => {
             <div><span>Status</span><strong>Undefeated</strong></div>
           </div>
           <div className="hero-actions">
-            <Link to="/share-progress?template=comeback" className="btn btn-primary" onClick={celebrateMilestone}>Make Milestone Card</Link>
+            <Link to="/share-progress?template=milestone" className="btn btn-primary" onClick={celebrateMilestone}>Make Milestone Card</Link>
             <Link to="/proof" className="btn btn-secondary" onClick={celebrateMilestone}>Open Proof Stack</Link>
             <button type="button" className="btn btn-ghost" onClick={celebrateMilestone}>Hide for now</button>
           </div>

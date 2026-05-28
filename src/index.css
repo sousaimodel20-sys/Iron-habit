@@ -542,14 +542,18 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .share-card.template-craving { background: radial-gradient(circle at 50% 0, rgba(239,68,68,.38), transparent 34%), linear-gradient(180deg, #2a0505 0%, #050507 56%, #111827 100%); }
 .share-card.template-transformation { background: radial-gradient(circle at 20% 0, rgba(246,196,83,.22), transparent 34%), linear-gradient(180deg, #111827 0%, #050507 50%, #07130d 100%); }
 .share-card.template-weekly { background: radial-gradient(circle at 75% 0, rgba(246,196,83,.22), transparent 34%), linear-gradient(180deg, #160a2a 0%, #050507 54%, #1f1308 100%); }
+.share-card.template-milestone { background: radial-gradient(circle at 50% 0, rgba(246,196,83,.34), transparent 32%), radial-gradient(circle at 0 72%, rgba(239,68,68,.28), transparent 34%), linear-gradient(180deg, #1b1205 0%, #050507 54%, #111827 100%); }
+.share-card::after { content: 'IRON HABIT'; position: absolute; right: -34px; bottom: 92px; color: rgba(255,255,255,.045); font-size: 3.2rem; font-weight: 950; letter-spacing: -.08em; transform: rotate(-90deg); transform-origin: center; }
 .share-card.template-receipts .share-day strong, .share-card.template-weekly .share-day strong { color: var(--green); }
 .share-card.template-craving .share-day strong { color: #fecaca; }
 .share-card.template-transformation .share-day strong { color: var(--gold); }
+.share-card.template-milestone .share-day strong { color: var(--gold); text-shadow: 0 0 34px rgba(246,196,83,.32); }
 .share-card.template-discipline .share-glow { background: rgba(251,146,60,.34); }
 .share-glow { position: absolute; inset: -90px -80px auto auto; width: 260px; height: 260px; border-radius: 999px; background: rgba(246,196,83,.28); filter: blur(10px); }
 .share-card > *:not(.share-glow) { position: relative; z-index: 1; }
 .share-kicker { color: var(--gold); font-weight: 950; letter-spacing: .18em; font-size: .78rem; }
-.share-card h2 { font-size: 2rem; line-height: 1; }
+.share-card h2 { font-size: 2rem; line-height: 1; letter-spacing: -.055em; }
+.share-card.template-craving h2, .share-card.template-milestone h2 { font-size: 2.25rem; }
 .share-day { text-align: center; }
 .share-day strong { display: block; color: var(--gold); font-size: 8rem; line-height: .82; letter-spacing: -.09em; }
 .share-day span { font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
@@ -576,6 +580,8 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .post-idea-box span { color: #f4f4f5; line-height: 1.45; }
 .content-studio-card { border-color: rgba(239,68,68,.34); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.2), transparent 38%), linear-gradient(145deg, rgba(127,16,16,.16), rgba(255,255,255,.055)); }
 .content-studio-card h2 { color: #fff; font-size: clamp(1.5rem, 7vw, 2.3rem); line-height: .98; }
+.founder-launch-card { border-color: rgba(246,196,83,.42); background: radial-gradient(circle at 0 0, rgba(246,196,83,.18), transparent 35%), radial-gradient(circle at 100% 100%, rgba(239,68,68,.18), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); }
+.founder-launch-card h2 { color: #fff; font-size: clamp(1.65rem, 8vw, 2.75rem); line-height: .92; letter-spacing: -.07em; }
 
 @media (max-width: 720px) {
   .app-shell { padding-inline: 12px; }
@@ -595,7 +601,15 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
   .loadout-console, .coach-card, .talk-input-card, .safety-card { padding: 16px; }
   .heatmap { grid-template-columns: repeat(7, 1fr); }
   .milestone-grid { grid-template-columns: repeat(2, 1fr); }
-  .bottom-nav { grid-template-columns: repeat(5, 1fr); border-radius: 21px; }
-  .bottom-nav a { font-size: .74rem; padding: 11px 4px; }
+  .bottom-nav { grid-template-columns: repeat(5, 1fr); border-radius: 21px; margin-top: 16px; }
+  .bottom-nav a { font-size: .7rem; padding: 10px 4px; }
+  .share-card { width: min(100%, 360px); padding: 24px; border-radius: 32px; }
+  .share-card h2 { font-size: 1.8rem; }
+  .share-card.template-craving h2, .share-card.template-milestone h2 { font-size: 2rem; }
+  .share-day strong { font-size: 6.9rem; }
+  .share-metrics { gap: 6px; }
+  .share-metrics span { padding: 10px 6px; font-size: .72rem; }
+  .share-proof-strip span { padding: 9px 10px; font-size: .82rem; }
+  .share-why { font-size: .92rem; }
   .list-card, .completed-loadout-list article { align-items: flex-start; flex-direction: column; display: flex; }
 }
