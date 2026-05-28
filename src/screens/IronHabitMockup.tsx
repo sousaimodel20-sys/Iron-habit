@@ -28,10 +28,10 @@ const exercises = [
 ];
 
 const meetings = [
-  { type: 'AA', name: 'Official AA meeting search', meta: 'Use saved city / map source', tag: 'Verified source link' },
-  { type: 'NA', name: 'Official NA meeting search', meta: 'Search nearby recovery groups', tag: 'Verified source link' },
-  { type: 'SMART', name: 'SMART Recovery finder', meta: 'Online + local meetings', tag: 'Verified source link' },
-  { type: 'MAP', name: 'Maps recovery support search', meta: 'No fake addresses shown', tag: 'Location bridge' },
+  { type: 'AA', name: 'AA official finder', time: 'Source', distance: 'Local', meta: 'Open the verified AA directory for your city.', tag: 'Official' },
+  { type: 'NA', name: 'NA meeting search', time: 'Source', distance: 'Near you', meta: 'Search Narcotics Anonymous meetings nearby.', tag: 'Official' },
+  { type: 'SMART', name: 'SMART Recovery locator', time: 'Online', distance: 'Hybrid', meta: 'Find online and in-person SMART groups.', tag: 'Verified' },
+  { type: 'MAP', name: 'Recovery support on Maps', time: 'Now', distance: 'Area', meta: 'Map search only. No fake meeting address shown.', tag: 'Search' },
 ];
 
 const macroRows = [
@@ -198,15 +198,16 @@ export function TalkPage() {
 export function MeetingsPage() {
   const { supportLocation } = useMockData();
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-meetings-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-hero-split"><div><h1>FIND SUPPORT. YOU DON’T DO THIS ALONE.</h1><p>Meetings near {supportLocation}. Change location anytime.</p></div><HelmetCoach small /></div>
-      <div className="ih-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
+      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT. YOU DON’T DO THIS ALONE.</h1><p>Meetings near {supportLocation}. Verified feed pending; official sources first.</p></div><HelmetCoach small /></div>
+      <div className="ih-location-bar"><span>⌖</span><div><small>Current support area</small><strong>{supportLocation}</strong></div><Link to="/talk">Change</Link></div>
+      <div className="ih-tabs ih-pill-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
       <div className="ih-list">
-        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + supportLocation)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small></div><em>{meeting.tag}</em></a>)}
+        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + supportLocation)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small><span>{meeting.time} • {meeting.distance}</span></div><em>{meeting.tag}</em><b>›</b></a>)}
       </div>
-      <div className="ih-card ih-note">Verified local meeting feed is not connected yet. This screen uses official source/search links only — no fake addresses.</div>
+      <div className="ih-card ih-note"><strong>Source status:</strong> verified local meeting feed is not connected yet. This screen uses official source/search links only — no fake addresses.</div>
       <a className="ih-secondary ih-wide" href="https://www.aa.org/find-aa" target="_blank" rel="noreferrer">VIEW ONLINE MEETINGS</a>
     </section>
   );
