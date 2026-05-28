@@ -701,15 +701,88 @@ select {
     flex-basis: 86px;
   }
 }
+/* Real Rescue / Proof visual-parity bridge: keeps recovery + proof storage logic live inside mockup chrome. */
+.ih-real-rescue,
+.ih-real-proof {
+  padding-top: 10px;
+}
+.ih-real-rescue-hero,
+.ih-real-proof-hero {
+  border-color: rgba(225,29,46,.3);
+  background: radial-gradient(circle at 10% 0, rgba(225,29,46,.22), transparent 36%), linear-gradient(180deg, rgba(21,22,26,.95), rgba(5,6,8,.98));
+}
+.ih-real-rescue-hero .ih-coach-small,
+.ih-real-proof-hero .ih-coach-small {
+  width: 110px;
+  flex-basis: 110px;
+}
+.ih-real-rescue .emergency-rescue-card,
+.ih-real-rescue .rescue-outcome-card,
+.ih-real-rescue .slip-restart-card,
+.ih-real-rescue .reason-card,
+.ih-real-proof .proof-summary-card,
+.ih-real-proof .proof-vault-card,
+.ih-real-proof .proof-stack-card,
+.ih-real-proof .next-milestone-card,
+.ih-real-proof .content-studio-card,
+.ih-real-proof .transformation-card,
+.ih-real-proof .body-target-card {
+  border-color: rgba(225,29,46,.22);
+  background: radial-gradient(circle at 96% 0, rgba(225,29,46,.11), transparent 32%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(8,9,11,.98));
+}
+.ih-real-rescue .emergency-rescue-card.is-emergency,
+.ih-real-proof .emergency-proof-card {
+  border-color: rgba(248,113,113,.44);
+  background: radial-gradient(circle at 50% 0, rgba(225,29,46,.26), transparent 38%), linear-gradient(180deg, rgba(127,15,23,.42), rgba(8,9,11,.98));
+}
+.ih-real-rescue-stat-grid .ih-stat,
+.ih-real-proof-stat-grid .ih-stat {
+  min-height: 92px;
+}
+.ih-real-rescue .breath-ring {
+  border-color: rgba(225,29,46,.44);
+  background: radial-gradient(circle, rgba(225,29,46,.18), rgba(0,0,0,.2));
+  box-shadow: inset 0 0 28px rgba(0,0,0,.7), 0 0 34px rgba(225,29,46,.16);
+}
+.ih-real-rescue .rescue-chain-panel,
+.ih-real-rescue .rescue-steps span,
+.ih-real-proof .completed-loadout-list article,
+.ih-real-proof .compact-receipt-list article,
+.ih-real-proof .milestone-timeline .timeline-step,
+.ih-real-proof .proof-angle-strip a {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.035);
+  padding: 10px;
+}
+.ih-real-proof .proof-angle-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.ih-real-proof .proof-angle-strip a {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  color: #fca5a5;
+  font-weight: 900;
+  text-align: center;
+}
 @media (max-width: 370px) {
   .ih-real-talk .ih-chip-grid.talk,
-  .ih-real-talk-stat-grid {
+  .ih-real-talk-stat-grid,
+  .ih-real-rescue-stat-grid,
+  .ih-real-proof-stat-grid {
     grid-template-columns: 1fr;
   }
-  .ih-real-talk-hero {
+  .ih-real-talk-hero,
+  .ih-real-rescue-hero,
+  .ih-real-proof-hero {
     align-items: flex-start;
   }
-  .ih-real-talk-hero .ih-coach-small {
+  .ih-real-talk-hero .ih-coach-small,
+  .ih-real-rescue-hero .ih-coach-small,
+  .ih-real-proof-hero .ih-coach-small {
     width: 86px;
     flex-basis: 86px;
   }

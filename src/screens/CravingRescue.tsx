@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Button, Card, PageHeader } from '../components/UI';
+import { Button, Card } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const protocol = [
   'Put the drink plan on pause. Say: “I only need to win ten minutes.”',
@@ -25,6 +26,7 @@ const CravingRescue = () => {
   const supportLocation = getSupportLocation(profile);
   const meetingsPath = buildMeetingsPath(profile);
   const meetingsLabel = getMeetingsCtaLabel(profile);
+  const recoveryReceiptCount = Object.values(data.checkIns).filter((entry) => entry.sober && entry.craving >= 3).length;
   const supportReady = hasSupportContact(profile);
   const supportContactLabel = getSupportContactLabel(profile);
   const supportCallHref = buildSupportTelHref(profile);
@@ -184,12 +186,27 @@ const CravingRescue = () => {
   };
 
   return (
-    <div className="page rescue-page stack-lg">
-      <PageHeader eyebrow="Rescue" title={mode === 'emergency' ? 'Do not drink for ten minutes.' : mode === 'slip' ? 'No shame. Restart clean.' : 'Craving protocol. No bargaining.'}>
-        {mode === 'slip'
-          ? 'A slip is data, not identity. Stop the spiral, reset the environment, and stack the next right action.'
-          : 'Ten minutes to interrupt the old pattern and protect the comeback you are building.'}
-      </PageHeader>
+    <div className="page ih-page ih-real-rescue rescue-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader step="RESCUE" />
+
+      <section className="ih-card ih-ai-card ih-real-rescue-hero" aria-label="Iron Habit emergency rescue deck">
+        <HelmetCoach small />
+        <div>
+          <small>{mode === 'emergency' ? 'EMERGENCY CHAIN' : mode === 'slip' ? 'COMEBACK RESET' : 'RESCUE DECK'}</small>
+          <h1>{mode === 'emergency' ? 'Do not drink for ten minutes.' : mode === 'slip' ? 'No shame. Restart clean.' : 'Craving protocol. No bargaining.'}</h1>
+          <p>{mode === 'slip'
+            ? 'A slip is data, not identity. Stop the spiral, reset the environment, and stack the next right action.'
+            : 'Helmet on. Timer up. Human support ready. Win this wave and turn it into proof.'}</p>
+        </div>
+      </section>
+
+      <div className="ih-stat-grid four ih-real-rescue-stat-grid" aria-label="Rescue state snapshot">
+        <StatCard label="Timer" value={`${minutes}:${seconds}`} sub={running ? 'active' : 'ready'} tone={running ? 'red' : 'amber'} />
+        <StatCard label="Mode" value={mode === 'emergency' ? '10/10' : mode === 'slip' ? 'Reset' : 'Steady'} sub="state" tone={mode === 'slip' ? 'amber' : 'red'} />
+        <StatCard label="Support" value={supportReady ? 'Ready' : 'Unset'} sub={supportReady ? supportContactLabel : 'safe person'} tone={supportReady ? 'green' : 'red'} />
+        <StatCard label="Receipts" value={`${recoveryReceiptCount}`} sub="recovery proof" tone="blue" />
+      </div>
 
       <Card className={`rescue-card emergency-rescue-card stack-md ${mode === 'emergency' ? 'is-emergency' : ''}`}>
         <div className="rescue-head">

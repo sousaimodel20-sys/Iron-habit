@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MilestoneBadge from '../components/MilestoneBadge';
-import { Card, PageHeader, Stat } from '../components/UI';
+import { Card, Stat } from '../components/UI';
 import { formatLocalDateKey } from '../utils/date';
 import { loadData, saveData, type CompletedLoadout, type IronHabitData } from '../utils/storage';
 import { calculateSobrietyStreak, getCompletionRate } from '../utils/streaks';
@@ -9,6 +9,7 @@ import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/tr
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getCravingReceipts, getLatestEmergencyCravingReceipt, getLatestProof, getProofStack } from '../utils/proofReceipts';
 import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const milestones = [7, 14, 30, 60, 90, 365];
 const milestonePlan = [
@@ -123,10 +124,25 @@ const ProgressDashboard = () => {
   };
 
   return (
-    <div className="page stack-lg">
-      <PageHeader eyebrow="Proof" title="Proof beats promises.">
-        See the evidence: sober days, check-ins, training, and the next Victory Card.
-      </PageHeader>
+    <div className="page ih-page ih-real-proof profile-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader step="PROOF" />
+
+      <section className="ih-card ih-ai-card ih-real-proof-hero" aria-label="Iron Habit proof vault">
+        <HelmetCoach small />
+        <div>
+          <small>PROOF VAULT</small>
+          <h1>Proof beats promises.</h1>
+          <p>Receipts, check-ins, training proof, emergency wins, and the next Victory Card — all in one vault.</p>
+        </div>
+      </section>
+
+      <div className="ih-stat-grid four ih-real-proof-stat-grid" aria-label="Proof vault snapshot">
+        <StatCard label="Sober" value={`${weeklySoberDays}/7`} sub="this week" tone="green" />
+        <StatCard label="Training" value={`${weeklyMinutes}m`} sub="logged" tone="red" />
+        <StatCard label="Vault" value={`${data.completedLoadouts.length}`} sub="receipts" tone="blue" />
+        <StatCard label="Craving" value={latestCravingReceipt ? `${latestCravingReceipt.craving}/10` : '—'} sub="latest faced" tone="amber" />
+      </div>
 
       <Card className="proof-summary-card stack-sm">
         <span className="tag">Weekly Proof</span>
