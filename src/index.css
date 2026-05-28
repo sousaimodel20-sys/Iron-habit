@@ -186,7 +186,23 @@ button { cursor: pointer; }
 .ih-upnext strong, .ih-upnext span { display: block; }
 
 .ih-ring-score { width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; border: 8px solid var(--red); background: #09090b; font-weight: 950; box-shadow: 0 0 24px rgba(225,29,46,.25); }
-.ih-macro { display: grid; gap: 7px; margin: 10px 0; }
+.ih-fuel-page { gap: 8px; }
+.ih-fuel-hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; border-radius: 22px; padding: 14px; border: 1px solid rgba(225,29,46,.28); background: radial-gradient(circle at 88% 14%, rgba(225,29,46,.28), transparent 34%), linear-gradient(180deg, rgba(22,24,28,.88), rgba(5,6,8,.96)); box-shadow: inset 0 1px rgba(255,255,255,.04), 0 18px 38px rgba(0,0,0,.28); }
+.ih-fuel-hero small, .ih-section-head small { color: var(--red); font-weight: 950; letter-spacing: .12em; font-size: .66rem; text-transform: uppercase; }
+.ih-fuel-hero h1 { font-size: 2rem; margin-bottom: 4px; }
+.ih-fuel-hero p { margin-bottom: 0; font-size: .82rem; }
+.ih-fuel-snapshot { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ih-fuel-snapshot .ih-stat { min-height: 72px; padding: 9px; }
+.ih-fuel-snapshot .ih-stat strong { font-size: 1.05rem; }
+.ih-section-head { display: flex; align-items: start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.ih-section-head h2 { margin-bottom: 0; }
+.ih-section-head > b { color: #fca5a5; border: 1px solid rgba(225,29,46,.35); background: rgba(225,29,46,.1); border-radius: 999px; padding: 7px 9px; font-size: .62rem; letter-spacing: .08em; white-space: nowrap; }
+.ih-macro-card { padding: 11px 12px; }
+.ih-macro { display: grid; gap: 7px; margin: 8px 0; }
+.ih-meal-scan-card .ih-media-tall { height: 178px; margin-bottom: 8px; }
+.ih-meal-scan-card .ih-stat-grid { gap: 7px; margin-bottom: 8px; }
+.ih-meal-scan-card .ih-stat { min-height: 62px; padding: 7px; }
+.ih-fuel-stack .ih-meal, .ih-ideas-card .ih-meal, .ih-nutrition-rescue .ih-meal { min-height: 40px; }
 .ih-macro div { display: flex; justify-content: space-between; }
 .ih-macro span { color: var(--muted); }
 .ih-danger { border-color: rgba(225,29,46,.45); background: linear-gradient(180deg, rgba(127,15,23,.44), rgba(10,11,13,.96)); }

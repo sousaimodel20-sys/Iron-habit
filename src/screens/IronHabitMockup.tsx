@@ -260,15 +260,39 @@ export function WorkoutLogger() {
 
 export function FuelPage() {
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-fuel-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-title-row"><div><h1>IRON FUEL</h1><b>NUTRITION DASHBOARD</b></div><span className="ih-ring-score">78%</span></div>
-      <div className="ih-card">{macroRows.map((row) => <div className="ih-macro" key={row.label}><div><strong>{row.label}</strong><span>{row.value}</span></div><ProgressBar pct={row.pct} tone={row.tone} /></div>)}</div>
-      <div className="ih-card"><h2>TODAY’S MEALS</h2>{['Breakfast — 3 eggs, oats, banana', 'Lunch — Chicken rice bowl', 'Post Workout — Whey shake + fruit', 'Dinner — Salmon, sweet potato'].map((meal) => <div className="ih-meal" key={meal}>{meal}<b>✓</b></div>)}<button className="ih-primary ih-wide">+ ADD MEAL</button></div>
-      <div className="ih-card"><h2>MEAL SCAN</h2><MediaTile label="CAMERA / MEAL IMAGE" tall src={mealImage} /><div className="ih-stat-grid four"><StatCard label="CAL" value="650" /><StatCard label="PROTEIN" value="52g" /><StatCard label="CARBS" value="48g" /><StatCard label="FAT" value="21g" /></div><button className="ih-primary ih-wide">ADD TO LOG</button><button className="ih-secondary ih-wide">SCAN ANOTHER</button></div>
-      <div className="ih-card"><h2>AI MEAL IDEAS</h2>{['High Protein Chicken Bowl', 'Steak & Rice', 'Turkey Wrap', 'Protein Pancakes'].map((meal) => <div className="ih-meal" key={meal}>{meal}<span>Protein-first</span></div>)}</div>
-      <div className="ih-card ih-danger"><h2>CRAVING HITTING HARD?</h2><p>Use food as fuel. Beat the urge.</p>{['High Protein Shake', 'Greek Yogurt + Berries', 'Banana + Peanut Butter', 'Beef Jerky', 'Electrolytes'].map((item) => <div className="ih-meal" key={item}>{item}<b>›</b></div>)}<button className="ih-primary ih-wide">I ATE SOMETHING</button></div>
+      <div className="ih-fuel-hero">
+        <div>
+          <small>IRON FUEL</small>
+          <h1>FUEL THE REBUILD.</h1>
+          <p>Calories, macros, hydration, meal scan, and craving nutrition rescue in one native dashboard.</p>
+        </div>
+        <span className="ih-ring-score">78%</span>
+      </div>
+      <div className="ih-fuel-snapshot">
+        <StatCard label="Cal" value="2.1k" sub="of 2.8k" />
+        <StatCard label="Protein" value="185g" sub="target 220" tone="green" />
+        <StatCard label="Water" value="2.1L" sub="3.0L goal" tone="blue" />
+      </div>
+      <div className="ih-card ih-macro-card">
+        <div className="ih-section-head"><div><small>MACRO COMMAND</small><h2>TODAY’S TARGETS</h2></div><b>ON TRACK</b></div>
+        {macroRows.map((row) => <div className="ih-macro" key={row.label}><div><strong>{row.label}</strong><span>{row.value}</span></div><ProgressBar pct={row.pct} tone={row.tone} /></div>)}
+      </div>
+      <div className="ih-card ih-meal-scan-card">
+        <div className="ih-section-head"><div><small>CAMERA SCAN</small><h2>SCAN THE PLATE</h2></div><b>AI ESTIMATE</b></div>
+        <MediaTile label="MEAL IMAGE" tall src={mealImage} />
+        <div className="ih-stat-grid four"><StatCard label="CAL" value="650" /><StatCard label="PROTEIN" value="52g" /><StatCard label="CARBS" value="48g" /><StatCard label="FAT" value="21g" /></div>
+        <button className="ih-primary ih-wide">ADD TO LOG</button><button className="ih-secondary ih-wide">SCAN ANOTHER</button>
+      </div>
+      <div className="ih-card ih-fuel-stack">
+        <div className="ih-section-head"><div><small>LOGGED TODAY</small><h2>MEAL STACK</h2></div><b>4/5</b></div>
+        {['Breakfast — 3 eggs, oats, banana', 'Lunch — Chicken rice bowl', 'Post Workout — Whey shake + fruit', 'Dinner — Salmon, sweet potato'].map((meal) => <div className="ih-meal" key={meal}>{meal}<b>✓</b></div>)}
+        <button className="ih-primary ih-wide">+ ADD MEAL</button>
+      </div>
+      <div className="ih-card ih-ideas-card"><h2>AI MEAL IDEAS</h2>{['High Protein Chicken Bowl', 'Steak & Rice', 'Turkey Wrap', 'Protein Pancakes'].map((meal) => <div className="ih-meal" key={meal}>{meal}<span>Protein-first</span></div>)}</div>
+      <div className="ih-card ih-danger ih-nutrition-rescue"><h2>CRAVING HITTING HARD?</h2><p>Use food as fuel. Beat the urge.</p>{['High Protein Shake', 'Greek Yogurt + Berries', 'Banana + Peanut Butter', 'Beef Jerky', 'Electrolytes'].map((item) => <div className="ih-meal" key={item}>{item}<b>›</b></div>)}<button className="ih-primary ih-wide">I ATE SOMETHING</button></div>
     </section>
   );
 }
