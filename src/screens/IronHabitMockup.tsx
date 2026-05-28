@@ -263,14 +263,18 @@ export function TrainPage() {
 
 export function ExerciseDetail() {
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-mock-train-page ih-exercise-detail-page">
       <PhoneStatus />
       <BrandHeader back />
-      <div className="ih-workout-head"><HelmetCoach small /><div><h1>PUSH DAY</h1><p>Chest • Shoulders • Triceps</p></div></div>
-      <div className="ih-stat-grid four"><StatCard label="MIN" value="45" /><StatCard label="SETS" value="16" /><StatCard label="REPS" value="8-12" /><StatCard label="CAL" value="~480" /></div>
-      <h2>EXERCISES</h2>
-      <div className="ih-list">{exercises.map((exercise, index) => <Link className="ih-exercise" to="/workout-mode" key={exercise.name}><MediaTile label="DEMO" src={benchImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><b>▶</b></Link>)}</div>
-      <div className="ih-card"><h2>BARBELL BENCH PRESS</h2><MediaTile label="DEMO GIF / VIDEO AREA" tall src={benchImage} /><div className="ih-tabs"><b>DEMO</b><span>MUSCLES</span><span>CUES</span></div><ul className="ih-cues"><li>Grip slightly wider than shoulders.</li><li>Retract shoulder blades.</li><li>Lower bar to mid-chest.</li><li>Press up fast. No ego.</li></ul><div className="ih-muscles">Target muscles: Chest, front delts, triceps</div></div>
+      <div className="ih-card ih-workout-head ih-exercise-hero">
+        <HelmetCoach small />
+        <div><small>PUSH DAY PROGRAM</small><h1>PUSH DAY</h1><p>Chest • Shoulders • Triceps</p></div>
+        <b>01</b>
+      </div>
+      <div className="ih-stat-grid four ih-train-snapshot"><StatCard label="MIN" value="45" sub="Work cap" /><StatCard label="SETS" value="16" sub="Target" /><StatCard label="REPS" value="8-12" sub="Range" /><StatCard label="CAL" value="~480" sub="Burn" /></div>
+      <div className="section-title-row"><div><small>PROGRAM SHEET</small><h2>EXERCISES</h2></div><b>6 MOVES</b></div>
+      <div className="ih-list ih-exercise-list">{exercises.map((exercise, index) => <Link className="ih-exercise ih-exercise-row" to="/workout-mode" key={exercise.name}><MediaTile label="DEMO" src={benchImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><span>{index === 0 ? 'ACTIVE' : 'QUEUE'}</span><b>▶</b></Link>)}</div>
+      <div className="ih-card ih-exercise-focus-card"><div className="ih-section-head"><div><small>DEMO DETAIL</small><h2>BARBELL BENCH PRESS</h2></div><b>CHEST</b></div><MediaTile label="DEMO GIF / VIDEO AREA" tall src={benchImage} /><div className="ih-tabs"><b>DEMO</b><span>MUSCLES</span><span>CUES</span></div><ul className="ih-cues"><li>Grip slightly wider than shoulders.</li><li>Retract shoulder blades.</li><li>Lower bar to mid-chest.</li><li>Press up fast. No ego.</li></ul><div className="ih-muscles">Target muscles: Chest, front delts, triceps</div></div>
       <Link to="/workout-mode" className="ih-primary ih-wide">START WORKOUT</Link>
     </section>
   );
@@ -278,15 +282,15 @@ export function ExerciseDetail() {
 
 export function WorkoutLogger() {
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-mock-train-page ih-workout-logger-page">
       <PhoneStatus />
       <BrandHeader back />
-      <div className="ih-title-row"><div><h1>PUSH DAY</h1><b>37:24</b></div><span className="ih-icon-button">Ⅱ</span></div>
-      <h2>Incline Dumbbell Press</h2><p>Set 2 of 3</p>
+      <div className="ih-card ih-logger-hero"><div><small>ACTIVE WORKOUT</small><h1>PUSH DAY</h1><b>37:24</b></div><span className="ih-icon-button">Ⅱ</span></div>
+      <div className="ih-active-set-card"><div><small>NOW LOGGING</small><h2>Incline Dumbbell Press</h2><p>Set 2 of 3 • Upper chest focus</p></div><b>02/06</b></div>
       <MediaTile label="ACTIVE DEMO GIF / VIDEO" tall src={benchImage} />
       <div className="ih-logger"><div><button>−</button><span><small>REPS</small><strong>10</strong></span><button>+</button></div><div><button>−</button><span><small>WEIGHT</small><strong>45</strong></span><button>+</button></div></div>
       <button className="ih-primary ih-wide">LOG SET ✓</button>
-      <div className="ih-card ih-upnext"><small>UP NEXT</small><strong>Seated Shoulder Press</strong><span>3 × 8–12</span></div>
+      <div className="ih-card ih-upnext"><small>UP NEXT</small><strong>Seated Shoulder Press</strong><span>3 × 8–12 • Delts + triceps</span></div>
     </section>
   );
 }

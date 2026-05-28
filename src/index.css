@@ -647,6 +647,29 @@ select {
 .ih-mock-train-hero p { margin: 0; font-size: .82rem; }
 .ih-train-snapshot { gap: 8px; }
 .ih-train-snapshot .ih-stat { min-height: 74px; padding: 9px; }
+.ih-exercise-detail-page, .ih-workout-logger-page { gap: 8px; }
+.ih-exercise-hero { align-items: flex-end; padding: 10px 12px; background: radial-gradient(circle at 92% 0, rgba(225,29,46,.24), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.92), rgba(5,6,8,.98)); }
+.ih-exercise-hero > div { flex: 1; }
+.ih-exercise-hero small, .ih-logger-hero small, .ih-active-set-card small, .section-title-row small { color: var(--red); font-weight: 950; letter-spacing: .12em; font-size: .64rem; text-transform: uppercase; }
+.ih-exercise-hero h1, .ih-logger-hero h1 { font-size: 2rem; margin-bottom: 3px; }
+.ih-exercise-hero > b, .ih-active-set-card > b { color: #fca5a5; border: 1px solid rgba(225,29,46,.38); background: rgba(225,29,46,.12); border-radius: 999px; padding: 7px 9px; font-size: .68rem; }
+.ih-exercise-list { gap: 8px; }
+.ih-exercise-row { min-height: 82px; grid-template-columns: auto 1fr auto auto; background: linear-gradient(180deg, rgba(255,255,255,.048), rgba(255,255,255,.018)); }
+.ih-exercise-row .ih-media { width: 104px; height: 74px; }
+.ih-exercise-row span { color: #fca5a5; font-size: .62rem; font-weight: 950; letter-spacing: .08em; }
+.ih-exercise-focus-card { padding: 11px 12px; }
+.ih-exercise-focus-card .ih-media-tall { height: 190px; }
+.ih-workout-logger-page .ih-media-tall { height: 142px; }
+.ih-logger-hero, .ih-active-set-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.ih-logger-hero { border-color: rgba(225,29,46,.28); background: radial-gradient(circle at 88% 0, rgba(225,29,46,.24), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(7,8,10,.98)); }
+.ih-logger-hero b { color: #fca5a5; font-size: .82rem; }
+.ih-active-set-card { border: 1px solid rgba(225,29,46,.26); border-radius: 16px; padding: 10px 12px; background: rgba(225,29,46,.07); }
+.ih-active-set-card h2 { font-size: 1.55rem; margin-bottom: 3px; }
+.ih-active-set-card p { margin-bottom: 0; font-size: .82rem; }
+.ih-workout-logger-page .ih-logger { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.ih-workout-logger-page .ih-logger > div { grid-template-columns: 34px 1fr 34px; gap: 6px; padding: 8px; border-color: rgba(225,29,46,.22); background: rgba(255,255,255,.04); }
+.ih-workout-logger-page .ih-logger button { width: 34px; height: 34px; font-size: 1.05rem; }
+.ih-workout-logger-page .ih-logger strong { font-size: 1.65rem; }
 .ih-train-tabs { padding-top: 2px; }
 .ih-train-split-list { gap: 8px; }
 .ih-train-split { min-height: 88px; padding: 9px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.018)); box-shadow: inset 0 1px rgba(255,255,255,.035); }
