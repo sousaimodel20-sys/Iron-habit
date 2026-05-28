@@ -51,9 +51,7 @@ function useMockData() {
 }
 
 export function PhoneStatus() {
-  return (
-    <div className="ih-status"><span>9:41</span><span>●●●  5G  ▰</span></div>
-  );
+  return null;
 }
 
 export function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
