@@ -7,6 +7,7 @@ import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { defaultData, getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const Onboarding = () => {
   const [searchParams] = useSearchParams();
@@ -49,14 +50,9 @@ const Onboarding = () => {
     { ready: Boolean(data.bodyProfile.bodyGoal.trim()) },
   ].every((item) => item.ready);
   const displayDay = Math.max(1, calculateSobrietyStreak());
-  const workoutDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
-  const xp = Math.min(5000, (displayDay * 75) + (data.fitnessEntries.length * 120) + (Object.keys(data.checkIns).length * 80));
-  const xpMax = 5000;
-  const xpPercent = Math.round((xp / xpMax) * 100);
   const craving = todayCheckIn?.craving ?? 2;
   const highCraving = craving >= 7;
   const rescuePath = highCraving ? '/rescue?chain=1' : '/rescue';
-  const moodStability = todayCheckIn ? 'Stable' : 'Locked';
   const macroTargets = calculateMacroTargets(bodyProfile);
   const cravingDefense = highCraving ? 'High urge: start emergency chain.' : craving >= 4 ? 'Medium urge: breathe, walk, hydrate.' : 'Low urge: stay ahead of it.';
   const proteinTarget = macroTargets ? `${macroTargets.proteinGrams}g protein` : 'Set body stats for protein target';
@@ -308,7 +304,13 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="page warrior-page stack-lg">
+    <div className={`page warrior-page stack-lg ${needsSetup ? '' : 'ih-page ih-real-today'}`.trim()}>
+      {!needsSetup && (
+        <>
+          <PhoneStatus />
+          <BrandHeader />
+        </>
+      )}
       {needsSetup ? (
         <section className="warrior-hero helmet-onboarding-hero">
           <div className="hero-tag-bar">Helmet onboarding</div>
@@ -334,19 +336,18 @@ const Onboarding = () => {
           </div>
         </section>
       ) : (
-        <section className="warrior-hero">
-          <div className="hero-tag-bar">{heroTag}</div>
-          {milestoneInfo && <div className="hero-milestone">{milestoneInfo.emoji} {milestoneInfo.label} UNLOCKED</div>}
-          <div className="hero-top-bar">
-            <div className="hero-left">
-              <span className="hero-day">DAY {displayDay}</span>
-              <h1>SOBER</h1>
-            </div>
-            <Link to={rescuePath} className="btn btn-danger btn-hero-rescue">
-              🆘 {highCraving ? 'Emergency Chain' : 'Rescue'}
-            </Link>
+        <section className="ih-real-today-hero" aria-label="Today mission dashboard">
+          <HelmetCoach />
+          <div className="ih-dashboard-hero ih-real-dashboard-hero">
+            <small>{heroTag}</small>
+            <h1>{displayDay} <span>DAYS SOBER</span></h1>
+            <b>{milestoneInfo ? `${milestoneInfo.emoji} ${milestoneInfo.label} UNLOCKED` : primaryMission.title}</b>
+            <p>{nextBestMove}</p>
           </div>
-          <p className="hero-why">{nextBestMove}</p>
+          <div className="ih-action-row ih-real-action-row">
+            <Link to={primaryMission.to} className="ih-primary">{primaryMission.cta}</Link>
+            <Link to={rescuePath} className="ih-secondary">{highCraving ? 'Emergency Chain' : 'Rescue'}</Link>
+          </div>
         </section>
       )}
 
@@ -486,50 +487,37 @@ const Onboarding = () => {
             </section>
           )}
 
-          <section className="xp-card">
-            <div className="xp-head">
-              <span>XP SYSTEM</span>
-              <strong>LEVEL 12</strong>
-            </div>
-            <div className="xp-bar" aria-label="XP progress">
-              <i style={{ width: `${xpPercent}%` }} />
-            </div>
-            <div className="xp-foot">
-              <b>{xp.toLocaleString()} / {xpMax.toLocaleString()} XP</b>
-              <span>Every sober day levels up your character.</span>
-            </div>
-          </section>
+          <div className="ih-stat-grid four ih-real-stat-grid">
+            <StatCard label="Discipline" value={completionLabel} sub={`${weeklyBossCleared}/${missions.length} orders`} tone="green" />
+            <StatCard label="Train" value={trainedToday ? 'Done' : 'Ready'} sub={activeLoadout?.title || 'Starter split'} tone="red" />
+            <StatCard label="Fuel" value={macroTargets ? `${macroTargets.proteinGrams}g` : 'Set'} sub="Protein target" tone="amber" />
+            <StatCard label="Mind" value={`${craving}/10`} sub={cravingDefense} tone={highCraving ? 'red' : 'blue'} />
+          </div>
 
-          <section className="warrior-stats-grid">
-            <div><span>Sober Streak</span><strong>{displayDay} {displayDay === 1 ? 'day' : 'days'}</strong></div>
-            <div><span>Workout Days</span><strong>{workoutDays}</strong></div>
-            <div><span>Mood Stability</span><strong>{moodStability}</strong></div>
-            <div><span>Craving Level</span><strong>{craving}/10</strong></div>
-          </section>
-
-          <section className="missions-card">
+          <section className="ih-card ih-real-orders-card">
             <div className="section-title-row">
-              <span>Today’s Missions</span>
+              <span>TODAY’S ORDERS</span>
               <b>{missions.filter((mission) => mission.done).length}/{missions.length}</b>
             </div>
-            <div className="warrior-mission-list">
-              {missions.map((mission) => (
-                <Link to={mission.to} key={mission.label} className={mission.done ? 'mission-complete' : ''}>
-                  <span className="mission-checkbox">{mission.done ? '✓' : ''}</span>
-                  <span>
-                    <b>{mission.label}</b>
+            <div className="ih-real-orders-list">
+              {missions.map((mission, index) => (
+                <Link to={mission.to} key={mission.label} className={`ih-mission ${mission.done ? 'mission-complete' : ''}`.trim()}>
+                  <span>{index + 1}</span>
+                  <div>
+                    <strong>{mission.label}</strong>
                     <small>{mission.detail}</small>
-                  </span>
+                  </div>
+                  <b>{mission.done ? '✓' : '○'}</b>
                 </Link>
               ))}
             </div>
           </section>
 
-          <section className="boss-card">
+          <section className="ih-card ih-real-boss-card">
             <div>
-              <span>Weekly Boss Battle</span>
-              <h2>Beat Last Week</h2>
-              <p>Outwork the old version. Win the week before it wins you.</p>
+              <small>WEEKLY BOSS BATTLE</small>
+              <h2>BEAT LAST WEEK</h2>
+              <p>Outwork the old loop. Win the day before it wins you.</p>
             </div>
             <div className="boss-progress">
               <strong>{weeklyBossPercent}%</strong>

@@ -45,13 +45,13 @@ function useMockData() {
   return { data, day, supportLocation, activeProgram };
 }
 
-function PhoneStatus() {
+export function PhoneStatus() {
   return (
     <div className="ih-status"><span>9:41</span><span>●●●  5G  ▰</span></div>
   );
 }
 
-function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
+export function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
   return (
     <div className="ih-header">
       {back ? <Link to="/today" className="ih-back">←</Link> : <span />}
@@ -61,7 +61,7 @@ function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) 
   );
 }
 
-function HelmetCoach({ small = false }: { small?: boolean }) {
+export function HelmetCoach({ small = false }: { small?: boolean }) {
   return (
     <div className={small ? 'ih-coach ih-coach-small' : 'ih-coach'} aria-label="Iron helmet hoodie coach">
       <div className="ih-red-beam left" />
@@ -82,7 +82,7 @@ function ProgressBar({ pct, tone = 'red' }: { pct: number; tone?: string }) {
   return <span className={`ih-progress ih-${tone}`}><i style={{ width: `${pct}%` }} /></span>;
 }
 
-function StatCard({ label, value, sub, tone = 'red' }: { label: string; value: string; sub?: string; tone?: string }) {
+export function StatCard({ label, value, sub, tone = 'red' }: { label: string; value: string; sub?: string; tone?: string }) {
   return <div className="ih-stat"><span className={`ih-dot ih-${tone}`} /> <small>{label}</small><strong>{value}</strong>{sub && <em>{sub}</em>}</div>;
 }
 
