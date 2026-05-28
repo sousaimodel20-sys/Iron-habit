@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 680">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="25%" r="70%"><stop offset="0" stop-color="#2b2d31"/><stop offset="0.46" stop-color="#08090b"/><stop offset="1" stop-color="#000"/></radialGradient>
+    <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#090a0c"/><stop offset="0.32" stop-color="#4b4f55"/><stop offset="0.5" stop-color="#d5d7dc"/><stop offset="0.58" stop-color="#111318"/><stop offset="1" stop-color="#050507"/></linearGradient>
+    <linearGradient id="hood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#282b2f"/><stop offset="0.44" stop-color="#0d0e11"/><stop offset="1" stop-color="#010101"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#000" flood-opacity="0.9"/></filter>
+    <filter id="redglow"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff2537" flood-opacity="0.75"/></filter>
+  </defs>
+  <rect width="520" height="680" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M92 642c10-138 42-229 96-274 27 40 54 60 82 60 29 0 58-20 86-60 55 45 85 136 94 274H92Z" fill="url(#hood)" stroke="#35373b" stroke-width="3"/>
+    <path d="M74 656c18-106 53-178 106-217 18 77 46 116 84 116 40 0 70-40 90-119 52 39 84 112 96 220H74Z" fill="#070708" stroke="#1f2125" stroke-width="3"/>
+    <path d="M122 360c-3-109 40-205 137-205 101 0 147 95 142 205-17 75-66 123-140 123-73 0-121-48-139-123Z" fill="url(#hood)" stroke="#272a30" stroke-width="4"/>
+    <path d="M164 324c-3-113 28-187 96-204 68 17 99 91 96 204-9 86-40 137-96 151-55-14-87-65-96-151Z" fill="url(#metal)" stroke="#c7c9cd" stroke-opacity="0.42" stroke-width="4"/>
+    <path d="M260 118v354" stroke="#e4e6eb" stroke-opacity="0.75" stroke-width="5"/>
+    <path d="M180 284h160" stroke="#030303" stroke-width="24" stroke-linecap="round"/>
+    <path d="M189 271h142" stroke="#bfc2c7" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round"/>
+    <path d="M206 374h108" stroke="#090909" stroke-width="54" stroke-linecap="round"/>
+    <path d="M213 350v52M232 345v62M251 342v68M270 342v68M289 345v62M307 350v52" stroke="#888b90" stroke-width="4" opacity="0.75"/>
+    <path d="M158 404c31 54 66 82 104 82 37 0 70-28 99-82" fill="none" stroke="#000" stroke-width="20" opacity="0.55"/>
+  </g>
+  <g filter="url(#redglow)" opacity="0.95">
+    <rect x="78" y="250" width="8" height="205" rx="4" fill="#ff2537"/>
+    <rect x="434" y="250" width="8" height="205" rx="4" fill="#ff2537"/>
+  </g>
+  <text x="260" y="598" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="38" letter-spacing="8" fill="#e7e7e7" opacity="0.8">IRON</text>
+  <text x="260" y="632" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="22" letter-spacing="6" fill="#b91c1c" opacity="0.85">HABIT</text>
+</svg>
