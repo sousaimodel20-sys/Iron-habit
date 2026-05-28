@@ -2,21 +2,17 @@ import { Link } from 'react-router-dom';
 import { loadData } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
-const coachImage = '/mockup-assets/helmet-coach.svg';
-const splitImage = '/mockup-assets/split-coach.svg';
-const benchImage = '/mockup-assets/train-bench.svg';
-const mealImage = '/mockup-assets/meal-bowl.svg';
-const coachCardImage = '/mockup-assets/coach-card.svg';
+const coachImage = '/mockup-assets/ref-splash-coach.png';
+const benchImage = '/mockup-assets/ref-workout-video.png';
+const mealImage = '/mockup-assets/ref-meal-plate.png';
 
 const splits = [
-  { name: 'Push / Pull / Legs', meta: 'Classic 6 day split', accent: 'Chest • Back • Legs', days: '6 days', path: '/exercise?split=ppl', image: splitImage },
-  { name: 'Upper / Lower', meta: '4 day balanced split', accent: 'Strength + balance', days: '4 days', path: '/exercise?split=upper-lower', image: benchImage },
-  { name: 'Bro Split', meta: 'Chest / Back / Arms / Legs', accent: 'High volume pump', days: '5 days', path: '/exercise?split=bro', image: coachCardImage },
-  { name: 'Full Body', meta: 'Total body 3x per week', accent: 'Beginner base', days: '3 days', path: '/exercise?split=full-body', image: benchImage },
-  { name: 'Athletic', meta: 'Strength + conditioning', accent: 'Explosive work', days: '5 days', path: '/exercise?split=athletic', image: splitImage },
-  { name: 'Calisthenics', meta: 'Bodyweight strength', accent: 'No excuses', days: '4 days', path: '/exercise?split=calisthenics', image: coachCardImage },
-  { name: 'Recovery', meta: 'Low impact, heal & rebuild', accent: 'Mobility + zone 2', days: '3 days', path: '/exercise?split=recovery', image: mealImage },
-  { name: 'Custom Split', meta: 'Build your own week', accent: 'Pick muscles', days: 'Custom', path: '/exercise?split=custom', image: splitImage },
+  { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=push', image: '/mockup-assets/ref-train-push.png' },
+  { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=pull', image: '/mockup-assets/ref-train-pull.png' },
+  { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power base', days: '▶', path: '/exercise?split=legs', image: '/mockup-assets/ref-train-legs.png' },
+  { name: 'Upper Day', meta: 'Chest • Back • Arms', accent: 'Balanced split', days: '▶', path: '/exercise?split=upper', image: '/mockup-assets/ref-train-upper.png' },
+  { name: 'Lower Day', meta: 'Legs • Glutes • Calves', accent: 'Lower body', days: '▶', path: '/exercise?split=lower', image: '/mockup-assets/ref-train-lower.png' },
+  { name: 'Full Body', meta: 'Total body assault', accent: 'Complete rebuild', days: '▶', path: '/exercise?split=full-body', image: '/mockup-assets/ref-train-full.png' },
 ];
 
 const exercises = [
@@ -29,10 +25,11 @@ const exercises = [
 ];
 
 const meetings = [
-  { type: 'AA', name: 'AA official finder', time: 'Source', distance: 'Local', meta: 'Open the verified AA directory for your city.', tag: 'Official' },
-  { type: 'NA', name: 'NA meeting search', time: 'Source', distance: 'Near you', meta: 'Search Narcotics Anonymous meetings nearby.', tag: 'Official' },
-  { type: 'SMART', name: 'SMART Recovery locator', time: 'Online', distance: 'Hybrid', meta: 'Find online and in-person SMART groups.', tag: 'Verified' },
-  { type: 'MAP', name: 'Recovery support on Maps', time: 'Now', distance: 'Area', meta: 'Map search only. No fake meeting address shown.', tag: 'Search' },
+  { type: 'A', name: 'Central Austin AA', time: '7:00 PM', distance: '0.8 mi', meta: 'Open Meeting', tag: '' },
+  { type: 'A', name: 'Hope & Freedom Group', time: '8:00 PM', distance: '1.4 mi', meta: 'Open Meeting', tag: '' },
+  { type: 'NA', name: 'NA Unity Meeting', time: '7:30 PM', distance: '2.1 mi', meta: 'Open Meeting', tag: '' },
+  { type: 'S', name: 'SMART Recovery Austin', time: '6:30 PM', distance: '2.3 mi', meta: 'Support Group', tag: '' },
+  { type: '✥', name: 'Daily Reflections', time: '7:00 PM', distance: '3.1 mi', meta: 'Open Meeting', tag: '' },
 ];
 
 const macroRows = [
@@ -226,17 +223,17 @@ export function TalkPage() {
 
 export function MeetingsPage() {
   const { supportLocation } = useMockData();
+  const supportArea = supportLocation === 'your city' ? 'Austin, TX' : supportLocation;
   return (
     <section className="ih-page ih-meetings-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT.<br />YOU DON’T DO<br />THIS ALONE.</h1><p>Meetings near {supportLocation}. Official sources first.</p></div><HelmetCoach small /></div>
-      <div className="ih-location-bar"><span>⌖</span><div><small>Current support area</small><strong>{supportLocation}</strong></div><Link to="/talk">Change</Link></div>
+      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT.<br />YOU DON’T DO<br />THIS ALONE.</h1><p>Meetings near {supportArea}</p></div><HelmetCoach small /></div>
+      <div className="ih-location-bar"><span>⌖</span><div><small>Current support area</small><strong>{supportArea}</strong></div><Link to="/talk">Change</Link></div>
       <div className="ih-tabs ih-pill-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
       <div className="ih-list">
-        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + supportLocation)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small><span>{meeting.time} • {meeting.distance}</span></div><em>{meeting.tag}</em><b>›</b></a>)}
+        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + supportArea)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small></div><em>{meeting.distance}<small>{meeting.time}</small></em><b>›</b></a>)}
       </div>
-      <div className="ih-card ih-note"><strong>Source status:</strong> verified local meeting feed is not connected yet. This screen uses official source/search links only — no fake addresses.</div>
       <a className="ih-secondary ih-wide" href="https://www.aa.org/find-aa" target="_blank" rel="noreferrer">VIEW ONLINE MEETINGS</a>
     </section>
   );
