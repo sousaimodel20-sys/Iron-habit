@@ -16,7 +16,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { buildTalkNextMove } from '../utils/talkNextMove';
-import { detectLoadoutId, loadouts } from '../utils/workoutLoadouts';
+import { detectLoadoutId, getLoadoutById, loadouts } from '../utils/workoutLoadouts';
 
 type WebSpeechRecognitionResultEvent = {
   results: {
@@ -53,7 +53,9 @@ const levels = ['Beginner', 'Intermediate', 'Advanced'];
 const firstProofCommand = 'Help me create my first proof';
 const postFirstCardCommand = 'I made my first Victory Card';
 const secondReceiptCommand = 'Stack Second Receipt';
+const ironSetupCommand = 'Start my Iron Habit setup: ask my city for AA/NA meetings, then my height, weight, age, goal, level, and equipment so my meetings and starter split are already loaded.';
 const quickCommands = [
+  ironSetupCommand,
   firstProofCommand,
   postFirstCardCommand,
   secondReceiptCommand,
@@ -89,22 +91,25 @@ const parseHeightInches = (command: string) => {
 
 const parseBodyProfileFromCommand = (rawCommand: string, current: BodyProfile): BodyProfile => {
   const command = rawCommand.toLowerCase();
-  const weight = command.match(/(?:weigh|weight|i'?m|im|am)\s*(\d{2,3})\s*(?:lb|lbs|pounds)?\b/i)?.[1];
+  const weight = command.match(/(?:weigh|weight|i'?m|im|am)\s*(\d{2,3})\s*(?:lb|lbs|pounds)?\b/i)?.[1]
+    || command.match(/\b(\d{2,3})\s*(?:lb|lbs|pounds)\b/i)?.[1];
   const goalWeight = command.match(/(?:goal weight|target weight|goal|target|to)\s*(\d{2,3})\s*(?:lb|lbs|pounds)?\b/i)?.[1];
   const age = command.match(/(?:age|i'?m|im|am)\s*(\d{2})\s*(?:years old|yo|y\/o|years)?\b/i)?.[1]
     || command.match(/(?:^|,|\s)(\d{2})(?:\s*(?:years old|yo|y\/o|years))?(?=,|$|\s)/i)?.[1];
   const trainingDays = command.match(/(?:train|training|lift|lifting|gym)\s*(\d)\s*(?:days|x|times)?/i)?.[1];
   const height = parseHeightInches(command);
   const sex = /\b(female|woman|girl)\b/.test(command) ? 'female' : /\b(male|man|guy|boy)\b/.test(command) ? 'male' : current.sex;
-  const bodyGoal = /(cut|fat loss|lose fat|burn fat|shred)/.test(command)
-    ? 'cut-fat'
-    : /(bulk|build muscle|gain muscle|muscle gain|lean bulk)/.test(command)
-      ? 'build-muscle'
-      : /(maintain|maintenance)/.test(command)
-        ? 'maintain'
-        : /(recomp|recomposition)/.test(command)
-          ? 'recomposition'
-          : current.bodyGoal;
+  const bodyGoal = /(fat loss|lose fat|burn fat|cut|shred).*(gain muscle|build muscle|muscle)|(?:gain muscle|build muscle|muscle).*(fat loss|lose fat|burn fat|cut|shred)|\bboth\b/.test(command)
+    ? 'recomposition'
+    : /(cut|fat loss|lose fat|burn fat|shred)/.test(command)
+      ? 'cut-fat'
+      : /(bulk|build muscle|gain muscle|muscle gain|lean bulk)/.test(command)
+        ? 'build-muscle'
+        : /(maintain|maintenance)/.test(command)
+          ? 'maintain'
+          : /(recomp|recomposition)/.test(command)
+            ? 'recomposition'
+            : current.bodyGoal;
   const pace = /(aggressive|fast|hard cut)/.test(command) ? 'aggressive' : /(lean bulk|bulk)/.test(command) ? 'lean' : current.pace || 'steady';
   const activityLevel = /(sedentary|desk job)/.test(command)
     ? 'sedentary'
@@ -127,6 +132,82 @@ const parseBodyProfileFromCommand = (rawCommand: string, current: BodyProfile): 
     activityLevel,
     updatedAt: new Date().toISOString(),
   };
+};
+
+const extractHelmetSupportLocation = (rawCommand: string) => {
+  const match = rawCommand.match(/(?:i\s*(?:live|am|'m)\s+in|my\s+(?:city|support\s+area|recovery\s+area)\s+(?:is|=)|meetings?\s+(?:near|in))\s+(.+?)(?=(?:\.|,?\s+i\s*(?:am|'m)\b|,?\s*im\b|,?\s*\d\s*(?:ft|'|’)|,?\s*\d{2,3}\s*(?:lb|lbs|pounds)|,?\s*(?:beginner|intermediate|advanced|want|goal|full gym|home gym|dumbbell|bodyweight))|$)/i);
+  return match?.[1]
+    ?.replace(/\b(?:and|then)\b.*$/i, '')
+    .replace(/[.?!]+$/, '')
+    .trim() || '';
+};
+
+const inferHelmetLevel = (command: string) => {
+  if (/\b(beginner|new|starting)\b/.test(command)) return 'Beginner';
+  if (/\b(advanced|experienced)\b/.test(command)) return 'Advanced';
+  return 'Intermediate';
+};
+
+const inferHelmetLoadoutId = (command: string, bodyGoal: string) => {
+  if (/\b(no equipment|bodyweight|calisthenic)\b/.test(command)) return 'bodyweight';
+  if (/\b(dumbbell|home gym|at home)\b/.test(command)) return 'dumbbell';
+  if (/\b(beginner|new|starting)\b/.test(command)) return 'full-body';
+  if (bodyGoal === 'cut-fat' || /\b(conditioning|hiit|cardio)\b/.test(command)) return 'conditioning';
+  if (bodyGoal === 'build-muscle' || /\b(full gym|gym|gain muscle|build muscle|ppl)\b/.test(command)) return 'ppl';
+  return 'full-body';
+};
+
+const makeHelmetStarterLoadout = (rawCommand: string, bodyProfile: BodyProfile): ActiveLoadout => {
+  const command = rawCommand.toLowerCase();
+  const template = getLoadoutById(inferHelmetLoadoutId(command, bodyProfile.bodyGoal));
+  const level = inferHelmetLevel(command);
+  const time = /\b(20|30|35|45|50|60|75)\s*(?:min|minutes)\b/.exec(command)?.[1];
+
+  return {
+    id: `helmet-loadout-${Date.now()}`,
+    templateId: template.id,
+    title: template.title,
+    label: template.label,
+    goal: bodyProfile.bodyGoal === 'cut-fat'
+      ? 'Lose fat while protecting sobriety'
+      : bodyProfile.bodyGoal === 'build-muscle'
+        ? 'Build muscle and stay locked in'
+        : 'Lose fat, build muscle, and protect the streak',
+    time: time ? `${time} min` : '35 min',
+    level,
+    days: template.days,
+    intent: `${template.intent} Helmet setup selected this from your city/body/equipment answer.`,
+    finisher: template.finisher,
+    exercises: template.exercises,
+    createdAt: new Date().toISOString(),
+  };
+};
+
+const parseHelmetSetupFromCommand = (rawCommand: string) => {
+  const current = loadData();
+  const command = rawCommand.toLowerCase();
+  const supportLocation = extractHelmetSupportLocation(rawCommand) || current.profile.supportLocation;
+  const nextBodyProfile = parseBodyProfileFromCommand(rawCommand, current.bodyProfile);
+  const hasBodyBaseline = Boolean(nextBodyProfile.age && nextBodyProfile.heightInches && nextBodyProfile.weightLbs);
+  const shouldSaveSetup = Boolean(supportLocation) && (hasBodyBaseline || /\b(beginner|intermediate|advanced|gym|dumbbell|bodyweight|goal|fat loss|muscle|both)\b/.test(command));
+
+  if (!shouldSaveSetup) return null;
+
+  const activeLoadout = makeHelmetStarterLoadout(rawCommand, nextBodyProfile);
+  const saved = saveData({
+    profile: {
+      ...current.profile,
+      name: current.profile.name || 'Iron Warrior',
+      why: current.profile.why || 'Discipline today. Freedom tomorrow.',
+      focus: current.profile.focus || 'sobriety-strength-discipline',
+      transformationGoal: current.profile.transformationGoal || activeLoadout.goal,
+      supportLocation,
+    },
+    bodyProfile: nextBodyProfile,
+    activeLoadout,
+  });
+
+  return { saved, activeLoadout };
 };
 
 const parseCravingLevel = (command: string, fallback = 2) => {
@@ -361,9 +442,15 @@ const TalkCoach = () => {
 
   useEffect(() => {
     const commandParam = searchParams.get('command');
-    if (commandParam !== 'first-proof' && commandParam !== 'post-first-card' && commandParam !== 'second-receipt') return undefined;
+    if (commandParam !== 'first-proof' && commandParam !== 'post-first-card' && commandParam !== 'second-receipt' && commandParam !== 'iron-setup') return undefined;
 
     const frame = window.requestAnimationFrame(() => {
+      if (commandParam === 'iron-setup') {
+        setMessage(ironSetupCommand);
+        setCommandReply('Helmet setup loaded. Tell Talk your city first, then body details, and Iron Habit will wire Meetings + Train around your answers.');
+        return;
+      }
+
       if (commandParam === 'post-first-card') {
         setMessage(postFirstCardCommand);
         setPostFirstCardVisible(true);
@@ -490,6 +577,25 @@ const TalkCoach = () => {
     setFirstProofMove(null);
     setSecondReceiptMove(null);
     setPostFirstCardVisible(false);
+
+    if (/(iron habit setup|helmet setup|start my iron|city.*height.*weight|meetings.*starter split)/.test(command)) {
+      setCommandReply('Helmet setup: start with your city, then send height, weight, age, goal, level, and equipment. Example: “I live in Burnaby BC. I’m 5\'10, 200 lbs, 30, want fat loss and muscle, beginner, full gym.”');
+      return;
+    }
+
+    const helmetSetup = parseHelmetSetupFromCommand(rawCommand);
+    if (helmetSetup) {
+      setBodyProfile(helmetSetup.saved.bodyProfile);
+      setDataSnapshot(helmetSetup.saved);
+      setSelectedId(helmetSetup.activeLoadout.templateId);
+      setGoal(helmetSetup.activeLoadout.goal);
+      setLevel(helmetSetup.activeLoadout.level);
+      setTime(helmetSetup.activeLoadout.time);
+      setSavedMessage(`${helmetSetup.activeLoadout.title} saved to Train.`);
+      setSupportReward(`${helmetSetup.saved.profile.supportLocation} is loaded as your Meetings base. Train has ${helmetSetup.activeLoadout.label} ready now.`);
+      setCommandReply(`Helmet on. ${helmetSetup.saved.profile.supportLocation} is saved for Meetings, ${helmetSetup.saved.bodyProfile.weightLbs || 'body'} baseline is logged, and ${helmetSetup.activeLoadout.title} is loaded in Train. Today, Meetings, Rescue, Proof, and Train are now wired around your setup.`);
+      return;
+    }
 
     if (/(stack|build|make|create|start|log).*(second|next|another).*(receipt|proof|victory)|(?:second|next|another).*(receipt|proof|victory)/.test(command)) {
       const secondReceiptMove = getSecondReceiptPath();

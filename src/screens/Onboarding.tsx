@@ -36,14 +36,17 @@ const Onboarding = () => {
   const baselineChecklist = [
     { label: 'Name or nickname', ready: Boolean(profile.name.trim()) },
     { label: 'Sobriety start date', ready: Boolean(profile.sobrietyDate.trim()) },
-    { label: 'Why / goal', ready: profile.why.trim() !== defaultData.profile.why.trim() },
-    { label: 'Support contact', ready: Boolean(profile.supportName.trim() && profile.supportPhone.trim()) },
+    { label: 'City / support area', ready: Boolean(profile.supportLocation.trim()) },
+    { label: 'Support contact (recommended)', ready: Boolean(profile.supportName.trim() && profile.supportPhone.trim()) },
+    { label: 'Body stats', ready: Boolean(bodyProfile.age.trim() && bodyProfile.heightInches.trim() && bodyProfile.weightLbs.trim()) },
+    { label: 'Goal', ready: Boolean(bodyProfile.bodyGoal.trim()) },
   ];
   const needsSetup = ![
     { ready: Boolean(data.profile.name.trim()) },
     { ready: Boolean(data.profile.sobrietyDate.trim()) },
-    { ready: data.profile.why.trim() !== defaultData.profile.why.trim() },
-    { ready: Boolean(data.profile.supportName.trim() && data.profile.supportPhone.trim()) },
+    { ready: Boolean(data.profile.supportLocation.trim()) },
+    { ready: Boolean(data.bodyProfile.age.trim() && data.bodyProfile.heightInches.trim() && data.bodyProfile.weightLbs.trim()) },
+    { ready: Boolean(data.bodyProfile.bodyGoal.trim()) },
   ].every((item) => item.ready);
   const displayDay = Math.max(1, calculateSobrietyStreak());
   const workoutDays = new Set(data.fitnessEntries.map((entry) => entry.date)).size;
@@ -93,9 +96,9 @@ const Onboarding = () => {
   const supportReady = hasSupportContact(profile);
   const demoProofReady = Boolean(activeLoadout && latestProof && Object.keys(data.checkIns).length >= 7);
   const launchSteps = [
-    { step: '1', title: 'Open baseline setup', detail: 'Add your name, why, sobriety start date, and support contact.' },
-    { step: '2', title: 'Save the first check-in', detail: 'Lock in mood, craving, and sober status before the day gets loud.' },
-    { step: '3', title: 'Use Talk or Rescue', detail: 'Route commands to meetings, proof, training, and emergency help.' },
+    { step: '1', title: 'Tell Talk your city', detail: 'Iron Habit saves your support area and loads the Meetings tab around it.' },
+    { step: '2', title: 'Give body details', detail: 'Height, weight, age, goal, level, and equipment shape the starter split.' },
+    { step: '3', title: 'Enter with the plan loaded', detail: 'Meetings, Rescue, Train, Proof, and Today stop feeling empty.' },
   ];
 
   useEffect(() => {
@@ -306,26 +309,52 @@ const Onboarding = () => {
 
   return (
     <div className="page warrior-page stack-lg">
-      <section className="warrior-hero">
-        <div className="hero-tag-bar">{heroTag}</div>
-        {milestoneInfo && <div className="hero-milestone">{milestoneInfo.emoji} {milestoneInfo.label} UNLOCKED</div>}
-        <div className="hero-top-bar">
-          <div className="hero-left">
-            <span className="hero-day">DAY {displayDay}</span>
-            <h1>SOBER</h1>
+      {needsSetup ? (
+        <section className="warrior-hero helmet-onboarding-hero">
+          <div className="hero-tag-bar">Helmet onboarding</div>
+          <div className="helmet-stage" aria-hidden="true">
+            <div className="warrior-ring intro-ring">
+              <div className="helmet-core shredded-helmet">
+                <div className="helmet-plume" />
+                <div className="helmet-face">IH</div>
+              </div>
+            </div>
           </div>
-          <Link to={rescuePath} className="btn btn-danger btn-hero-rescue">
-            🆘 {highCraving ? 'Emergency Chain' : 'Rescue'}
-          </Link>
-        </div>
-        <p className="hero-why">{nextBestMove}</p>
-      </section>
+          <div className="helmet-copy">
+            <span className="hero-day">PUT THE HELMET ON</span>
+            <h1>START WITH TALK</h1>
+            <p>
+              Tell Iron Habit your city, sober baseline, height, weight, age, goal, level, and equipment once.
+              Then Meetings, Train, Rescue, Proof, and Today open with your support area and starter split already loaded.
+            </p>
+          </div>
+          <div className="hero-actions helmet-actions">
+            <Link to="/talk?command=iron-setup" className="btn btn-primary">Press Talk to Start</Link>
+            <Link to={rescuePath} className="btn btn-danger">I Need Rescue Now</Link>
+          </div>
+        </section>
+      ) : (
+        <section className="warrior-hero">
+          <div className="hero-tag-bar">{heroTag}</div>
+          {milestoneInfo && <div className="hero-milestone">{milestoneInfo.emoji} {milestoneInfo.label} UNLOCKED</div>}
+          <div className="hero-top-bar">
+            <div className="hero-left">
+              <span className="hero-day">DAY {displayDay}</span>
+              <h1>SOBER</h1>
+            </div>
+            <Link to={rescuePath} className="btn btn-danger btn-hero-rescue">
+              🆘 {highCraving ? 'Emergency Chain' : 'Rescue'}
+            </Link>
+          </div>
+          <p className="hero-why">{nextBestMove}</p>
+        </section>
+      )}
 
       {needsSetup && (
         <section className="card first-user-card stack-sm">
           <span className="tag danger-tag">First launch</span>
-          <h2>Get to a working baseline in one setup block.</h2>
-          <p>Finish the baseline first: name, sobriety start date, why, and a real support contact. Then Today, check-ins, Talk, Train, and Rescue can personalize the next move.</p>
+          <h2>Answer once. Iron Habit loads the plan.</h2>
+          <p>Talk collects your city, recovery base, body stats, goal, and equipment so the Meetings chart, starter split, daily mission, and Rescue path are ready before you enter the app.</p>
           <div className="launch-step-strip" aria-label="First launch steps">
             {launchSteps.map((item) => (
               <div key={item.step} className="launch-step">
@@ -344,8 +373,8 @@ const Onboarding = () => {
             ))}
           </div>
           <div className="hero-actions">
-            <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
-            <Link to="/setup-profile?focus=support" className="btn btn-secondary">Add support contact</Link>
+            <Link to="/talk?command=iron-setup" className="btn btn-primary">Start Setup with Talk</Link>
+            <button type="button" className="btn btn-secondary" onClick={openSetup}>Manual setup</button>
           </div>
         </section>
       )}
@@ -385,8 +414,8 @@ const Onboarding = () => {
       {needsSetup ? (
         <section className="card stack-sm setup-lock-card">
           <span className="tag danger-tag">Today locked</span>
-          <h2>Unlock the full dashboard after baseline setup.</h2>
-          <p>Today stays simple until you save name, sobriety start date, why, and a safe person to text.</p>
+          <h2>Unlock the full dashboard after helmet setup.</h2>
+          <p>Today stays simple until Talk saves your city/support area, body stats, goal, and starter split. A safe person is still recommended inside setup.</p>
           <div className="mission-brief-grid">
             {baselineChecklist.map((item) => (
               <div key={item.label}>
