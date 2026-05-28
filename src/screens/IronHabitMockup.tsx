@@ -99,46 +99,45 @@ export function WelcomeSplash() {
   return (
     <section className="ih-page ih-splash">
       <PhoneStatus />
-      <HelmetCoach />
-      <div className="ih-logo-block">
-        <span>IRON</span>
-        <b>HABIT</b>
+      <div className="ih-splash-stage">
+        <HelmetCoach />
+        <div className="ih-logo-block" aria-label="Iron Habit">
+          <span>IRON</span>
+          <b>HABIT</b>
+        </div>
+        <p className="ih-splash-copy">PUT THE HELMET ON.<br />ONE TALK BUILDS THE APP.<br />LOCK IN TODAY.</p>
       </div>
-      <p className="ih-splash-copy">PUT THE HELMET ON.<br />TALK TO THE APP.<br />LOCK IN TODAY.</p>
-      <Link to="/onboarding" className="ih-primary ih-wide">🎙 TALK TO START <small>Your AI coach is ready.</small></Link>
+      <Link to="/onboarding" className="ih-primary ih-wide ih-talk-start">🎙 TALK TO START <small>Your AI coach is ready.</small></Link>
     </section>
   );
 }
 
+const onboardingSteps = [
+  { label: '01 / CITY + RECOVERY', title: 'WHERE ARE YOU BUILDING FROM?', copy: 'City, meetings base, and sober baseline.', body: <><label className="ih-input"><span>⌕</span><input placeholder="Enter your city" defaultValue="" /></label><div className="ih-chip-grid"><button>Just starting</button><button>Few days</button><button>Weeks</button><button>Months+</button></div></> },
+  { label: '02 / BODY BASICS', title: 'YOUR BASICS. LOCK IT IN.', copy: 'Height, weight, age, gender. No fluff.', body: <div className="ih-field-grid">{['Height', 'Weight', 'Age', 'Gender'].map((field) => <div className="ih-field" key={field}>{field}<b>—</b></div>)}</div> },
+  { label: '03 / TARGET', title: 'WHAT ARE WE BUILDING?', copy: 'Pick the transformation target.', body: <>{['🔥 Fat Loss', '💪 Muscle', '⚔ Both'].map((item) => <button className="ih-option" key={item}>{item}<small>{item.includes('Both') ? 'Recomp. Strong and lean.' : item.includes('Fat') ? 'Burn fat. Get sharp.' : 'Add size. Add strength.'}</small></button>)}</> },
+  { label: '04 / TRAINING LEVEL', title: 'CHOOSE YOUR LEVEL.', copy: 'The plan matches your floor, then raises it.', body: <>{['Beginner', 'Intermediate', 'Advanced', 'Elite'].map((item) => <button className="ih-option" key={item}>{item}<small>{item === 'Beginner' ? 'Build the base safely.' : 'Progression ready.'}</small></button>)}</> },
+];
+
 export function OnboardingFlow() {
   return (
-    <section className="ih-page ih-flow">
+    <section className="ih-page ih-flow ih-onboarding-page">
       <PhoneStatus />
-      <BrandHeader step="1 OF 8" />
-      <div className="ih-card ih-question">
-        <h1>WHERE ARE YOU BUILDING FROM?</h1>
-        <p>Your city / support area helps us find you the right support.</p>
-        <label className="ih-input"><span>⌕</span><input placeholder="Enter your city" defaultValue="" /></label>
-        <h3>What’s your recovery baseline?</h3>
-        <div className="ih-chip-grid"><button>Just Starting</button><button>A Few Days</button><button>Weeks</button><button>Months+</button></div>
+      <BrandHeader step="SETUP" />
+      <div className="ih-onboarding-hero">
+        <HelmetCoach small />
+        <div><small>IRON SETUP</small><h1>TALK ONCE. APP PRELOADS.</h1><p>Meetings, Train, Fuel, Today, and Proof get wired around your baseline.</p></div>
       </div>
-      <div className="ih-card ih-question">
-        <h1>YOUR BASICS. LET’S LOCK IT IN.</h1>
-        <p>This helps us build your personal plan.</p>
-        {['Height -- cm', 'Weight -- kg', 'Age --', 'Gender Select'].map((field) => <div className="ih-field" key={field}>{field}</div>)}
-      </div>
-      <div className="ih-card ih-question">
-        <h1>WHAT’S YOUR TARGET?</h1>
-        <p>We’ll build your plan around it.</p>
-        {['🔥 Fat Loss — Burn fat. Get lean.', '💪 Muscle Gain — Build muscle. Get strong.', '⚔ Both — Recomp. Best of both.'].map((item) => <button className="ih-option" key={item}>{item}</button>)}
-      </div>
-      <div className="ih-card ih-question">
-        <h1>YOUR TRAINING LEVEL?</h1>
-        <p>Be honest. This keeps you safe and progressing.</p>
-        {['Beginner — New to training', 'Intermediate — Some experience', 'Advanced — Trained for a while', 'Elite — Very experienced'].map((item) => <button className="ih-option" key={item}>{item}</button>)}
-      </div>
-      <div className="ih-card ih-complete">
-        <div><h1>ALL SET. LET’S BUILD YOU.</h1><p>Your plan is loading. Let’s get to work.</p></div>
+      {onboardingSteps.map((step) => (
+        <div className="ih-card ih-question ih-step-card" key={step.label}>
+          <small>{step.label}</small>
+          <h1>{step.title}</h1>
+          <p>{step.copy}</p>
+          {step.body}
+        </div>
+      ))}
+      <div className="ih-card ih-complete ih-final-checklist">
+        <div><small>05 / ALL SET</small><h1>ALL SET. LET’S BUILD YOU.</h1><p>Your support base, body profile, routine, and first mission are ready.</p></div>
         <HelmetCoach small />
         {['Profile Created', 'AI Plan Building', 'Local Support Found', 'Your First Mission Ready'].map((item) => <div className="ih-check" key={item}>✓ {item}</div>)}
       </div>

@@ -56,8 +56,9 @@ button { cursor: pointer; }
 
 .ih-screen-frame { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0; }
 .ih-page { min-height: 100%; padding: 8px 12px 118px; display: flex; flex-direction: column; gap: 10px; background-image: radial-gradient(circle at 50% 0, rgba(225,29,46,.08), transparent 31%), linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px); background-size: auto, 42px 42px, 42px 42px; }
-.ih-splash { justify-content: flex-end; padding-bottom: 22px; text-align: center; overflow: hidden; }
+.ih-splash { justify-content: space-between; padding-bottom: 18px; text-align: center; overflow: hidden; }
 .ih-flow { padding-bottom: 18px; }
+.ih-splash-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
 
 .ih-status { display: flex; justify-content: space-between; align-items: center; font-size: .72rem; font-weight: 800; letter-spacing: -.02em; color: #f8fafc; opacity: .9; padding: 2px 4px 4px; }
 .ih-header { display: grid; grid-template-columns: 34px 1fr 54px; align-items: center; min-height: 34px; }
@@ -75,10 +76,11 @@ button { cursor: pointer; }
 .ih-coach-small .ih-coach-photo { width: 104px; max-height: 112px; }
 .ih-coach-small .ih-red-beam { height: 66%; top: 22%; width: 3px; opacity: .75; }
 
-.ih-logo-block { margin-top: -16px; display: grid; gap: 0; font-family: Anton, Impact, sans-serif; letter-spacing: .18em; line-height: .9; text-shadow: 0 0 24px rgba(255,255,255,.1); }
-.ih-logo-block span { font-size: clamp(4.2rem, 22vw, 6.7rem); color: #d4d4d8; }
-.ih-logo-block b { font-size: 1.4rem; color: var(--red); letter-spacing: .42em; }
+.ih-logo-block { margin-top: -20px; display: grid; gap: 0; font-family: Anton, Impact, sans-serif; letter-spacing: .18em; line-height: .86; text-shadow: 0 0 24px rgba(255,255,255,.1); }
+.ih-logo-block span { font-size: clamp(4.8rem, 25vw, 7.6rem); color: #d4d4d8; transform: scaleX(1.08); }
+.ih-logo-block b { font-size: 1.55rem; color: var(--red); letter-spacing: .5em; margin-left: .42em; text-shadow: 0 0 20px rgba(225,29,46,.46); }
 .ih-splash-copy { color: #fff; font-weight: 900; letter-spacing: .08em; line-height: 1.35; }
+.ih-talk-start { min-height: 64px; border-radius: 18px; font-size: 1.05rem; }
 
 .ih-primary, .ih-secondary { border: 0; border-radius: 12px; min-height: 54px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; padding: 13px 16px; font-weight: 950; letter-spacing: .02em; text-transform: uppercase; }
 .ih-primary { background: linear-gradient(180deg, #e11d2e, #930f19); color: white; box-shadow: inset 0 1px rgba(255,255,255,.24), 0 14px 34px rgba(225,29,46,.22); }
@@ -91,6 +93,18 @@ button { cursor: pointer; }
 .ih-card p, .ih-page p { color: var(--muted); margin: 4px 0 10px; line-height: 1.45; }
 .ih-question { display: grid; gap: 10px; }
 .ih-question h1 { font-size: 1.75rem; }
+.ih-onboarding-page { gap: 9px; background-image: radial-gradient(circle at 50% 0, rgba(225,29,46,.18), transparent 29%), linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px); }
+.ih-onboarding-hero { display: grid; grid-template-columns: 88px 1fr; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(225,29,46,.3); border-radius: 22px; background: radial-gradient(circle at 18% 0, rgba(225,29,46,.3), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.92), rgba(5,6,8,.98)); }
+.ih-onboarding-hero .ih-coach-small { min-height: 82px; width: 82px; flex-basis: 82px; }
+.ih-onboarding-hero small, .ih-step-card > small, .ih-final-checklist small { color: var(--red); font-weight: 950; letter-spacing: .12em; font-size: .64rem; text-transform: uppercase; }
+.ih-onboarding-hero h1 { font-size: 1.7rem; margin-bottom: 4px; }
+.ih-onboarding-hero p { font-size: .8rem; margin-bottom: 0; }
+.ih-step-card { position: relative; overflow: hidden; padding: 12px; border-radius: 20px; background: radial-gradient(circle at 100% 0, rgba(225,29,46,.14), transparent 30%), linear-gradient(180deg, rgba(22,24,28,.95), rgba(6,7,9,.98)); }
+.ih-step-card::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 999px; background: linear-gradient(var(--red), #4b050b); box-shadow: 0 0 18px rgba(225,29,46,.6); }
+.ih-step-card h1 { font-size: 1.48rem; }
+.ih-step-card p { font-size: .82rem; margin-bottom: 4px; }
+.ih-field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.ih-option small { display: block; margin-top: 4px; color: var(--muted); font-size: .68rem; font-weight: 700; }
 .ih-input, .ih-field, .ih-command textarea { width: 100%; border-radius: 12px; background: #0b0c0f; border: 1px solid var(--line); min-height: 50px; display: flex; align-items: center; gap: 10px; padding: 0 12px; color: #d1d5db; }
 .ih-input input { width: 100%; background: transparent; border: 0; outline: none; }
 .ih-field { justify-content: space-between; color: #e5e7eb; }
