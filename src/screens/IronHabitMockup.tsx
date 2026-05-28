@@ -149,26 +149,47 @@ export function OnboardingFlow() {
 
 export function TodayPage() {
   const { day } = useMockData();
-  const missions = ['Morning Check-in', 'Push Workout', 'Hit Protein Goal', '10k Steps', 'Night Reflection'];
+  const missions = [
+    { label: 'Morning Check-in', detail: 'Protect the streak first.', status: '✓', done: true },
+    { label: 'Push Workout', detail: 'Chest, delts, triceps.', status: '✓', done: true },
+    { label: 'Hit Protein Goal', detail: 'Fuel the rebuild.', status: '185 / 220g' },
+    { label: '10k Steps', detail: 'Move the stress out.', status: '6,432 / 10k' },
+    { label: 'Night Reflection', detail: 'Close the loop sober.', status: '○' },
+  ];
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-real-today">
       <PhoneStatus />
       <BrandHeader />
-      <HelmetCoach />
-      <div className="ih-dashboard-hero">
-        <small>TODAY’S MISSION</small>
-        <h1>{day} <span>DAYS SOBER</span></h1>
-        <b>⚔ IRON PHASE II</b>
-      </div>
-      <div className="ih-stat-grid four">
-        <StatCard label="Discipline" value="78%" tone="green" />
-        <StatCard label="Train" value="3/4" tone="red" />
-        <StatCard label="Fuel" value="78%" tone="amber" />
-        <StatCard label="Mind" value="2/3" tone="blue" />
+      <section className="ih-real-today-hero" aria-label="Today mission dashboard">
+        <HelmetCoach />
+        <div className="ih-dashboard-hero ih-real-dashboard-hero">
+          <small>TODAY’S MISSION</small>
+          <h1>{day} <span>DAYS SOBER</span></h1>
+          <b>⚔ IRON PHASE II</b>
+          <p>One day. One body. One mission stack. Follow the orders and keep the proof moving.</p>
+        </div>
+        <div className="ih-action-row ih-real-action-row">
+          <Link to="/talk" className="ih-primary">TALK TO IRON</Link>
+          <Link to="/rescue" className="ih-secondary">RESCUE</Link>
+        </div>
+      </section>
+      <div className="ih-stat-grid four ih-real-stat-grid">
+        <StatCard label="Discipline" value="78%" tone="green" sub="Orders locked" />
+        <StatCard label="Train" value="3/4" tone="red" sub="Push week" />
+        <StatCard label="Fuel" value="78%" tone="amber" sub="Protein rising" />
+        <StatCard label="Mind" value="2/3" tone="blue" sub="Calm reps" />
       </div>
       <div className="ih-card">
-        <h2>TODAY’S ORDERS</h2>
-        {missions.map((mission, index) => <div className="ih-mission" key={mission}><span>{index + 1}</span>{mission}<b>{index < 2 ? '✓' : index === 2 ? '185 / 220g' : index === 3 ? '6,432 / 10k' : '○'}</b></div>)}
+        <div className="section-title-row"><div><small>DAILY COMMAND</small><h2>TODAY’S ORDERS</h2></div><b>2 / 5</b></div>
+        <div className="ih-real-orders-list">
+          {missions.map((mission, index) => (
+            <div className={`ih-mission ${mission.done ? 'mission-complete' : ''}`.trim()} key={mission.label}>
+              <span>{index + 1}</span>
+              <div><strong>{mission.label}</strong><small>{mission.detail}</small></div>
+              <b>{mission.status}</b>
+            </div>
+          ))}
+        </div>
       </div>
       <Link to="/talk" className="ih-primary ih-wide">🎙 TALK TO IRON</Link>
     </section>
