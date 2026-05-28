@@ -198,15 +198,23 @@ export function TodayPage() {
 
 export function TalkPage() {
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-talk-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-card ih-ai-card"><HelmetCoach small /><div><small>IRON AI COACH</small><h1>Talk to the app. Lock in the next move.</h1><p>Commands route your training, meetings, fuel, rescue, and proof.</p></div></div>
-      <label className="ih-command"><textarea defaultValue="I live in Burnaby BC. I’m 5'10, 200 lbs, 30, want fat loss and muscle, beginner, full gym." /></label>
-      <div className="ih-chip-grid talk">
+      <div className="ih-card ih-ai-card ih-talk-hero">
+        <HelmetCoach small />
+        <div>
+          <small>IRON COMMAND CENTER</small>
+          <h1>TALK TO THE APP. LOCK THE NEXT MOVE.</h1>
+          <p>One command can preload meetings, training, fuel, rescue, and proof.</p>
+        </div>
+      </div>
+      <label className="ih-command ih-talk-command"><textarea defaultValue="I live in Burnaby BC. I’m 5'10, 200 lbs, 30, want fat loss and muscle, beginner, full gym." /></label>
+      <div className="ih-chip-grid talk ih-talk-chip-grid">
         {['I’m craving', 'Build workout', 'Find meetings', 'Log meal', 'Log workout', 'Make proof card', 'What’s my next move?'].map((chip) => <button key={chip}>{chip}</button>)}
       </div>
-      <div className="ih-card ih-success">
+      <div className="ih-card ih-success ih-talk-loaded-card">
+        <small>SETUP RESULT</small>
         <h2>HELMET ON. PLAN LOADED.</h2>
         <p>Meetings, Train, Rescue, Today, Fuel, and Proof are wired around your baseline.</p>
         <div className="ih-action-row"><Link to="/today">Enter Today</Link><Link to="/meetings">View Meetings</Link><Link to="/train">Start Routine</Link></div>

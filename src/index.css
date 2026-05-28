@@ -145,6 +145,19 @@ button { cursor: pointer; }
 .ih-success { border-color: rgba(52,211,153,.35); box-shadow: 0 0 30px rgba(52,211,153,.06); }
 .ih-action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .ih-action-row a, .ih-action-row button { min-height: 44px; border-radius: 12px; border: 1px solid rgba(225,29,46,.38); background: rgba(225,29,46,.08); color: #fff; display: grid; place-items: center; text-align: center; font-weight: 900; font-size: .75rem; padding: 8px; }
+.ih-talk-page { gap: 8px; background: radial-gradient(circle at 50% 0, rgba(225,29,46,.18), transparent 32%), #040405; }
+.ih-talk-hero { padding: 10px 12px; border-radius: 22px; border-color: rgba(225,29,46,.28); background: radial-gradient(circle at 0 0, rgba(225,29,46,.28), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.9), rgba(5,6,8,.98)); box-shadow: inset 0 1px rgba(255,255,255,.04), 0 18px 36px rgba(0,0,0,.26); }
+.ih-talk-hero .ih-coach-small { min-height: 78px; width: 78px; flex-basis: 78px; }
+.ih-talk-hero .ih-coach-small .ih-coach-photo { width: 90px; max-height: 98px; }
+.ih-talk-hero small, .ih-talk-loaded-card > small { color: var(--red); font-weight: 950; letter-spacing: .12em; font-size: .64rem; text-transform: uppercase; }
+.ih-talk-hero h1 { font-size: 1.48rem; margin-bottom: 4px; }
+.ih-talk-hero p { font-size: .8rem; margin-bottom: 0; }
+.ih-talk-command textarea { height: 96px; border-color: rgba(225,29,46,.24); background: linear-gradient(180deg, rgba(13,14,17,.98), rgba(5,6,8,.98)); font-size: .82rem; line-height: 1.35; }
+.ih-talk-chip-grid { gap: 7px; }
+.ih-talk-chip-grid button { min-height: 42px; padding: 8px 10px; border-color: rgba(225,29,46,.22); background: rgba(225,29,46,.07); font-size: .78rem; text-transform: uppercase; }
+.ih-talk-loaded-card { padding: 11px 12px; border-color: rgba(52,211,153,.28); background: radial-gradient(circle at 100% 0, rgba(52,211,153,.12), transparent 32%), linear-gradient(180deg, rgba(18,24,22,.9), rgba(6,8,8,.98)); }
+.ih-talk-loaded-card h2 { font-size: 1.45rem; }
+.ih-talk-loaded-card p { font-size: .8rem; margin-bottom: 8px; }
 
 .ih-tabs { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
 .ih-tabs b { color: var(--red); border-bottom: 2px solid var(--red); padding-bottom: 8px; }
