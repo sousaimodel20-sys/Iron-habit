@@ -6,14 +6,15 @@ const coachImage = '/mockup-assets/helmet-coach.svg';
 const splitImage = '/mockup-assets/split-coach.svg';
 const benchImage = '/mockup-assets/train-bench.svg';
 const mealImage = '/mockup-assets/meal-bowl.svg';
+const coachCardImage = '/mockup-assets/coach-card.svg';
 
 const splits = [
   { name: 'Push / Pull / Legs', meta: 'Classic 6 day split', accent: 'Chest • Back • Legs', days: '6 days', path: '/exercise?split=ppl', image: splitImage },
   { name: 'Upper / Lower', meta: '4 day balanced split', accent: 'Strength + balance', days: '4 days', path: '/exercise?split=upper-lower', image: benchImage },
-  { name: 'Bro Split', meta: 'Chest / Back / Arms / Legs', accent: 'High volume pump', days: '5 days', path: '/exercise?split=bro', image: splitImage },
+  { name: 'Bro Split', meta: 'Chest / Back / Arms / Legs', accent: 'High volume pump', days: '5 days', path: '/exercise?split=bro', image: coachCardImage },
   { name: 'Full Body', meta: 'Total body 3x per week', accent: 'Beginner base', days: '3 days', path: '/exercise?split=full-body', image: benchImage },
   { name: 'Athletic', meta: 'Strength + conditioning', accent: 'Explosive work', days: '5 days', path: '/exercise?split=athletic', image: splitImage },
-  { name: 'Calisthenics', meta: 'Bodyweight strength', accent: 'No excuses', days: '4 days', path: '/exercise?split=calisthenics', image: splitImage },
+  { name: 'Calisthenics', meta: 'Bodyweight strength', accent: 'No excuses', days: '4 days', path: '/exercise?split=calisthenics', image: coachCardImage },
   { name: 'Recovery', meta: 'Low impact, heal & rebuild', accent: 'Mobility + zone 2', days: '3 days', path: '/exercise?split=recovery', image: mealImage },
   { name: 'Custom Split', meta: 'Build your own week', accent: 'Pick muscles', days: 'Custom', path: '/exercise?split=custom', image: splitImage },
 ];
@@ -229,7 +230,7 @@ export function MeetingsPage() {
     <section className="ih-page ih-meetings-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT. YOU DON’T DO THIS ALONE.</h1><p>Meetings near {supportLocation}. Verified feed pending; official sources first.</p></div><HelmetCoach small /></div>
+      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT.<br />YOU DON’T DO<br />THIS ALONE.</h1><p>Meetings near {supportLocation}. Official sources first.</p></div><HelmetCoach small /></div>
       <div className="ih-location-bar"><span>⌖</span><div><small>Current support area</small><strong>{supportLocation}</strong></div><Link to="/talk">Change</Link></div>
       <div className="ih-tabs ih-pill-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
       <div className="ih-list">
