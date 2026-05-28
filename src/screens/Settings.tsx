@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, PageHeader } from '../components/UI';
+import { Card } from '../components/UI';
 import { defaultData, loadData, replaceData, resetData, type IronHabitData } from '../utils/storage';
 import { formatLocalDateKey } from '../utils/date';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const Settings = () => {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'success'>('idle');
@@ -108,10 +109,25 @@ const Settings = () => {
   };
 
   return (
-    <div className="page stack-lg">
-      <PageHeader eyebrow="Settings" title="Manage your Iron Habit data.">
-        Backup, restore, and control your app state.
-      </PageHeader>
+    <div className="page ih-page ih-real-settings warrior-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader step="SETUP" />
+
+      <section className="ih-card ih-ai-card ih-real-settings-hero" aria-label="Iron Habit setup control room">
+        <HelmetCoach small />
+        <div>
+          <small>SETUP CONTROL</small>
+          <h1>Manage your Iron Habit data.</h1>
+          <p>Profile, support chain, local backup, restore, and launch kit links — all kept on this device.</p>
+        </div>
+      </section>
+
+      <div className="ih-stat-grid four ih-real-settings-stat-grid" aria-label="Setup state snapshot">
+        <StatCard label="Profile" value={profile.name ? 'Ready' : 'Unset'} sub={profile.name || 'nickname'} tone={profile.name ? 'green' : 'red'} />
+        <StatCard label="Support" value={supportReady ? 'Ready' : 'Missing'} sub={supportReady ? profile.supportName : 'safe person'} tone={supportReady ? 'green' : 'amber'} />
+        <StatCard label="Backup" value={downloadStatus === 'success' ? 'Saved' : 'Local'} sub="device data" tone="blue" />
+        <StatCard label="Beta" value="1.0" sub="tester ready" tone="red" />
+      </div>
 
       <Card className="stack-sm settings-profile-card">
         <span className="tag danger-tag">Profile</span>

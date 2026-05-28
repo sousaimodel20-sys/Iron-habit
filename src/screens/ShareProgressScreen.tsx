@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { loadData, type IronHabitData } from '../utils/storage';
 import ShareableProgressCard, { type VictoryTemplate } from '../components/ShareableProgressCard';
-import { Button, Card, PageHeader } from '../components/UI';
+import { Button, Card } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { getCravingReceiptByDate, getCravingReceipts, getProofById } from '../utils/proofReceipts';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const templates: { id: VictoryTemplate; label: string; description: string }[] = [
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
@@ -193,10 +194,25 @@ const ShareProgressScreen = () => {
   };
 
   return (
-    <div className="page stack-lg content-studio-page">
-      <PageHeader eyebrow="TikTok Proof Pack" title={heroTitles[template]}>
-        Choose a proof angle, download a 9:16 Victory Card, then copy a hook, caption, hashtags, and video idea.
-      </PageHeader>
+    <div className="page ih-page ih-real-share share-progress-page stack-lg content-studio-page">
+      <PhoneStatus />
+      <BrandHeader step="SHARE" />
+
+      <section className="ih-card ih-ai-card ih-real-share-hero" aria-label="Iron Habit TikTok Proof Pack">
+        <HelmetCoach small />
+        <div>
+          <small>TIKTOK PROOF PACK</small>
+          <h1>{heroTitles[template]}</h1>
+          <p>Choose a proof angle, download a 9:16 Victory Card, then copy a hook, caption, hashtags, and video idea.</p>
+        </div>
+      </section>
+
+      <div className="ih-stat-grid four ih-real-share-stat-grid" aria-label="Share proof snapshot">
+        <StatCard label="Streak" value={`${streak}`} sub="days sober" tone="green" />
+        <StatCard label="Week" value={`${weeklyMinutes}m`} sub="training" tone="red" />
+        <StatCard label="Urge" value={`${latestCheckIn?.craving ?? 0}/10`} sub="latest" tone="amber" />
+        <StatCard label="Template" value={template.toUpperCase().slice(0, 7)} sub="angle" tone="blue" />
+      </div>
 
       <Card className="victory-proof-brief content-studio-hero stack-sm">
         <span className="tag danger-tag">Content Studio</span>

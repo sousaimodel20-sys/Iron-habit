@@ -768,21 +768,62 @@ select {
   font-weight: 900;
   text-align: center;
 }
+/* Final parity pass: Setup/Settings + Share keep the same helmet app chrome as the core flows. */
+.ih-real-settings,
+.ih-real-share {
+  padding-top: 10px;
+}
+.ih-real-settings-hero,
+.ih-real-share-hero {
+  border-color: rgba(225,29,46,.3);
+  background: radial-gradient(circle at 10% 0, rgba(225,29,46,.2), transparent 36%), linear-gradient(180deg, rgba(21,22,26,.95), rgba(5,6,8,.98));
+}
+.ih-real-settings-hero .ih-coach-small,
+.ih-real-share-hero .ih-coach-small {
+  width: 110px;
+  flex-basis: 110px;
+}
+.ih-real-settings .settings-profile-card,
+.ih-real-settings .card,
+.ih-real-share .victory-proof-brief,
+.ih-real-share .founder-launch-card,
+.ih-real-share .first-victory-share-cue,
+.ih-real-share .tiktok-post-card,
+.ih-real-share .victory-next-card,
+.ih-real-share .card {
+  border-color: rgba(225,29,46,.22);
+  background: radial-gradient(circle at 96% 0, rgba(225,29,46,.1), transparent 32%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(8,9,11,.98));
+}
+.ih-real-share .template-option.selected,
+.ih-real-share .content-studio-hero {
+  border-color: rgba(248,113,113,.44);
+  box-shadow: 0 0 34px rgba(225,29,46,.1);
+}
+.ih-real-settings-stat-grid .ih-stat,
+.ih-real-share-stat-grid .ih-stat {
+  min-height: 92px;
+}
 @media (max-width: 370px) {
   .ih-real-talk .ih-chip-grid.talk,
   .ih-real-talk-stat-grid,
   .ih-real-rescue-stat-grid,
-  .ih-real-proof-stat-grid {
+  .ih-real-proof-stat-grid,
+  .ih-real-settings-stat-grid,
+  .ih-real-share-stat-grid {
     grid-template-columns: 1fr;
   }
   .ih-real-talk-hero,
   .ih-real-rescue-hero,
-  .ih-real-proof-hero {
+  .ih-real-proof-hero,
+  .ih-real-settings-hero,
+  .ih-real-share-hero {
     align-items: flex-start;
   }
   .ih-real-talk-hero .ih-coach-small,
   .ih-real-rescue-hero .ih-coach-small,
-  .ih-real-proof-hero .ih-coach-small {
+  .ih-real-proof-hero .ih-coach-small,
+  .ih-real-settings-hero .ih-coach-small,
+  .ih-real-share-hero .ih-coach-small {
     width: 86px;
     flex-basis: 86px;
   }
