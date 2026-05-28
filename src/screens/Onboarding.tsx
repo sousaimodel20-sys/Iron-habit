@@ -18,6 +18,7 @@ const Onboarding = () => {
   const [setupOpen, setSetupOpen] = useState(() => {
     const current = loadData().profile;
     return searchParams.get('focus') === 'support'
+      || window.location.pathname === '/setup-profile'
       || !current.name.trim()
       || !current.sobrietyDate.trim()
       || current.why.trim() === defaultData.profile.why.trim()
@@ -98,12 +99,13 @@ const Onboarding = () => {
   ];
 
   useEffect(() => {
-    if (searchParams.get('focus') !== 'support') return;
+    if (searchParams.get('focus') !== 'support' && window.location.pathname !== '/setup-profile') return;
 
     const frame = window.requestAnimationFrame(() => {
       setSetupOpen(true);
       window.requestAnimationFrame(() => {
-        supportSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const target = searchParams.get('focus') === 'support' ? supportSectionRef.current : setupSectionRef.current;
+        target?.scrollIntoView({ behavior: 'smooth', block: searchParams.get('focus') === 'support' ? 'center' : 'start' });
       });
     });
 
@@ -322,8 +324,8 @@ const Onboarding = () => {
       {needsSetup && (
         <section className="card first-user-card stack-sm">
           <span className="tag danger-tag">First launch</span>
-          <h2>Get to a working baseline in three taps.</h2>
-          <p>Finish the baseline first: name, sobriety start date, why, and a real support contact. Then Today unlocks.</p>
+          <h2>Get to a working baseline in one setup block.</h2>
+          <p>Finish the baseline first: name, sobriety start date, why, and a real support contact. Then Today, check-ins, Talk, Train, and Rescue can personalize the next move.</p>
           <div className="launch-step-strip" aria-label="First launch steps">
             {launchSteps.map((item) => (
               <div key={item.step} className="launch-step">
@@ -343,8 +345,7 @@ const Onboarding = () => {
           </div>
           <div className="hero-actions">
             <button type="button" className="btn btn-primary" onClick={openSetup}>Open baseline setup</button>
-            <button type="button" className="btn btn-secondary" onClick={loadDemoBaseline}>Load demo mode</button>
-            <Link to="/check-in" className="btn btn-ghost">First check-in</Link>
+            <Link to="/setup-profile?focus=support" className="btn btn-secondary">Add support contact</Link>
           </div>
         </section>
       )}
@@ -647,7 +648,7 @@ const Onboarding = () => {
           </div>
           <div className="button-row">
             <Button onClick={handleSave}>Save profile</Button>
-            <Button variant="secondary" onClick={loadDemoBaseline}>Load demo mode</Button>
+            {needsSetup && <Button variant="secondary" onClick={loadDemoBaseline}>Load demo mode</Button>}
             <Button variant="ghost" onClick={quickStart}>Save starter draft</Button>
           </div>
           {saved && <p className="success-msg">Saved. Your Iron Habit baseline is locked in.</p>}

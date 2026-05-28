@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, PageHeader } from '../components/UI';
 import { defaultData, loadData, replaceData, resetData, type IronHabitData } from '../utils/storage';
 import { formatLocalDateKey } from '../utils/date';
@@ -10,6 +11,9 @@ const Settings = () => {
   const [importError, setImportError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const savedData = loadData();
+  const profile = savedData.profile;
+  const supportReady = Boolean(profile.supportName.trim() && profile.supportPhone.trim());
 
   const handleExportData = () => {
     try {
@@ -108,6 +112,24 @@ const Settings = () => {
       <PageHeader eyebrow="Settings" title="Manage your Iron Habit data.">
         Backup, restore, and control your app state.
       </PageHeader>
+
+      <Card className="stack-sm settings-profile-card">
+        <span className="tag danger-tag">Profile</span>
+        <h2>Your sober-fitness baseline</h2>
+        <p>
+          Settings is the control room: review your saved profile, edit the baseline, then back up before any reset.
+        </p>
+        <div className="mission-brief-grid">
+          <div><span>Name</span><strong>{profile.name || 'Not set'}</strong></div>
+          <div><span>Sober start</span><strong>{profile.sobrietyDate || 'Not set'}</strong></div>
+          <div><span>Support</span><strong>{supportReady ? profile.supportName : 'Missing'}</strong></div>
+        </div>
+        <div className="button-group stack-xs">
+          <Link to="/setup-profile" className="btn btn-primary">Edit profile</Link>
+          <Link to="/setup-profile?focus=support" className="btn btn-secondary">Edit support contact</Link>
+        </div>
+        <small>Your profile and support contact stay on this device. Export a backup before switching phones, clearing browser data, or resetting Iron Habit.</small>
+      </Card>
 
       <Card className="stack-sm">
         <span className="tag">Backup</span>

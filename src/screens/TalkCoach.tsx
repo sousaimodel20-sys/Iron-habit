@@ -931,6 +931,7 @@ const TalkCoach = () => {
         </div>
         <h2>If the urge spikes, do not negotiate.</h2>
         <p>Talk will save the emergency check-in first, open the 10-minute Rescue chain, then hand off to your support contact or meetings.</p>
+        <p className="support-contact-note">Iron Habit is support, not emergency care. If you may hurt yourself or someone else, call local emergency services now.</p>
         <div className="hero-actions command-actions">
           <button className="btn btn-danger" type="button" onClick={() => handleCommand('I am about to drink text my support person')}>Start emergency chain</button>
           {supportReady ? (

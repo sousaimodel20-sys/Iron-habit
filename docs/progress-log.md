@@ -1,5 +1,21 @@
 # Iron Habit Progress Log
 
+## 2026-05-27 — Phase 4 Real User Readiness closeout
+
+Phase 4 is feature-complete for the current launch-readiness path:
+
+- Settings now has a profile control card with name, sober start date, support-contact status, and direct edit links.
+- `/setup-profile` now opens and scrolls straight to the baseline form; `?focus=support` still opens the support-contact section.
+- First-launch copy now keeps users on the intended baseline path instead of sending them to check-in before setup is complete.
+- Demo mode is hidden once baseline setup is complete to reduce accidental overwrite risk for real users.
+- Settings trust copy now says profile/support data stays on-device and recommends backup before reset or device changes.
+- Talk’s craving safety rail now includes a clear crisis boundary: Iron Habit is support, not emergency care.
+- Cursor was used as read-only reviewer for each Phase 4 sprint; Hermes implemented, verified, shipped, and deployed.
+- Verification passed: `npm run test:daily-mission`, `npm run test:proof-receipts`, `npm run test:support-helpers`, `npm run test:emergency-support-chain`, `npm run test:talk-next-move`, `npm run lint`, and `npm run build`.
+- Browser smoke passed locally for `/setup-profile`, `/settings`, and `/talk` with zero console errors.
+
+Next phase: Phase 5 Launch Polish + Tester Push — final mobile polish, tester handoff, launch recording/copy, and feedback fixes.
+
 ## 2026-05-27 — Phase 3 Share/TikTok Engine session 1
 
 Phase 3 session 1 is feature-complete for the share-card and milestone surface:
