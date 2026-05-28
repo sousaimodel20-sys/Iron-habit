@@ -14,7 +14,6 @@ import WorkoutMode from './screens/WorkoutMode';
 import {
   ExerciseDetail,
   FuelPage,
-  TodayPage,
   WelcomeSplash,
 } from './screens/IronHabitMockup';
 
@@ -46,7 +45,7 @@ function AppLayout() {
           <Route path="/" element={<WelcomeSplash />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/setup-profile" element={<Onboarding />} />
-          <Route path="/today" element={<TodayPage />} />
+          <Route path="/today" element={<Onboarding />} />
           <Route path="/talk" element={<TalkCoach />} />
           <Route path="/meetings" element={<Meetings />} />
           <Route path="/train" element={<FitnessTracker />} />
