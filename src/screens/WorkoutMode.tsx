@@ -6,6 +6,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const today = () => formatLocalDateKey();
 
@@ -48,8 +49,20 @@ const WorkoutMode = () => {
 
   if (!loadout) {
     return (
-      <div className="page warrior-page workout-mode-page stack-lg">
-        <Card className="command-card sober-mission-card stack-sm">
+      <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
+        <PhoneStatus />
+        <BrandHeader step="WORKOUT" back />
+
+        <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Workout mode starter routine">
+          <HelmetCoach small />
+          <div>
+            <small>WORKOUT MODE</small>
+            <h1>No routine loaded.</h1>
+            <p>Start the sober-strength starter and turn today into proof.</p>
+          </div>
+        </section>
+
+        <Card className="command-card sober-mission-card stack-sm ih-real-train-mission">
           <div className="section-title-row mission-title-row">
             <span className="tag">Sober Strength Mission</span>
             <b>{missionState.completionLabel}</b>
@@ -142,8 +155,20 @@ const WorkoutMode = () => {
   if (finished) {
     const proof = victoryProof;
     return (
-      <div className="page warrior-page workout-mode-page stack-lg">
-        <Card className="command-card sober-mission-card stack-sm">
+      <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
+        <PhoneStatus />
+        <BrandHeader step="PROOF" back />
+
+        <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Workout proof saved">
+          <HelmetCoach small />
+          <div>
+            <small>WORKOUT CONQUERED</small>
+            <h1>Proof saved.</h1>
+            <p>Receipts beat promises. Build the card or stack the next move.</p>
+          </div>
+        </section>
+
+        <Card className="command-card sober-mission-card stack-sm ih-real-train-mission">
           <div className="section-title-row mission-title-row">
             <span className="tag">Sober Strength Mission</span>
             <b>{missionState.completionLabel}</b>
@@ -199,8 +224,20 @@ const WorkoutMode = () => {
   }
 
   return (
-    <div className="page warrior-page workout-mode-page stack-lg">
-      <Card className="command-card sober-mission-card stack-sm">
+    <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader step="ROUTINE" back />
+
+      <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Iron Habit routine sheet">
+        <HelmetCoach small />
+        <div>
+          <small>ROUTINE SHEET</small>
+          <h1>Check the work. Stack the proof.</h1>
+          <p>{loadout.title} is loaded. Finish when the sets are real.</p>
+        </div>
+      </section>
+
+      <Card className="command-card sober-mission-card stack-sm ih-real-train-mission">
         <div className="section-title-row mission-title-row">
           <span className="tag">Sober Strength Mission</span>
           <b>{missionState.completionLabel}</b>
@@ -241,10 +278,11 @@ const WorkoutMode = () => {
           {loadout.days.map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
         </div>
 
-        <div className="routine-summary-grid">
-          <span><b>{loadout.exercises.length}</b><small>exercises</small></span>
-          <span><b>{completedSets}/{totalSets}</b><small>sets done</small></span>
-          <span><b>{loadout.time}</b><small>target time</small></span>
+        <div className="ih-stat-grid four ih-real-workout-stat-grid" aria-label="Routine proof snapshot">
+          <StatCard label="Moves" value={`${loadout.exercises.length}`} sub="exercises" tone="red" />
+          <StatCard label="Sets" value={`${completedSets}/${totalSets}`} sub="checked" tone={allSetsDone ? 'green' : 'amber'} />
+          <StatCard label="Target" value={loadout.time} sub="training window" tone="blue" />
+          <StatCard label="Proof" value={`${progressPercent}%`} sub="receipt progress" tone="red" />
         </div>
         <div className="workout-progress-card" aria-label="Workout progress">
           <div><span>Workout proof</span><b>{progressPercent}%</b></div>

@@ -562,6 +562,145 @@ select {
   border-color: rgba(52,211,153,.32);
   background: radial-gradient(circle at 92% 0, rgba(52,211,153,.12), transparent 28%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(8,9,11,.98));
 }
+
+/* Real Train / Workout Mode visual-parity bridge: mockup chrome around live loadout/proof logic. */
+.ih-real-train,
+.ih-real-workout {
+  padding-top: 10px;
+}
+.ih-real-train-hero,
+.ih-real-workout-hero {
+  border-color: rgba(225,29,46,.3);
+  background: radial-gradient(circle at 12% 0, rgba(225,29,46,.2), transparent 36%), linear-gradient(180deg, rgba(21,22,26,.95), rgba(5,6,8,.98));
+}
+.ih-real-train-hero .ih-coach-small,
+.ih-real-workout-hero .ih-coach-small {
+  width: 110px;
+  flex-basis: 110px;
+}
+.ih-real-train-mission,
+.ih-real-train .active-program-card,
+.ih-real-train .proof-stack-card,
+.ih-real-train .training-log-card,
+.ih-real-workout .routine-sheet-card,
+.ih-real-workout .workout-nav-card,
+.ih-real-workout .workout-complete-card {
+  border-color: rgba(225,29,46,.22);
+  background: radial-gradient(circle at 95% 0, rgba(225,29,46,.11), transparent 30%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(8,9,11,.98));
+}
+.ih-real-train-stat-grid .ih-stat,
+.ih-real-workout-stat-grid .ih-stat {
+  min-height: 92px;
+}
+.ih-real-train .active-exercise-list,
+.ih-real-workout .routine-exercise-list,
+.ih-real-train .completed-loadout-list {
+  display: grid;
+  gap: 10px;
+}
+.ih-real-train .active-exercise-list span,
+.ih-real-workout .routine-exercise-row,
+.ih-real-train .completed-loadout-list article,
+.ih-real-train .list-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.035);
+  padding: 10px;
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.ih-real-workout .routine-exercise-row {
+  display: grid;
+  grid-template-columns: 32px 84px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.ih-real-workout .routine-exercise-index {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(225,29,46,.16);
+  color: #fecaca;
+  font-weight: 950;
+}
+.ih-real-workout .routine-exercise-demo,
+.ih-real-train .active-exercise-media-list img {
+  width: 84px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(225,29,46,.28);
+  background: radial-gradient(circle at 70% 15%, rgba(225,29,46,.42), transparent 30%), #0b0c0f;
+}
+.ih-real-workout .routine-exercise-demo-placeholder {
+  display: grid;
+  place-items: center;
+  color: #fca5a5;
+  font-size: 1.4rem;
+}
+.ih-real-workout .set-check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.ih-real-workout .set-check {
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(225,29,46,.28);
+  background: rgba(255,255,255,.045);
+  color: #fff;
+  font-weight: 950;
+}
+.ih-real-workout .set-check.done {
+  background: linear-gradient(180deg, #e11d2e, #8f1019);
+  border-color: rgba(255,255,255,.16);
+}
+.ih-real-workout .workout-progress-card,
+.ih-real-workout .first-victory-cue {
+  border: 1px solid rgba(225,29,46,.22);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(225,29,46,.08);
+}
+.ih-real-workout .workout-progress-card i {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,.08);
+}
+.ih-real-workout .workout-progress-card em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e11d2e, #fca5a5);
+}
+@media (max-width: 370px) {
+  .ih-real-train-stat-grid,
+  .ih-real-workout-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ih-real-workout .routine-exercise-row {
+    grid-template-columns: 28px 68px 1fr;
+  }
+  .ih-real-workout .routine-exercise-demo,
+  .ih-real-train .active-exercise-media-list img {
+    width: 68px;
+    height: 56px;
+  }
+  .ih-real-train-hero,
+  .ih-real-workout-hero {
+    align-items: flex-start;
+  }
+  .ih-real-train-hero .ih-coach-small,
+  .ih-real-workout-hero .ih-coach-small {
+    width: 86px;
+    flex-basis: 86px;
+  }
+}
 @media (max-width: 370px) {
   .ih-real-talk .ih-chip-grid.talk,
   .ih-real-talk-stat-grid {

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card, Field, PageHeader, Stat } from '../components/UI';
+import { Button, Card, Field } from '../components/UI';
 import { loadData, saveData, type ActiveLoadout, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
@@ -137,12 +138,20 @@ const FitnessTracker = () => {
   };
 
   return (
-    <div className="page stack-lg">
-      <PageHeader eyebrow="Training Log" title="Train like you’re rebuilding your life.">
-        Log training sessions and show proof that your new habits are changing your body and mind.
-      </PageHeader>
+    <div className="page ih-page ih-real-train warrior-page fitness-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader step="TRAIN" />
 
-      <Card className="command-card sober-mission-card stack-sm">
+      <section className="ih-card ih-ai-card ih-real-train-hero" aria-label="Iron Habit training command deck">
+        <HelmetCoach small />
+        <div>
+          <small>TRAINING DECK</small>
+          <h1>Train like you’re rebuilding your life.</h1>
+          <p>Routine first. Proof second. No dead ends, no babying — just the next receipt.</p>
+        </div>
+      </section>
+
+      <Card className="command-card sober-mission-card stack-sm ih-real-train-mission">
         <div className="section-title-row mission-title-row">
           <span className="tag">Sober Strength Mission</span>
           <b>{missionState.completionLabel}</b>
@@ -169,10 +178,11 @@ const FitnessTracker = () => {
         </div>
       </Card>
 
-      <div className="stats-grid">
-        <Stat label="sessions" value={entries.length} />
-        <Stat label="minutes" value={totalMinutes} tone="gold" />
-        <Stat label="recent logs" value={thisWeek} />
+      <div className="ih-stat-grid four ih-real-train-stat-grid" aria-label="Training state snapshot">
+        <StatCard label="Sessions" value={`${entries.length}`} sub="proof logs" tone="red" />
+        <StatCard label="Minutes" value={`${totalMinutes}`} sub="total trained" tone="amber" />
+        <StatCard label="Recent" value={`${thisWeek}`} sub="latest logs" tone="blue" />
+        <StatCard label="Routine" value={activeLoadout ? 'Loaded' : 'Starter'} sub={activeLoadout?.label || 'one tap'} tone={activeLoadout ? 'green' : 'red'} />
       </div>
 
       {activeLoadout ? (
