@@ -519,3 +519,59 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+/* Real Talk visual-parity bridge: keeps command parsing/live state intact while matching helmet mockup chrome. */
+.ih-real-talk {
+  padding-top: 10px;
+}
+.ih-real-talk-hero {
+  border-color: rgba(225,29,46,.28);
+  background: radial-gradient(circle at 8% 0, rgba(225,29,46,.18), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(7,8,10,.98));
+}
+.ih-real-talk-hero .ih-coach-small {
+  width: 110px;
+  flex-basis: 110px;
+}
+.ih-real-command-card {
+  border-color: rgba(225,29,46,.22);
+}
+.ih-real-talk-stat-grid .ih-stat {
+  min-height: 92px;
+}
+.ih-real-command-console {
+  display: grid;
+  gap: 12px;
+}
+.talk-command-input {
+  display: grid;
+  gap: 8px;
+}
+.talk-command-input span {
+  color: #ef4444;
+  font-size: .7rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+.talk-command-input textarea {
+  min-height: 116px;
+}
+.ih-real-talk .ih-chip-grid.talk {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ih-real-talk .ih-success {
+  border-color: rgba(52,211,153,.32);
+  background: radial-gradient(circle at 92% 0, rgba(52,211,153,.12), transparent 28%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(8,9,11,.98));
+}
+@media (max-width: 370px) {
+  .ih-real-talk .ih-chip-grid.talk,
+  .ih-real-talk-stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .ih-real-talk-hero {
+    align-items: flex-start;
+  }
+  .ih-real-talk-hero .ih-coach-small {
+    width: 86px;
+    flex-basis: 86px;
+  }
+}

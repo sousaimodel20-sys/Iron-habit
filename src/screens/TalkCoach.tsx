@@ -17,6 +17,7 @@ import { calculateSobrietyStreak } from '../utils/streaks';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { buildTalkNextMove } from '../utils/talkNextMove';
 import { detectLoadoutId, getLoadoutById, loadouts } from '../utils/workoutLoadouts';
+import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
 
 type WebSpeechRecognitionResultEvent = {
   results: {
@@ -923,17 +924,20 @@ const TalkCoach = () => {
   };
 
   return (
-    <div className="page warrior-page talk-page loadout-page stack-lg">
-      <section className="talk-hero loadout-hero">
-        <div className="talk-orb loadout-orb" aria-label="Coach Loadouts">
-          <span />
+    <div className="page ih-page ih-real-talk warrior-page talk-page loadout-page stack-lg">
+      <PhoneStatus />
+      <BrandHeader />
+
+      <section className="ih-card ih-ai-card ih-real-talk-hero" aria-label="Iron Habit Talk command center">
+        <HelmetCoach small />
+        <div>
+          <small>IRON AI COACH</small>
+          <h1>Talk to the app. Lock in the next move.</h1>
+          <p>Voice or type. Meetings, workouts, rescue, check-ins, proof, macros, and training logs route from here.</p>
         </div>
-        <span className="talk-kicker">Talk Command</span>
-        <h1>Talk to Iron Habit.</h1>
-        <p>Tap voice or type. Meetings, workouts, rescue, check-ins, proof, macros, and training logs route from here.</p>
       </section>
 
-      <section className="coach-card command-mission-card">
+      <section className="coach-card command-mission-card ih-card ih-real-command-card">
         <div className="coach-head">
           <span>Today’s command stack</span>
           <b>{todaysCheckIn ? 'Check-in done' : 'Check-in open'} • {trainedToday ? 'Training done' : 'Training open'} • {proofReadyToday ? 'Proof ready' : 'Proof open'}</b>
@@ -941,11 +945,11 @@ const TalkCoach = () => {
         <span className="mission-label">{talkNextMove.label}</span>
         <h2>{talkNextMove.title}</h2>
         <p>{talkNextMove.detail}</p>
-        <div className="proof-grid mini-proof macro-grid" aria-label="Talk state snapshot">
-          <div><strong>{todaysCheckIn ? `${todaysCheckIn.craving}/10` : 'Open'}</strong><span>craving</span></div>
-          <div><strong>{supportReady ? (supportLocationReady ? 'Ready' : 'Add area') : 'Missing'}</strong><span>support</span></div>
-          <div><strong>{dataSnapshot.activeLoadout ? 'Loaded' : 'Starter'}</strong><span>workout</span></div>
-          <div><strong>{talkNextMove.status}</strong><span>next</span></div>
+        <div className="ih-stat-grid four ih-real-talk-stat-grid" aria-label="Talk state snapshot">
+          <StatCard label="Craving" value={todaysCheckIn ? `${todaysCheckIn.craving}/10` : 'Open'} sub={todaysCheckIn ? 'Check-in saved' : 'Check-in due'} tone={todaysCheckIn && todaysCheckIn.craving >= 7 ? 'red' : 'blue'} />
+          <StatCard label="Support" value={supportReady ? (supportLocationReady ? 'Ready' : 'Add area') : 'Missing'} sub={supportLocationReady ? supportLocation : supportReady ? 'Safe person set' : 'Set contact'} tone={supportReady ? 'green' : 'amber'} />
+          <StatCard label="Workout" value={dataSnapshot.activeLoadout ? 'Loaded' : 'Starter'} sub={dataSnapshot.activeLoadout?.title || 'Command can build'} tone="red" />
+          <StatCard label="Next" value={talkNextMove.status} sub="Command route" tone="amber" />
         </div>
         <div className="hero-actions command-actions">
           <button className="btn btn-primary" type="button" onClick={() => handleCommand('Next best move')}>Do Next Move</button>
@@ -975,15 +979,17 @@ const TalkCoach = () => {
         </div>
       </section>
 
-      <section className="loadout-console command-console">
-        <label htmlFor="coach-message">Command Iron Habit</label>
-        <textarea
-          id="coach-message"
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          rows={3}
-          placeholder="Example: I trained 45 min hard, still sober craving 2/10, or I’m 200 lb, 5'10, 30, male, cut fat"
-        />
+      <section className="loadout-console command-console ih-card ih-real-command-console">
+        <label className="ih-command talk-command-input" htmlFor="coach-message">
+          <span>COMMAND IRON HABIT</span>
+          <textarea
+            id="coach-message"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            rows={3}
+            placeholder="Example: I trained 45 min hard, still sober craving 2/10, or I’m 200 lb, 5'10, 30, male, cut fat"
+          />
+        </label>
         <div className="hero-actions command-actions">
           <button className={`btn ${listening ? 'btn-danger' : 'btn-secondary'} voice-command-btn`} type="button" onClick={startVoiceCommand}>
             {listening ? 'Listening… tap to stop' : '🎙 Talk Command'}
@@ -997,21 +1003,21 @@ const TalkCoach = () => {
             <span className="mission-label">Start here</span>
             <h3>Three commands before the full grid.</h3>
             <p>Lock the daily check-in, safe person, support area, and first workout before the app gets loud.</p>
-            <div className="command-chip-grid starter-command-grid">
+            <div className="command-chip-grid ih-chip-grid talk starter-command-grid">
               {starterCommands.map((command) => (
                 <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
               ))}
             </div>
           </div>
         )}
-        <div className="command-chip-grid" aria-label="Quick commands">
+        <div className="command-chip-grid ih-chip-grid talk" aria-label="Quick commands">
           {quickCommands.map((command) => (
             <button key={command} type="button" onClick={() => handleCommand(command)}>{command}</button>
           ))}
         </div>
         <p className="command-reply">{commandReply}</p>
         {firstProofMove && (
-          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk first proof handoff">
+          <div className="talk-proof-reward ih-card ih-success first-proof-command-card stack-sm" aria-label="Talk first proof handoff">
             <span className="tag">First proof path picked</span>
             <h3>{firstProofMove.path.startsWith('/share-progress') ? 'Your card is already ready.' : 'Next receipt move selected.'}</h3>
             <p>{firstProofMove.reply}</p>
@@ -1027,7 +1033,7 @@ const TalkCoach = () => {
           </div>
         )}
         {postFirstCardVisible && (
-          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk post first Victory Card handoff">
+          <div className="talk-proof-reward ih-card ih-success first-proof-command-card stack-sm" aria-label="Talk post first Victory Card handoff">
             <span className="tag danger-tag">First card debrief</span>
             <h3>Proof is public. Now protect the next decision.</h3>
             <p>Do not let the first post become the finish line. Stack a second receipt, keep Rescue one tap away, and come back to Proof when the next win is locked.</p>
@@ -1044,7 +1050,7 @@ const TalkCoach = () => {
           </div>
         )}
         {secondReceiptMove && (
-          <div className="talk-proof-reward first-proof-command-card stack-sm" aria-label="Talk second receipt handoff">
+          <div className="talk-proof-reward ih-card ih-success first-proof-command-card stack-sm" aria-label="Talk second receipt handoff">
             <span className="tag">Second receipt path picked</span>
             <h3>{secondReceiptMove.title}</h3>
             <p>{secondReceiptMove.reply}</p>
@@ -1061,7 +1067,7 @@ const TalkCoach = () => {
           </div>
         )}
         {talkProof && (
-          <div className="talk-proof-reward stack-sm" aria-label="Talk proof saved">
+          <div className="talk-proof-reward ih-card ih-success stack-sm" aria-label="Talk proof saved">
             <span className="tag">Talk proof saved</span>
             <h3>{talkProof.title}</h3>
             <p>{talkProof.proofCopy}</p>
@@ -1073,7 +1079,7 @@ const TalkCoach = () => {
           </div>
         )}
         {talkCravingReceipt && (
-          <div className="talk-proof-reward stack-sm" aria-label="Talk craving receipt saved">
+          <div className="talk-proof-reward ih-card ih-success stack-sm" aria-label="Talk craving receipt saved">
             <span className="tag">Craving receipt saved</span>
             <h3>{talkCravingReceipt.craving}/10 urge survived</h3>
             <p>Rescue win logged for today. No alcohol, craving rescue, proof stacked.</p>
@@ -1086,7 +1092,7 @@ const TalkCoach = () => {
           </div>
         )}
         {supportReady && (
-          <div className="talk-support-reward stack-sm" aria-label="Talk support handoff live">
+          <div className="talk-support-reward ih-card ih-success stack-sm" aria-label="Talk support handoff live">
             <span className="tag">{supportLocationReady ? 'Support chain fully wired' : 'Safe-person handoff live'}</span>
             <h3>{supportLocationReady ? `${supportLabel} + ${supportLocation} are on deck.` : `${supportLabel} is on deck.`}</h3>
             <p>{supportReward || (supportLocationReady
