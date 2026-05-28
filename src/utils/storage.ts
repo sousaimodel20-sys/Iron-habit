@@ -37,6 +37,8 @@ export type SavedExercise = {
   mistake: string;
   swap: string;
   icon: string;
+  mediaUrl?: string;
+  mediaAlt?: string;
 };
 
 export type ActiveLoadout = {

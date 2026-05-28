@@ -16,6 +16,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { buildTalkNextMove } from '../utils/talkNextMove';
+import { detectLoadoutId, loadouts } from '../utils/workoutLoadouts';
 
 type WebSpeechRecognitionResultEvent = {
   results: {
@@ -45,93 +46,6 @@ type VoiceWindow = Window & {
   SpeechRecognition?: WebSpeechRecognitionConstructor;
   webkitSpeechRecognition?: WebSpeechRecognitionConstructor;
 };
-
-type Loadout = {
-  id: string;
-  label: string;
-  title: string;
-  subtitle: string;
-  days: string[];
-  intent: string;
-  finisher: string;
-  exercises: Exercise[];
-};
-
-type Exercise = {
-  name: string;
-  muscle: string;
-  equipment: string;
-  sets: string;
-  reps: string;
-  rest: string;
-  cue: string;
-  mistake: string;
-  swap: string;
-  icon: string;
-};
-
-const loadouts: Loadout[] = [
-  {
-    id: 'ppl',
-    label: 'Push Pull Legs',
-    title: 'PPL Mass Loadout',
-    subtitle: 'A 6-day sober-fitness split built for size, strength, and daily structure.',
-    days: ['Push', 'Pull', 'Legs', 'Push Volume', 'Pull Volume', 'Legs + Core', 'Recovery / Meeting'],
-    intent: 'Build muscle without overthinking. Show up, move iron, protect the streak.',
-    finisher: '10-minute incline walk. Breathe through the craving before it becomes a vote.',
-    exercises: [
-      { name: 'Incline Dumbbell Press', muscle: 'Chest • Front delts', equipment: 'Dumbbells', sets: '4', reps: '8–10', rest: '90 sec', cue: 'Shoulders pinned. Control the negative. Press like proof.', mistake: 'Do not flare elbows high.', swap: 'Machine chest press', icon: '◆' },
-      { name: 'Seated Shoulder Press', muscle: 'Shoulders • Triceps', equipment: 'Dumbbells', sets: '3', reps: '8–12', rest: '90 sec', cue: 'Brace ribs down and drive straight overhead.', mistake: 'Do not arch your back to steal reps.', swap: 'Landmine press', icon: '▲' },
-      { name: 'Lat Pulldown', muscle: 'Lats • Biceps', equipment: 'Cable', sets: '4', reps: '10–12', rest: '75 sec', cue: 'Pull elbows to pockets. Chest tall.', mistake: 'Do not yank with your lower back.', swap: 'Assisted pull-up', icon: '▼' },
-      { name: 'Romanian Deadlift', muscle: 'Hamstrings • Glutes', equipment: 'Barbell', sets: '3', reps: '8–10', rest: '2 min', cue: 'Hinge. Stretch. Stand tall. No ego.', mistake: 'Do not round your spine.', swap: 'Dumbbell RDL', icon: '⬢' },
-    ],
-  },
-  {
-    id: 'arnold',
-    label: 'Arnold Split',
-    title: 'Arnold Armor Loadout',
-    subtitle: 'Chest/back, shoulders/arms, legs — repeated for a high-volume comeback build.',
-    days: ['Chest + Back', 'Shoulders + Arms', 'Legs', 'Chest + Back', 'Shoulders + Arms', 'Legs', 'Recovery / Mobility'],
-    intent: 'Classic volume. Big pump. Big structure. No room for old-life chaos.',
-    finisher: 'Pose-down pump: 2 rounds curls, pushdowns, lateral raises. Earn the mirror check.',
-    exercises: [
-      { name: 'Bench Press', muscle: 'Chest • Triceps', equipment: 'Barbell', sets: '4', reps: '6–8', rest: '2 min', cue: 'Feet planted. Shoulder blades locked. Smooth power.', mistake: 'Do not bounce off the chest.', swap: 'Dumbbell bench', icon: '▰' },
-      { name: 'Chest-Supported Row', muscle: 'Back • Rear delts', equipment: 'Machine', sets: '4', reps: '8–10', rest: '90 sec', cue: 'Drive elbows back and pause for proof.', mistake: 'Do not shrug every rep.', swap: 'One-arm DB row', icon: '◈' },
-      { name: 'Lateral Raise', muscle: 'Side delts', equipment: 'Dumbbells', sets: '4', reps: '12–15', rest: '45 sec', cue: 'Lead with elbows. Stop at shoulder height.', mistake: 'Do not swing from the hips.', swap: 'Cable lateral raise', icon: '✦' },
-      { name: 'Hack Squat', muscle: 'Quads • Glutes', equipment: 'Machine', sets: '4', reps: '8–12', rest: '2 min', cue: 'Full depth you can own. Drive through the platform.', mistake: 'Do not cave knees inward.', swap: 'Goblet squat', icon: '⬟' },
-    ],
-  },
-  {
-    id: 'craving',
-    label: 'Craving Killer',
-    title: '10-Minute Craving Destroyer',
-    subtitle: 'No-decision emergency workout for when your head gets loud.',
-    days: ['Water', 'Move', 'Breathe', 'Text', 'Eat Protein', 'Walk Outside', 'Check In'],
-    intent: 'You are not training for PRs. You are interrupting the spiral.',
-    finisher: 'Cold water on face, one honest text, then open Rescue if the urge is still high.',
-    exercises: [
-      { name: 'Push-Up Ladder', muscle: 'Chest • Mindset', equipment: 'Bodyweight', sets: '5', reps: '5–10', rest: '30 sec', cue: 'Clean reps. Win the next minute.', mistake: 'Do not chase failure.', swap: 'Incline push-up', icon: '✚' },
-      { name: 'Air Squat', muscle: 'Legs • Breath', equipment: 'Bodyweight', sets: '4', reps: '15', rest: '30 sec', cue: 'Drop, stand, breathe. Keep moving.', mistake: 'Do not rush sloppy reps.', swap: 'Sit-to-stand', icon: '⬣' },
-      { name: 'Plank Hold', muscle: 'Core • Control', equipment: 'Bodyweight', sets: '3', reps: '30 sec', rest: '30 sec', cue: 'Brace like the old life is trying to push in.', mistake: 'Do not let hips sag.', swap: 'Dead bug', icon: '▬' },
-      { name: 'Outside Walk', muscle: 'Recovery • Nervous system', equipment: 'Shoes', sets: '1', reps: '10 min', rest: 'None', cue: 'Change environment. Call someone if it spikes.', mistake: 'Do not isolate indoors.', swap: 'Stairs', icon: '↗' },
-    ],
-  },
-  {
-    id: 'dumbbell',
-    label: 'Dumbbells Only',
-    title: 'Home Gym Discipline Loadout',
-    subtitle: 'A practical hypertrophy plan when all you have is dumbbells and discipline.',
-    days: ['Upper A', 'Lower A', 'Walk + Core', 'Upper B', 'Lower B', 'Pump Circuit', 'Recovery'],
-    intent: 'No machines, no excuses. Build the body with what is in front of you.',
-    finisher: '5-minute farmer carry or suitcase hold. Grip the new life tighter.',
-    exercises: [
-      { name: 'Goblet Squat', muscle: 'Quads • Glutes', equipment: 'Dumbbell', sets: '4', reps: '10–15', rest: '75 sec', cue: 'Chest proud. Elbows inside knees. Own the depth.', mistake: 'Do not fold forward.', swap: 'Split squat', icon: '⬟' },
-      { name: 'One-Arm Row', muscle: 'Back • Biceps', equipment: 'Dumbbell', sets: '4', reps: '10/side', rest: '60 sec', cue: 'Pull elbow to hip and pause.', mistake: 'Do not twist your torso.', swap: 'Band row', icon: '◈' },
-      { name: 'Floor Press', muscle: 'Chest • Triceps', equipment: 'Dumbbells', sets: '4', reps: '8–12', rest: '75 sec', cue: 'Triceps touch floor, then drive.', mistake: 'Do not crash elbows down.', swap: 'Push-up', icon: '▰' },
-      { name: 'Farmer Carry', muscle: 'Grip • Core', equipment: 'Dumbbells', sets: '5', reps: '30 sec', rest: '30 sec', cue: 'Stand tall. Walk like you are not going back.', mistake: 'Do not lean side to side.', swap: 'Suitcase carry', icon: '▮' },
-    ],
-  },
-];
 
 const goals = ['Build muscle', 'Cut fat', 'Get stronger', 'Kill a craving'];
 const times = ['20 min', '35 min', '50 min', '75 min'];
@@ -492,14 +406,7 @@ const TalkCoach = () => {
     !dataSnapshot.activeLoadout ? 'Build me a workout' : 'Start my workout',
   ].filter((command): command is string => Boolean(command));
 
-  const detectedId = useMemo(() => {
-    const lower = message.toLowerCase();
-    if (lower.includes('arnold')) return 'arnold';
-    if (lower.includes('crav') || goal === 'Kill a craving') return 'craving';
-    if (lower.includes('dumbbell') || lower.includes('home')) return 'dumbbell';
-    if (lower.includes('push') || lower.includes('pull') || lower.includes('legs') || lower.includes('ppl')) return 'ppl';
-    return selectedId;
-  }, [goal, message, selectedId]);
+  const detectedId = useMemo(() => detectLoadoutId(message, selectedId, goal), [goal, message, selectedId]);
 
   const loadout = useMemo(() => loadouts.find((item) => item.id === detectedId) ?? loadouts[0], [detectedId]);
 
@@ -507,6 +414,11 @@ const TalkCoach = () => {
     if (detectedId === 'arnold') return 'Arnold split detected. High volume, clean form, no ego lifting.';
     if (detectedId === 'craving') return 'Craving protocol detected. We are interrupting the spiral before it gets a vote.';
     if (detectedId === 'dumbbell') return 'Dumbbell-only constraint detected. No machines needed.';
+    if (detectedId === 'upper-lower') return 'Upper/lower detected. Four clean sessions, recovery protected.';
+    if (detectedId === 'full-body') return 'Full-body split detected. Simple base, high consistency.';
+    if (detectedId === 'powerbuilding') return 'Powerbuilding detected. Heavy compounds plus armor work.';
+    if (detectedId === 'bodyweight') return 'Bodyweight split detected. No equipment, no excuses.';
+    if (detectedId === 'conditioning') return 'Conditioning split detected. Sweat, strength, and streak protection.';
     return 'Loadout generated. Save it, run it, then log the proof.';
   }, [detectedId]);
 
@@ -810,10 +722,10 @@ const TalkCoach = () => {
       return;
     }
 
-    if (/(workout|training|lift|ppl|push|pull|legs|arnold|dumbbell|split)/.test(command)) {
-      const nextId = command.includes('arnold') ? 'arnold' : command.includes('dumbbell') ? 'dumbbell' : command.includes('crav') ? 'craving' : 'ppl';
+    if (/(workout|training|lift|ppl|push|pull|legs|arnold|dumbbell|split|full body|upper|lower|bodyweight|conditioning|powerbuilding|bro split)/.test(command)) {
+      const nextId = detectLoadoutId(rawCommand, selectedId, goal);
       setSelectedId(nextId);
-      setCommandReply('Building your workout loadout. Save it, run it, then log proof.');
+      setCommandReply('Building your workout loadout with visual demo cards. Save it, run it, then log proof.');
       return;
     }
 
@@ -1174,9 +1086,15 @@ const TalkCoach = () => {
       <section className="exercise-stack" aria-label="Exercise cards">
         {loadout.exercises.map((exercise) => (
           <article className="exercise-card" key={exercise.name}>
-            <div className="exercise-demo" aria-label={`${exercise.name} demo placeholder`}>
-              <span>{exercise.icon}</span>
-              <i />
+            <div className={`exercise-demo ${exercise.mediaUrl ? 'has-media' : ''}`} aria-label={`${exercise.name} demo`}>
+              {exercise.mediaUrl ? (
+                <img src={exercise.mediaUrl} alt={exercise.mediaAlt || `${exercise.name} demo`} loading="lazy" />
+              ) : (
+                <>
+                  <span>{exercise.icon}</span>
+                  <i />
+                </>
+              )}
             </div>
             <div className="exercise-copy">
               <span className="exercise-muscle">{exercise.muscle} • {exercise.equipment}</span>

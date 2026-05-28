@@ -256,6 +256,9 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .exercise-stack { display: grid; gap: 14px; }
 .exercise-card { display: grid; grid-template-columns: 116px 1fr; gap: 14px; padding: 14px; border: 1px solid rgba(220,38,38,.25); border-radius: 30px; background: linear-gradient(145deg, rgba(28,31,39,.95), rgba(6,6,8,.98)); box-shadow: 0 18px 60px rgba(0,0,0,.42); }
 .exercise-demo { min-height: 154px; position: relative; overflow: hidden; display: grid; place-items: center; border: 1px solid rgba(239,68,68,.32); border-radius: 24px; background: radial-gradient(circle at 50% 36%, rgba(239,68,68,.42), transparent 38%), linear-gradient(180deg, #171923, #050506); }
+.exercise-demo.has-media { background: #050506; }
+.exercise-demo img { width: 100%; height: 100%; min-height: 154px; object-fit: cover; filter: saturate(.9) contrast(1.05); }
+.exercise-demo.has-media::after { content: 'demo'; position: absolute; left: 10px; bottom: 10px; padding: 5px 8px; border-radius: 999px; background: rgba(0,0,0,.72); color: #fecaca; font-size: .62rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
 .exercise-demo span { position: relative; z-index: 1; color: #fff; font-size: 3.2rem; text-shadow: 0 0 28px rgba(239,68,68,.8); }
 .exercise-demo i { position: absolute; inset: 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); box-shadow: inset 0 0 30px rgba(239,68,68,.12); }
 .exercise-copy { min-width: 0; }
@@ -298,8 +301,10 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
 .first-victory-cue h2 { margin: 0; color: #fff; font-size: clamp(1.35rem, 6vw, 2rem); line-height: .95; letter-spacing: -.04em; }
 .first-victory-cue p { margin: 0; color: #fde68a; font-weight: 800; line-height: 1.35; }
 .routine-exercise-list { display: grid; gap: 12px; }
-.routine-exercise-row { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px; }
+.routine-exercise-row { display: grid; grid-template-columns: 42px 82px 1fr; gap: 12px; padding: 14px; }
 .routine-exercise-index { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; color: #fff; background: linear-gradient(135deg, #ef4444, #7f1010); font-weight: 950; box-shadow: 0 0 24px rgba(220,38,38,.34); }
+.routine-exercise-demo { width: 82px; height: 82px; border-radius: 20px; object-fit: cover; border: 1px solid rgba(239,68,68,.28); background: #050506; }
+.routine-exercise-demo-placeholder { display: grid; place-items: center; color: #fff; font-size: 2rem; background: radial-gradient(circle, rgba(239,68,68,.35), rgba(5,5,6,.94)); }
 .routine-exercise-row h2 { margin: 5px 0 11px; color: #fff; font-size: 1.35rem; line-height: 1; }
 .routine-log-card { grid-template-columns: 1fr; }
 .routine-log-card p { margin: 0; }
@@ -346,6 +351,10 @@ p, .lede { color: #d4d4d8; line-height: 1.55; }
   .exercise-card { grid-template-columns: 1fr; }
   .exercise-demo { min-height: 132px; }
   .loadout-control-grid { grid-template-columns: 1fr; }
+  .routine-exercise-row { grid-template-columns: 34px 70px 1fr; gap: 10px; }
+  .routine-exercise-index { width: 34px; height: 34px; border-radius: 12px; }
+  .routine-exercise-demo { width: 70px; height: 70px; border-radius: 16px; }
+  .routine-exercise-row h2 { font-size: 1.08rem; }
   .workout-demo { min-height: 150px; }
   .workout-nav-card { grid-template-columns: 1fr; }
   .rest-card { grid-template-columns: 1fr; text-align: center; }

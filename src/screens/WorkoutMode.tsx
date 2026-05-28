@@ -269,6 +269,11 @@ const WorkoutMode = () => {
         {loadout.exercises.map((exercise, index) => (
           <article className="routine-exercise-row" key={exercise.name}>
             <div className="routine-exercise-index">{index + 1}</div>
+            {exercise.mediaUrl ? (
+              <img className="routine-exercise-demo" src={exercise.mediaUrl} alt={exercise.mediaAlt || `${exercise.name} demo`} loading="lazy" />
+            ) : (
+              <div className="routine-exercise-demo routine-exercise-demo-placeholder" aria-hidden="true">{exercise.icon}</div>
+            )}
             <div>
               <span className="exercise-muscle">{exercise.muscle} • {exercise.equipment}</span>
               <h2>{exercise.name}</h2>
