@@ -960,3 +960,258 @@ select {
     flex-basis: 86px;
   }
 }
+
+/* Screenshot-free direct mockup replica pass.
+   Keep the black/red native-app composition Joshua likes, but remove all fake iPhone status/frame artifacts. */
+.app-shell.ih-app-shell {
+  width: min(430px, 100vw);
+  max-width: 430px;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(225,29,46,.34), transparent 28%),
+    linear-gradient(180deg, #070708 0%, #020203 64%, #000 100%);
+}
+
+.ih-screen-frame {
+  background:
+    radial-gradient(circle at 50% 0, rgba(225,29,46,.08), transparent 28%),
+    #030304;
+}
+
+.ih-page {
+  padding: max(18px, env(safe-area-inset-top)) 16px 168px;
+  gap: 12px;
+}
+
+.ih-splash {
+  min-height: 100%;
+  padding: max(26px, env(safe-area-inset-top)) 22px 24px;
+  background-image:
+    radial-gradient(circle at 50% 8%, rgba(225,29,46,.34), transparent 31%),
+    radial-gradient(ellipse at 50% 43%, rgba(255,255,255,.04), transparent 42%),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+  background-size: auto, auto, 38px 38px, 38px 38px;
+}
+
+.ih-splash-stage {
+  justify-content: center;
+  gap: 2px;
+  padding-top: 0;
+}
+
+.ih-splash .ih-coach {
+  min-height: 282px;
+  margin-top: 4px;
+}
+
+.ih-splash .ih-coach-photo {
+  width: min(276px, 72vw);
+  max-height: 286px;
+  filter:
+    drop-shadow(0 0 2px rgba(255,255,255,.38))
+    drop-shadow(0 26px 32px rgba(0,0,0,.92))
+    drop-shadow(0 0 40px rgba(225,29,46,.30));
+}
+
+.ih-splash .ih-red-beam {
+  display: block;
+  height: 62%;
+  top: 22%;
+  width: 4px;
+  opacity: .95;
+}
+
+.ih-logo-block {
+  margin-top: -22px;
+}
+
+.ih-logo-block span {
+  display: block;
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(5.5rem, 26vw, 7.2rem);
+  line-height: .78;
+  letter-spacing: .035em;
+  color: transparent;
+  background: linear-gradient(180deg, #fff 0%, #c7c9ce 42%, #555963 68%, #f7f7f8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 10px 28px rgba(0,0,0,.72);
+}
+
+.ih-logo-block b {
+  display: block;
+  margin-top: 8px;
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(2rem, 9vw, 2.75rem);
+  line-height: .9;
+  letter-spacing: .32em;
+  color: #ff2e38;
+  text-shadow: 0 0 26px rgba(225,29,46,.45);
+}
+
+.ih-splash-copy {
+  margin-top: 10px;
+  color: #f8fafc;
+  font-size: .86rem;
+  font-weight: 950;
+  letter-spacing: .16em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.ih-primary,
+.ih-secondary,
+.ih-wide {
+  border-radius: 18px;
+}
+
+.ih-talk-start {
+  min-height: 66px;
+  box-shadow: 0 18px 42px rgba(225,29,46,.28), inset 0 1px rgba(255,255,255,.18);
+}
+
+.ih-header {
+  min-height: 42px;
+  grid-template-columns: 36px 1fr 58px;
+  padding: 2px 0 4px;
+}
+
+.ih-wordmark {
+  font-family: Anton, Impact, sans-serif;
+  font-size: 1.18rem;
+  letter-spacing: .08em;
+}
+
+.ih-step {
+  color: #fca5a5;
+}
+
+.ih-card,
+.ih-location-bar,
+.ih-meeting,
+.ih-split,
+.ih-exercise,
+.ih-fuel-hero,
+.ih-meetings-hero,
+.ih-rescue-hero,
+.ih-proof-hero,
+.ih-onboarding-hero,
+.ih-step-card {
+  border-color: rgba(255,255,255,.11);
+  box-shadow: inset 0 1px rgba(255,255,255,.05), 0 18px 42px rgba(0,0,0,.34);
+}
+
+.ih-meetings-hero,
+.ih-real-train-hero,
+.ih-talk-hero,
+.ih-fuel-hero,
+.ih-rescue-hero,
+.ih-proof-hero,
+.ih-onboarding-hero {
+  min-height: 154px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(225,29,46,.38), transparent 35%),
+    linear-gradient(145deg, rgba(37,8,13,.88), rgba(12,13,16,.98) 56%, rgba(3,3,4,.99));
+}
+
+.ih-meetings-page .ih-meetings-hero h1,
+.ih-fuel-hero h1,
+.ih-rescue-hero h1,
+.ih-proof-hero h1,
+.ih-real-train-hero h1 {
+  font-size: clamp(2rem, 8vw, 2.65rem);
+  line-height: .93;
+}
+
+.ih-tabs {
+  border-bottom-color: rgba(255,255,255,.1);
+}
+
+.ih-pill-tabs b,
+.ih-pill-tabs span,
+.ih-train-tabs b,
+.ih-train-tabs span {
+  border-radius: 999px;
+  padding: 9px 10px;
+}
+
+.ih-train-tabs {
+  border: 0;
+}
+
+.ih-train-tabs b,
+.ih-train-tabs span {
+  flex: 1;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.035);
+}
+
+.ih-train-tabs b {
+  color: #fff;
+  background: linear-gradient(180deg, #e11d2e, #840d16);
+  border-color: rgba(255,255,255,.16);
+  box-shadow: 0 0 22px rgba(225,29,46,.18);
+}
+
+.ih-train-split {
+  min-height: 102px;
+  grid-template-columns: 128px 1fr 28px;
+  gap: 12px;
+  padding: 9px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(225,29,46,.11), transparent 35%),
+    linear-gradient(180deg, rgba(21,22,26,.96), rgba(5,6,8,.99));
+}
+
+.ih-train-split .ih-media {
+  width: 128px;
+  height: 84px;
+  border-radius: 15px;
+}
+
+.ih-train-split > em {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e11d2e;
+  color: #fff;
+  font-size: .68rem;
+  box-shadow: 0 0 18px rgba(225,29,46,.35);
+}
+
+.ih-train-split > b {
+  display: none;
+}
+
+.ih-bottom-nav {
+  background: rgba(2,2,3,.98);
+  border-top-color: rgba(255,255,255,.07);
+  padding-top: 8px;
+}
+
+.ih-bottom-nav a.active {
+  background: linear-gradient(180deg, rgba(225,29,46,.22), rgba(127,15,23,.18));
+}
+
+@media (min-width: 431px) {
+  body {
+    background: #000;
+  }
+}
+
+@media (max-width: 370px) {
+  .ih-train-split {
+    grid-template-columns: 104px 1fr 24px;
+  }
+  .ih-train-split .ih-media {
+    width: 104px;
+  }
+  .ih-logo-block span {
+    font-size: 5.35rem;
+  }
+}

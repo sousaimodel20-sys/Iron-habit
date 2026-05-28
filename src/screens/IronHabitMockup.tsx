@@ -3,18 +3,22 @@ import { loadData } from '../utils/storage';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
 const coachImage = '/mockup-assets/helmet-coach.svg';
-const splitImage = '/mockup-assets/split-coach.svg';
 const benchImage = '/mockup-assets/train-bench.svg';
 const mealImage = '/mockup-assets/meal-bowl.svg';
-const coachCardImage = '/mockup-assets/coach-card.svg';
+const pushPhoto = '/exercise-media/Barbell_Bench_Press_-_Medium_Grip/0.jpg';
+const pullPhoto = '/exercise-media/Seated_Cable_Rows/0.jpg';
+const legsPhoto = '/exercise-media/Hack_Squat/0.jpg';
+const upperPhoto = '/exercise-media/Incline_Dumbbell_Press/0.jpg';
+const lowerPhoto = '/exercise-media/Romanian_Deadlift/0.jpg';
+const fullPhoto = '/exercise-media/Farmers_Walk/0.jpg';
 
 const splits = [
-  { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=push', image: splitImage },
-  { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=pull', image: coachCardImage },
-  { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power base', days: '▶', path: '/exercise?split=legs', image: benchImage },
-  { name: 'Upper Day', meta: 'Chest • Back • Arms', accent: 'Balanced split', days: '▶', path: '/exercise?split=upper', image: coachCardImage },
-  { name: 'Lower Day', meta: 'Legs • Glutes • Calves', accent: 'Lower body', days: '▶', path: '/exercise?split=lower', image: benchImage },
-  { name: 'Full Body', meta: 'Total body assault', accent: 'Complete rebuild', days: '▶', path: '/exercise?split=full-body', image: splitImage },
+  { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=push', image: pushPhoto },
+  { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=pull', image: pullPhoto },
+  { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power base', days: '▶', path: '/exercise?split=legs', image: legsPhoto },
+  { name: 'Upper Day', meta: 'Chest • Back • Arms', accent: 'Balanced split', days: '▶', path: '/exercise?split=upper', image: upperPhoto },
+  { name: 'Lower Day', meta: 'Legs • Glutes • Calves', accent: 'Lower body', days: '▶', path: '/exercise?split=lower', image: lowerPhoto },
+  { name: 'Full Body', meta: 'Total body assault', accent: 'Complete rebuild', days: '▶', path: '/exercise?split=full-body', image: fullPhoto },
 ];
 
 const exercises = [
