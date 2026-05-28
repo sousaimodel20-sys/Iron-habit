@@ -84,12 +84,12 @@ export function StatCard({ label, value, sub, tone = 'red' }: { label: string; v
   return <div className="ih-stat"><span className={`ih-dot ih-${tone}`} /> <small>{label}</small><strong>{value}</strong>{sub && <em>{sub}</em>}</div>;
 }
 
-function MediaTile({ label, tall = false, src }: { label: string; tall?: boolean; src?: string }) {
+function MediaTile({ label, tall = false, src, video = false }: { label: string; tall?: boolean; src?: string; video?: boolean }) {
   return (
     <div className={tall ? 'ih-media ih-media-tall' : 'ih-media'}>
       {src ? <img className="ih-media-photo" src={src} alt="" /> : <div className="ih-media-grid" />}
       <div className="ih-media-shade" />
-      <div className="ih-play">▶</div>
+      {video && <div className="ih-play">▶</div>}
       <span>{label}</span>
     </div>
   );
