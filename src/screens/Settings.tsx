@@ -218,6 +218,10 @@ const Settings = () => {
         <p>
           <strong>Privacy:</strong> Your sober dates, training logs, and personal details stay on your device. Make sure to back up your data.
         </p>
+        <div className="button-group stack-xs">
+          <Link to="/launch-kit" className="btn btn-primary">Open Phase 5 launch kit</Link>
+          <Link to="/share-progress#founder-launch-copy" className="btn btn-secondary">Founder launch copy</Link>
+        </div>
       </Card>
 
       <style>{`

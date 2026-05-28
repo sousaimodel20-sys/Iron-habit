@@ -1,7 +1,8 @@
 {
   "short_name": "Iron Habit",
-  "name": "Iron Habit — Sober Fitness Tracker",
-  "description": "A premium sober-fitness command center for streaks, discipline, training, proof, and craving rescue.",
+  "name": "Iron Habit — Sober Fitness Proof",
+  "description": "A private sober-fitness command center for check-ins, craving rescue, training, proof receipts, and Victory Cards.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -9,6 +10,26 @@
   "theme_color": "#050507",
   "background_color": "#050507",
   "categories": ["health", "fitness", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Check in",
+      "short_name": "Check in",
+      "description": "Lock today's sober receipt.",
+      "url": "/check-in"
+    },
+    {
+      "name": "Rescue",
+      "short_name": "Rescue",
+      "description": "Open craving rescue fast.",
+      "url": "/rescue"
+    },
+    {
+      "name": "Talk",
+      "short_name": "Talk",
+      "description": "Ask Iron Habit for the next move.",
+      "url": "/talk"
+    }
+  ],
   "icons": [
     {
       "src": "/favicon.svg",

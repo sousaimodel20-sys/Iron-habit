@@ -10,6 +10,7 @@ import TalkCoach from './screens/TalkCoach';
 import WorkoutMode from './screens/WorkoutMode';
 import Meetings from './screens/Meetings';
 import Settings from './screens/Settings';
+import LaunchKit from './screens/LaunchKit';
 
 const navItems = [
   { to: '/', label: 'Today' },
@@ -32,7 +33,7 @@ function AppLayout() {
             <small>Sober • Strong • Consistent</small>
           </span>
         </NavLink>
-        <span className="live-pill">Beta Access</span>
+        <NavLink to="/launch-kit" className="live-pill">Beta Access</NavLink>
       </header>
 
       <main className="screen-frame">
@@ -54,6 +55,7 @@ function AppLayout() {
           <Route path="/talk" element={<TalkCoach />} />
           <Route path="/workout-mode" element={<WorkoutMode />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/launch-kit" element={<LaunchKit />} />
         </Routes>
       </main>
 

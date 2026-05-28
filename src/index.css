@@ -582,6 +582,10 @@ input[type="range"] { accent-color: var(--gold); padding: 0; }
 .content-studio-card h2 { color: #fff; font-size: clamp(1.5rem, 7vw, 2.3rem); line-height: .98; }
 .founder-launch-card { border-color: rgba(246,196,83,.42); background: radial-gradient(circle at 0 0, rgba(246,196,83,.18), transparent 35%), radial-gradient(circle at 100% 100%, rgba(239,68,68,.18), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); }
 .founder-launch-card h2 { color: #fff; font-size: clamp(1.65rem, 8vw, 2.75rem); line-height: .92; letter-spacing: -.07em; }
+.launch-kit-page { max-width: 520px; }
+.launch-ready-card, .tester-handoff-card { border-color: rgba(239,68,68,.42); background: radial-gradient(circle at 100% 0, rgba(239,68,68,.22), transparent 38%), linear-gradient(180deg, rgba(28,31,39,.95), rgba(6,6,8,.97)); }
+.install-trust-card { border-color: rgba(34,197,94,.34); background: radial-gradient(circle at 0 0, rgba(34,197,94,.14), transparent 36%), linear-gradient(180deg, rgba(28,31,39,.94), rgba(6,6,8,.96)); }
+.launch-kit-page .caption-box { border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 13px; background: rgba(0,0,0,.28); color: #f4f4f5; white-space: pre-wrap; }
 
 @media (max-width: 720px) {
   .app-shell { padding-inline: 12px; }
