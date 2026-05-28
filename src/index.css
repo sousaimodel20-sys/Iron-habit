@@ -221,11 +221,36 @@ button { cursor: pointer; }
 .ih-macro span { color: var(--muted); }
 .ih-danger { border-color: rgba(225,29,46,.45); background: linear-gradient(180deg, rgba(127,15,23,.44), rgba(10,11,13,.96)); }
 .ih-rescue-page { background: radial-gradient(circle at 50% 0, rgba(225,29,46,.32), transparent 34%), #040405; }
+.ih-rescue-hero { display: grid; grid-template-columns: 1fr 88px; align-items: center; gap: 10px; border-radius: 22px; padding: 14px; background: radial-gradient(circle at 88% 0, rgba(225,29,46,.38), transparent 36%), linear-gradient(180deg, rgba(127,15,23,.72), rgba(5,6,8,.98)); box-shadow: inset 0 1px rgba(255,255,255,.04), 0 20px 44px rgba(225,29,46,.1); }
+.ih-rescue-hero h1 { font-size: 2rem; }
+.ih-rescue-hero p { font-size: .84rem; margin-bottom: 0; }
+.ih-rescue-hero .ih-coach-small { min-height: 88px; width: 88px; flex-basis: 88px; }
+.ih-rescue-hero .ih-primary { grid-column: 1 / -1; min-height: 50px; }
+.ih-rescue-snapshot .ih-stat, .ih-proof-snapshot .ih-stat { min-height: 70px; padding: 8px; }
+.ih-rescue-snapshot .ih-stat strong, .ih-proof-snapshot .ih-stat strong { font-size: 1rem; }
+.ih-chain-card { border-color: rgba(225,29,46,.32); background: radial-gradient(circle at 0 0, rgba(225,29,46,.2), transparent 34%), linear-gradient(180deg, rgba(21,22,26,.94), rgba(6,7,8,.98)); }
+.ih-chain-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ih-chain-actions a { min-height: 42px; border-radius: 12px; border: 1px solid rgba(225,29,46,.36); background: rgba(225,29,46,.1); display: grid; place-items: center; color: #fff; font-size: .68rem; font-weight: 950; text-align: center; text-transform: uppercase; }
+.ih-rescue-protocol { padding: 11px; }
+.ih-rescue-step { min-height: 56px; align-items: center; }
+.ih-rescue-step div { display: grid; gap: 2px; }
+.ih-rescue-step strong { color: #fff; font-size: .9rem; text-transform: uppercase; }
+.ih-rescue-step small { color: var(--muted); font-size: .72rem; line-height: 1.25; }
 .ih-proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ih-proof-card { min-height: 170px; border-radius: 18px; border: 1px solid rgba(225,29,46,.35); background: radial-gradient(circle at 50% 0, rgba(225,29,46,.24), transparent 38%), linear-gradient(180deg, #17181b, #070708); padding: 14px; overflow: hidden; }
-.ih-proof-card.hero { grid-column: span 2; min-height: 220px; }
+.ih-proof-page { gap: 8px; background: radial-gradient(circle at 50% 0, rgba(225,29,46,.2), transparent 34%), #040405; }
+.ih-proof-hero { display: grid; grid-template-columns: 1fr 88px; align-items: center; gap: 10px; border: 1px solid rgba(225,29,46,.3); border-radius: 22px; padding: 12px; background: radial-gradient(circle at 90% 0, rgba(225,29,46,.25), transparent 35%), linear-gradient(180deg, rgba(21,22,26,.9), rgba(5,6,8,.98)); }
+.ih-proof-hero small { color: var(--red); font-weight: 950; letter-spacing: .12em; font-size: .66rem; text-transform: uppercase; }
+.ih-proof-hero h1 { font-size: 2.25rem; margin-bottom: 4px; }
+.ih-proof-hero p { margin-bottom: 0; font-size: .82rem; }
+.ih-proof-hero .ih-coach-small { min-height: 82px; width: 82px; flex-basis: 82px; }
+.ih-proof-card { position: relative; min-height: 146px; border-radius: 18px; border: 1px solid rgba(225,29,46,.35); background: radial-gradient(circle at 100% 0, rgba(225,29,46,.24), transparent 38%), linear-gradient(180deg, #17181b, #070708); padding: 12px; overflow: hidden; }
+.ih-proof-card.hero { grid-column: span 2; min-height: 188px; background: radial-gradient(circle at 78% 0, rgba(225,29,46,.36), transparent 35%), linear-gradient(180deg, #191a1e, #050506); }
+.ih-proof-card.danger { border-color: rgba(248,113,113,.5); background: radial-gradient(circle at 50% 0, rgba(225,29,46,.42), transparent 40%), linear-gradient(180deg, #22090d, #070708); }
 .ih-proof-card .ih-coach-small { float: right; margin-top: -10px; margin-right: -12px; }
 .ih-proof-card h2 { font-size: 1.7rem; }
+.ih-proof-card p { font-size: .8rem; margin-bottom: 8px; }
+.ih-proof-card > span { position: absolute; left: 12px; bottom: 10px; color: #fca5a5; font-size: .66rem; font-weight: 950; letter-spacing: .08em; }
+.ih-share-preview-card { padding: 11px; }
 .ih-share-preview { aspect-ratio: 9 / 16; border-radius: 20px; border: 1px solid rgba(225,29,46,.5); background: radial-gradient(circle at 50% 28%, rgba(225,29,46,.36), transparent 34%), #09090b; display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; padding: 16px; margin-bottom: 12px; }
 .ih-share-preview strong { font-family: Anton, Impact, sans-serif; letter-spacing: .18em; font-size: 2rem; }
 .ih-share-preview span { font-family: Anton, Impact, sans-serif; color: #fff; font-size: 2.4rem; }

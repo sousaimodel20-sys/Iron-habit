@@ -335,13 +335,38 @@ export function FuelPage() {
 }
 
 export function RescuePage() {
+  const rescueSteps = [
+    { title: 'Hydrate', detail: 'Water + electrolytes. Give the body signal first.', status: '01' },
+    { title: 'Protein / fruit', detail: 'Put real fuel between you and the craving.', status: '02' },
+    { title: 'Breathe 4-7-8', detail: 'Three rounds. Slow the system down.', status: '03' },
+    { title: 'Text safe person', detail: 'Send the chain. Do not isolate.', status: '04' },
+    { title: 'Find support', detail: 'Open meetings or official sources nearby.', status: '05' },
+    { title: 'Make proof', detail: 'When you win, turn it into a receipt.', status: '✓' },
+  ];
   return (
     <section className="ih-page ih-rescue-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-card ih-danger"><HelmetCoach small /><h1>CRAVING HITTING HARD?</h1><p>This is not a negotiation. Start the chain. Use food, breath, support, and meetings.</p><button className="ih-primary ih-wide">I’M ABOUT TO DRINK</button></div>
-      <div className="ih-card"><h2>10-MINUTE RESCUE PROTOCOL</h2>{['Drink water / electrolytes', 'Eat protein or fruit', 'Breathe 4-7-8 for 3 rounds', 'Text safe person', 'Find a meeting', 'Make proof when you survive it'].map((step, index) => <div className="ih-mission" key={step}><span>{index + 1}</span>{step}<b>○</b></div>)}</div>
-      <div className="ih-action-row"><Link to="/meetings">Find Meetings</Link><Link to="/fuel">Nutrition Rescue</Link><Link to="/proof">Make Proof</Link></div>
+      <div className="ih-card ih-danger ih-rescue-hero">
+        <div>
+          <small>RESCUE DECK</small>
+          <h1>CRAVING HITTING HARD?</h1>
+          <p>This is not a negotiation. Start the chain. Use food, breath, support, and meetings.</p>
+        </div>
+        <HelmetCoach small />
+        <Link to="/rescue?chain=1" className="ih-primary ih-wide">I’M ABOUT TO DRINK</Link>
+      </div>
+      <div className="ih-stat-grid four ih-rescue-snapshot">
+        <StatCard label="Urge" value="10/10" sub="Peak faced" />
+        <StatCard label="Timer" value="10" sub="Minutes" tone="amber" />
+        <StatCard label="Chain" value="ON" sub="Human help" tone="green" />
+        <StatCard label="Proof" value="Card" sub="After win" tone="blue" />
+      </div>
+      <div className="ih-card ih-chain-card">
+        <div className="ih-section-head"><div><small>EMERGENCY CHAIN</small><h2>DO THESE IN ORDER.</h2></div><b>LIVE</b></div>
+        <div className="ih-chain-actions"><Link to="/talk">Text Support</Link><Link to="/meetings">Meetings</Link><Link to="/fuel">Eat Now</Link></div>
+      </div>
+      <div className="ih-card ih-rescue-protocol"><div className="ih-section-head"><div><small>10-MINUTE PROTOCOL</small><h2>STAY HERE. WIN THIS.</h2></div><b>6 STEPS</b></div>{rescueSteps.map((step) => <div className="ih-mission ih-rescue-step" key={step.title}><span>{step.status}</span><div><strong>{step.title}</strong><small>{step.detail}</small></div><b>○</b></div>)}</div>
       <button className="ih-secondary ih-wide">I SLIPPED — RESTART WITHOUT SHAME</button>
     </section>
   );
@@ -349,18 +374,22 @@ export function RescuePage() {
 
 export function ProofPage() {
   const { day } = useMockData();
+  const receipts = [
+    { label: 'Sober streak', title: `${day} DAYS SOBER`, meta: 'Still here. Still building.', tone: 'hero' },
+    { label: 'Workout victory', title: 'PUSH DAY CONQUERED', meta: '16 sets • 45 min • Proof stacked.', tone: '' },
+    { label: 'Craving rescue', title: '10/10 SURVIVED', meta: 'The urge lost. The receipt stays.', tone: 'danger' },
+    { label: 'Milestone', title: 'IRON PHASE II', meta: 'Discipline becoming identity.', tone: '' },
+  ];
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-proof-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-title-row"><div><h1>PROOF VAULT</h1><b>VICTORY CARDS</b></div><span className="ih-icon-button">◇</span></div>
+      <div className="ih-proof-hero"><div><small>PROOF VAULT</small><h1>VICTORY CARDS</h1><p>Receipts for sober days, workouts, cravings survived, and milestones.</p></div><HelmetCoach small /></div>
+      <div className="ih-stat-grid four ih-proof-snapshot"><StatCard label="Sober" value={`${day}`} sub="Days" /><StatCard label="Train" value="16" sub="Sets" tone="red" /><StatCard label="Craving" value="10/10" sub="Beat" tone="amber" /><StatCard label="Cards" value="4" sub="Ready" tone="green" /></div>
       <div className="ih-proof-grid">
-        <div className="ih-proof-card hero"><HelmetCoach small /><small>SOBER STREAK</small><h2>{day} DAYS SOBER</h2><p>Still here. Still building.</p></div>
-        <div className="ih-proof-card"><small>WORKOUT VICTORY</small><h2>PUSH DAY CONQUERED</h2><p>16 sets • 45 min • Proof stacked.</p></div>
-        <div className="ih-proof-card"><small>CRAVING RESCUE</small><h2>10/10 SURVIVED</h2><p>The urge lost. The receipt stays.</p></div>
-        <div className="ih-proof-card"><small>MILESTONE</small><h2>IRON PHASE II</h2><p>Discipline becoming identity.</p></div>
+        {receipts.map((receipt) => <div className={`ih-proof-card ${receipt.tone}`.trim()} key={receipt.label}>{receipt.tone === 'hero' && <HelmetCoach small />}<small>{receipt.label}</small><h2>{receipt.title}</h2><p>{receipt.meta}</p><span>MAKE CARD ›</span></div>)}
       </div>
-      <div className="ih-card"><h2>9:16 SHARE PREVIEW</h2><div className="ih-share-preview"><HelmetCoach small /><strong>IRON HABIT</strong><span>{day} DAYS SOBER</span><p>Proof over promises.</p></div><div className="ih-action-row"><button>Make Victory Card</button><button>Share Proof</button><button>Download Card</button></div></div>
+      <div className="ih-card ih-share-preview-card"><div className="ih-section-head"><div><small>9:16 SHARE PREVIEW</small><h2>PUBLIC PROOF CARD</h2></div><b>READY</b></div><div className="ih-share-preview"><HelmetCoach small /><strong>IRON HABIT</strong><span>{day} DAYS SOBER</span><p>Proof over promises.</p></div><div className="ih-action-row"><button>Make Victory Card</button><button>Share Proof</button><button>Download Card</button></div></div>
     </section>
   );
 }
