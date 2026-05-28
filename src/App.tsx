@@ -1,81 +1,86 @@
 import { NavLink, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
-import Onboarding from './screens/Onboarding';
 import DailyCheckIn from './screens/DailyCheckIn';
 import HabitTracker from './screens/HabitTracker';
-import FitnessTracker from './screens/FitnessTracker';
-import ProgressDashboard from './screens/ProgressDashboard';
-import ShareProgressScreen from './screens/ShareProgressScreen';
-import CravingRescue from './screens/CravingRescue';
-import TalkCoach from './screens/TalkCoach';
-import WorkoutMode from './screens/WorkoutMode';
-import Meetings from './screens/Meetings';
 import Settings from './screens/Settings';
 import LaunchKit from './screens/LaunchKit';
+import {
+  ExerciseDetail,
+  FuelPage,
+  MeetingsPage,
+  OnboardingFlow,
+  ProofPage,
+  RescuePage,
+  TalkPage,
+  TodayPage,
+  TrainPage,
+  WelcomeSplash,
+  WorkoutLogger,
+} from './screens/IronHabitMockup';
 
 const navItems = [
-  { to: '/', label: 'Today' },
-  { to: '/meetings', label: 'Meetings' },
-  { to: '/talk', label: 'Talk', center: true },
-  { to: '/train', label: 'Train' },
-  { to: '/proof', label: 'Proof' },
+  { to: '/today', label: 'Today', icon: '⌂' },
+  { to: '/talk', label: 'Talk', icon: '◌' },
+  { to: '/meetings', label: 'Meetings', icon: '♜' },
+  { to: '/train', label: 'Train', icon: '♞' },
+  { to: '/fuel', label: 'Fuel', icon: '◒' },
+  { to: '/rescue', label: 'Rescue', icon: '⚕' },
+  { to: '/proof', label: 'Proof', icon: '◈' },
 ];
+
+const isActiveRoute = (path: string, target: string) => {
+  if (target === '/train') return ['/train', '/exercise', '/workout-mode', '/fitness-tracker'].some((route) => path.startsWith(route));
+  if (target === '/proof') return ['/proof', '/profile', '/progress-dashboard', '/share-progress'].some((route) => path.startsWith(route));
+  if (target === '/today') return path === '/today';
+  return path.startsWith(target);
+};
 
 function AppLayout() {
   const location = useLocation();
+  const showDock = location.pathname !== '/' && location.pathname !== '/onboarding';
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <NavLink to="/" className="brand" aria-label="Iron Habit home">
-          <span className="brand-mark">IH</span>
-          <span>
-            <strong>Iron Habit</strong>
-            <small>Sober • Strong • Consistent</small>
-          </span>
-        </NavLink>
-        <NavLink to="/launch-kit" className="live-pill">Beta Access</NavLink>
-      </header>
-
-      <main className="screen-frame">
+    <div className="app-shell ih-app-shell">
+      <main className="screen-frame ih-screen-frame">
         <Routes>
-          <Route path="/" element={<Onboarding />} />
-          <Route path="/setup-profile" element={<Onboarding />} />
+          <Route path="/" element={<WelcomeSplash />} />
+          <Route path="/onboarding" element={<OnboardingFlow />} />
+          <Route path="/setup-profile" element={<OnboardingFlow />} />
+          <Route path="/today" element={<TodayPage />} />
+          <Route path="/talk" element={<TalkPage />} />
+          <Route path="/meetings" element={<MeetingsPage />} />
+          <Route path="/train" element={<TrainPage />} />
+          <Route path="/fitness-tracker" element={<TrainPage />} />
+          <Route path="/exercise" element={<ExerciseDetail />} />
+          <Route path="/workout-mode" element={<WorkoutLogger />} />
+          <Route path="/fuel" element={<FuelPage />} />
+          <Route path="/rescue" element={<RescuePage />} />
+          <Route path="/craving-rescue" element={<RescuePage />} />
+          <Route path="/proof" element={<ProofPage />} />
+          <Route path="/profile" element={<ProofPage />} />
+          <Route path="/progress-dashboard" element={<ProofPage />} />
+          <Route path="/share-progress" element={<ProofPage />} />
           <Route path="/check-in" element={<DailyCheckIn />} />
           <Route path="/daily-check-in" element={<DailyCheckIn />} />
           <Route path="/habit-tracker" element={<HabitTracker />} />
-          <Route path="/fitness-tracker" element={<FitnessTracker />} />
-          <Route path="/train" element={<FitnessTracker />} />
-          <Route path="/meetings" element={<Meetings />} />
-          <Route path="/progress-dashboard" element={<ProgressDashboard />} />
-          <Route path="/proof" element={<ProgressDashboard />} />
-          <Route path="/profile" element={<ProgressDashboard />} />
-          <Route path="/share-progress" element={<ShareProgressScreen />} />
-          <Route path="/craving-rescue" element={<CravingRescue />} />
-          <Route path="/rescue" element={<CravingRescue />} />
-          <Route path="/talk" element={<TalkCoach />} />
-          <Route path="/workout-mode" element={<WorkoutMode />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/launch-kit" element={<LaunchKit />} />
         </Routes>
       </main>
 
-      <nav className="bottom-nav" aria-label="Primary navigation">
-        {navItems.map((item) => {
-          const trainActive = (item.to === '/train' || item.to === '/fitness-tracker') && ['/train', '/fitness-tracker', '/workout-mode'].includes(location.pathname);
-          const proofActive = item.to === '/proof' && ['/proof', '/profile', '/progress-dashboard', '/share-progress'].includes(location.pathname);
-          return (
+      {showDock && (
+        <nav className="bottom-nav ih-bottom-nav" aria-label="Primary navigation">
+          {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) => `${item.center ? 'center-talk' : ''} ${isActive || trainActive || proofActive ? 'active' : ''}`.trim()}
+              className={isActiveRoute(location.pathname, item.to) ? 'active' : ''}
             >
-              {item.center && <span className="talk-nav-orb" aria-hidden="true">●</span>}
+              <span aria-hidden="true">{item.icon}</span>
               {item.label}
             </NavLink>
-          );
-        })}
-      </nav>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }
