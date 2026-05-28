@@ -172,7 +172,7 @@ button { cursor: pointer; }
 .ih-meeting i { width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; border: 1px solid rgba(225,29,46,.34); color: #fff; background: radial-gradient(circle at 50% 0, rgba(225,29,46,.28), rgba(255,255,255,.04)); font-style: normal; font-weight: 950; }
 .ih-meeting strong, .ih-split strong, .ih-exercise strong { display: block; color: #fff; }
 .ih-meeting small, .ih-split small, .ih-exercise small, .ih-exercise em { display: block; color: var(--muted); font-size: .74rem; font-style: normal; }
-.ih-meeting span { display: inline-flex; margin-top: 6px; color: #fca5a5; font-size: .66rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
+.ih-meeting span, .ih-split span { display: inline-flex; margin-top: 6px; color: #fca5a5; font-size: .66rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
 .ih-meeting em, .ih-split em { color: #fca5a5; font-size: .68rem; font-style: normal; text-align: right; }
 .ih-meeting b { color: #fff; font-size: 1.4rem; }
 .ih-note { color: #fbbf24; font-size: .85rem; }
@@ -641,6 +641,17 @@ select {
   width: 110px;
   flex-basis: 110px;
 }
+.ih-mock-train-page { gap: 8px; }
+.ih-mock-train-hero { align-items: flex-end; padding: 10px 12px; box-shadow: inset 0 1px rgba(255,255,255,.04), 0 18px 40px rgba(0,0,0,.28); }
+.ih-mock-train-hero h1 { margin-bottom: 4px; font-size: 1.9rem; line-height: .98; }
+.ih-mock-train-hero p { margin: 0; font-size: .82rem; }
+.ih-train-snapshot { gap: 8px; }
+.ih-train-snapshot .ih-stat { min-height: 74px; padding: 9px; }
+.ih-train-tabs { padding-top: 2px; }
+.ih-train-split-list { gap: 8px; }
+.ih-train-split { min-height: 88px; padding: 9px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.018)); box-shadow: inset 0 1px rgba(255,255,255,.035); }
+.ih-train-split .ih-media { width: 104px; height: 74px; }
+.ih-train-split b:last-child { color: #fff; font-size: 1.25rem; }
 .ih-real-train-mission,
 .ih-real-train .active-program-card,
 .ih-real-train .proof-stack-card,

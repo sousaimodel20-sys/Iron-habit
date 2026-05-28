@@ -235,13 +235,26 @@ export function MeetingsPage() {
 
 export function TrainPage() {
   return (
-    <section className="ih-page">
+    <section className="ih-page ih-real-train ih-mock-train-page">
       <PhoneStatus />
       <BrandHeader />
-      <div className="ih-title-row"><div><h1>TRAIN</h1><b>REBUILD MODE</b></div><span className="ih-icon-button">◎</span></div>
-      <div className="ih-tabs"><b>SPLITS</b><span>PROGRAM</span><span>HISTORY</span></div>
-      <div className="ih-list">
-        {splits.map((split) => <Link className="ih-split" to={split.path} key={split.name}><MediaTile label="GIF" src={split.image} /><div><strong>{split.name}</strong><small>{split.meta}</small><ProgressBar pct={split.name === 'Recovery' ? 45 : 70} /></div><em>{split.days}</em><b>›</b></Link>)}
+      <div className="ih-card ih-ai-card ih-real-train-hero ih-mock-train-hero">
+        <HelmetCoach small />
+        <div>
+          <small>TRAINING DECK</small>
+          <h1>TRAIN — REBUILD MODE</h1>
+          <p>Pick the split, open the program, log the work. Every set becomes proof.</p>
+        </div>
+      </div>
+      <div className="ih-stat-grid four ih-real-train-stat-grid ih-train-snapshot">
+        <StatCard label="Split" value="PPL" sub="Active" />
+        <StatCard label="Day" value="Push" sub="Chest/delts" tone="red" />
+        <StatCard label="Sets" value="16" sub="Target" tone="amber" />
+        <StatCard label="Proof" value="1" sub="Card ready" tone="green" />
+      </div>
+      <div className="ih-tabs ih-train-tabs"><b>SPLITS</b><span>PROGRAM</span><span>HISTORY</span></div>
+      <div className="ih-list ih-train-split-list">
+        {splits.map((split) => <Link className="ih-split ih-train-split" to={split.path} key={split.name}><MediaTile label="DEMO" src={split.image} /><div><strong>{split.name}</strong><small>{split.meta}</small><span>{split.accent}</span><ProgressBar pct={split.name === 'Recovery' ? 45 : 70} /></div><em>{split.days}</em><b>›</b></Link>)}
       </div>
       <Link className="ih-secondary ih-wide" to="/exercise?split=custom">⚒ CUSTOM SPLIT BUILDER</Link>
     </section>
