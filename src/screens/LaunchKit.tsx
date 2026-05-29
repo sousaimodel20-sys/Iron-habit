@@ -34,7 +34,7 @@ const LaunchKit = () => {
 
   return (
     <div className="page launch-kit-page stack-lg">
-      <PageHeader eyebrow="Phase 5 launch kit" title="Tester push, install polish, and launch demo in one place.">
+      <PageHeader eyebrow="Tester launch kit" title="Tester push, install polish, and launch demo in one place.">
         Use this as the final handoff screen before sending Iron Habit to the first 2–5 testers.
       </PageHeader>
 

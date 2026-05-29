@@ -72,3 +72,11 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification: `npm run build` passed.
 - Cursor status: used advisory wrapper; it recommended this one-line Launch Kit route fix.
 - Next remaining task: continue tiny tester-readiness polish, likely Launch Kit handoff copy or mobile scroll-clearance checks.
+
+## 2026-05-29 — Phase 5 tester-facing launch kit labels
+
+- Change: removed internal `Phase 5` wording from tester-facing Launch Kit and Settings CTAs so the handoff screen matches its own no-internal-roadmap promise.
+- Files: `src/screens/LaunchKit.tsx`, `src/screens/Settings.tsx`, `docs/progress-log.md`.
+- Verification: `npm run build` passed.
+- Cursor status: used advisory wrapper; it recommended this tiny copy polish.
+- Next remaining task: continue Launch Kit / Settings tester-readiness polish, likely mobile scroll-clearance or PWA trust copy.
