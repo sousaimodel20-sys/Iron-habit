@@ -1,25 +1,16 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { loadData } from '../utils/storage';
+import { calculateMacroTargets } from '../utils/nutrition';
 import { calculateSobrietyStreak } from '../utils/streaks';
 
-const coachImage = '/mockup-assets/helmet-coach.svg';
+const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
-const mealImage = '/mockup-assets/meal-bowl.svg';
+const mealImage = '/mockup-assets/plate-check-chicken.jpg';
+const trainHeroImage = '/mockup-assets/train-reference-hero-left.jpg';
 const pushPhoto = '/exercise-media/Barbell_Bench_Press_-_Medium_Grip/0.jpg';
 const pullPhoto = '/exercise-media/Seated_Cable_Rows/0.jpg';
 const legsPhoto = '/exercise-media/Hack_Squat/0.jpg';
-const upperPhoto = '/exercise-media/Incline_Dumbbell_Press/0.jpg';
-const lowerPhoto = '/exercise-media/Romanian_Deadlift/0.jpg';
-const fullPhoto = '/exercise-media/Farmers_Walk/0.jpg';
-
-const splits = [
-  { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=push', image: pushPhoto },
-  { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic strength', days: '▶', path: '/exercise?split=pull', image: pullPhoto },
-  { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power base', days: '▶', path: '/exercise?split=legs', image: legsPhoto },
-  { name: 'Upper Day', meta: 'Chest • Back • Arms', accent: 'Balanced split', days: '▶', path: '/exercise?split=upper', image: upperPhoto },
-  { name: 'Lower Day', meta: 'Legs • Glutes • Calves', accent: 'Lower body', days: '▶', path: '/exercise?split=lower', image: lowerPhoto },
-  { name: 'Full Body', meta: 'Total body assault', accent: 'Complete rebuild', days: '▶', path: '/exercise?split=full-body', image: fullPhoto },
-];
 
 const exercises = [
   { name: 'Barbell Bench Press', sets: '4 × 6–10', muscle: 'Chest • Shoulders • Triceps' },
@@ -38,12 +29,22 @@ const meetings = [
   { type: '✥', name: 'Daily Reflections', time: '7:00 PM', distance: '3.1 mi', meta: 'Open Meeting', tag: '' },
 ];
 
-const macroRows = [
-  { label: 'Calories', value: '2,140 / 2,800', pct: 76, tone: 'red' },
-  { label: 'Protein', value: '185 / 220g', pct: 84, tone: 'green' },
-  { label: 'Carbs', value: '140 / 250g', pct: 56, tone: 'amber' },
-  { label: 'Fat', value: '52 / 70g', pct: 74, tone: 'orange' },
-  { label: 'Water', value: '2.1L / 3.0L', pct: 70, tone: 'blue' },
+const formatNumber = (value: number) => value.toLocaleString();
+
+const formatCompactCalories = (value: number) => value >= 1000 ? `${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k` : `${value}`;
+
+const clampPct = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
+
+const getSetTotal = (sets: string) => {
+  const parsed = Number.parseInt(sets, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const loggedMeals = [
+  { name: 'Breakfast', detail: '620 cal • 42g protein', state: 'Logged', icon: '☼', tone: 'red' },
+  { name: 'Lunch', detail: '780 cal • 68g protein', state: 'Logged', icon: '☼', tone: 'amber' },
+  { name: 'Dinner', detail: '440 cal • 35g protein', state: 'Logged', icon: '☾', tone: 'violet' },
+  { name: 'Snack', detail: '—', state: 'Pending', icon: '▱', tone: 'gold' },
 ];
 
 function useMockData() {
@@ -54,36 +55,90 @@ function useMockData() {
   return { data, day, supportLocation, activeProgram };
 }
 
-export function PhoneStatus() {
-  return null;
-}
+export function PhoneStatus({ visible = false }: { visible?: boolean }) {
+  if (!visible) return null;
 
-export function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
   return (
-    <div className="ih-header">
-      {back ? <Link to="/today" className="ih-back">←</Link> : <span />}
-      <Link to="/today" className="ih-wordmark">IRON <b>HABIT</b></Link>
-      <span className="ih-step">{step}</span>
+    <div className="ih-status ih-fuel-status">
+      <span>1:46</span>
+      <div className="ih-status-right" aria-hidden="true">
+        <span className="ih-signal"><i /><i /><i /></span>
+        <span className="ih-wifi">⌒</span>
+        <span className="ih-battery">46</span>
+      </div>
     </div>
   );
 }
 
-export function HelmetCoach({ small = false }: { small?: boolean }) {
+export function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
   return (
-    <div className={small ? 'ih-coach ih-coach-small' : 'ih-coach'} aria-label="Iron helmet hoodie coach">
-      <div className="ih-red-beam left" />
-      <div className="ih-red-beam right" />
+    <>
+      <PhoneStatus />
+      <div className="ih-header">
+        {back ? <Link to="/today" className="ih-back">←</Link> : <span />}
+        <Link to="/today" className="ih-wordmark"><span>IRON</span><b>HABIT</b></Link>
+        <span className="ih-step">{step}</span>
+      </div>
+    </>
+  );
+}
+
+export function HelmetCoach({ small = false, splash = false }: { small?: boolean; splash?: boolean }) {
+  return (
+    <div
+      className={`ih-coach${small ? ' ih-coach-small' : ''}${splash ? ' ih-coach-splash' : ''}`}
+      aria-label="Iron helmet hoodie coach"
+    >
+      {!splash && (
+        <>
+          <div className="ih-red-beam left" />
+          <div className="ih-red-beam right" />
+        </>
+      )}
       <img className="ih-coach-photo" src={coachImage} alt="Iron helmet hoodie coach" />
     </div>
   );
 }
 
-function ProgressBar({ pct, tone = 'red' }: { pct: number; tone?: string }) {
-  return <span className={`ih-progress ih-${tone}`}><i style={{ width: `${pct}%` }} /></span>;
-}
-
 export function StatCard({ label, value, sub, tone = 'red' }: { label: string; value: string; sub?: string; tone?: string }) {
   return <div className="ih-stat"><span className={`ih-dot ih-${tone}`} /> <small>{label}</small><strong>{value}</strong>{sub && <em>{sub}</em>}</div>;
+}
+
+function FuelMetric({ label, icon, tone = 'red', consumed, target, remaining, pct }: { label: string; icon: string; tone?: string; consumed: string; target: string; remaining: string; pct: number }) {
+  return (
+    <div className={`ih-fuel-metric ih-fuel-tone-${tone}`} style={{ '--fuel-metric-progress': `${clampPct(pct)}%` } as CSSProperties}>
+      <div className="ih-fuel-metric-icon" aria-hidden="true">{icon}</div>
+      <div className="ih-fuel-metric-label">{label}</div>
+      <strong>{consumed}<small>/ {target}</small></strong>
+      <p>{remaining} remaining</p>
+      <div className="ih-fuel-progress-line">
+        <div className="ih-fuel-mini-track"><i /></div>
+        <b>{clampPct(pct)}%</b>
+      </div>
+    </div>
+  );
+}
+
+function MacroRing({ label, value, target, pct, tone }: { label: string; value: string; target: string; pct: number; tone: string }) {
+  return (
+    <div className={`ih-macro-ring ih-ring-tone-${tone}`} style={{ '--macro-ring-progress': `${clampPct(pct)}%` } as CSSProperties}>
+      <div className="ih-ring-orbit">
+        <span>{clampPct(pct)}%</span>
+        <strong>{label}</strong>
+        <b>{value}</b>
+        <small>/ {target}</small>
+      </div>
+    </div>
+  );
+}
+
+function PlateResult({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="ih-plate-result">
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
 }
 
 function MediaTile({ label, tall = false, src, video = false }: { label: string; tall?: boolean; src?: string; video?: boolean }) {
@@ -100,35 +155,52 @@ function MediaTile({ label, tall = false, src, video = false }: { label: string;
 export function WelcomeSplash() {
   return (
     <section className="ih-page ih-splash">
-      <PhoneStatus />
       <div className="ih-splash-stage">
-        <HelmetCoach />
-        <div className="ih-logo-block" aria-label="Iron Habit">
+        <div className="ih-logo-block ih-real-logo" aria-label="Iron Habit">
           <span>IRON</span>
           <b>HABIT</b>
         </div>
-        <p className="ih-splash-copy">PUT THE HELMET ON.<br />ONE TALK BUILDS THE APP.<br />LOCK IN TODAY.</p>
+        <HelmetCoach splash />
+        <div className="ih-real-splash-preview" aria-label="Today preview">
+          <div className="ih-real-preview-top">
+            <small>Today</small>
+            <strong>Your day</strong>
+          </div>
+          <div className="ih-real-preview-ring"><span>82</span><small>ready</small></div>
+          <div className="ih-real-preview-list">
+            <p><b /> Check-in complete</p>
+            <p><b /> Upper body · 45 min</p>
+            <p><b /> Meeting options nearby</p>
+          </div>
+        </div>
+        <p className="ih-splash-copy">
+          A realistic daily plan for staying sober, training, eating well, and proving progress one day at a time.
+        </p>
       </div>
-      <Link to="/onboarding" className="ih-primary ih-wide ih-talk-start">🎙 TALK TO START <small>Your AI coach is ready.</small></Link>
+      <div className="ih-splash-footer">
+        <Link to="/setup-profile" className="ih-primary ih-wide ih-talk-start">
+          <span className="ih-talk-start-main">Start your plan</span>
+          <small>Set up in under two minutes.</small>
+        </Link>
+      </div>
     </section>
   );
 }
 
 const onboardingSteps = [
-  { label: '01 / CITY + RECOVERY', title: 'WHERE ARE YOU BUILDING FROM?', copy: 'City, meetings base, and sober baseline.', body: <><label className="ih-input"><span>⌕</span><input placeholder="Enter your city" defaultValue="" /></label><div className="ih-chip-grid"><button>Just starting</button><button>Few days</button><button>Weeks</button><button>Months+</button></div></> },
-  { label: '02 / BODY BASICS', title: 'YOUR BASICS. LOCK IT IN.', copy: 'Height, weight, age, gender. No fluff.', body: <div className="ih-field-grid">{['Height', 'Weight', 'Age', 'Gender'].map((field) => <div className="ih-field" key={field}>{field}<b>—</b></div>)}</div> },
-  { label: '03 / TARGET', title: 'WHAT ARE WE BUILDING?', copy: 'Pick the transformation target.', body: <>{['🔥 Fat Loss', '💪 Muscle', '⚔ Both'].map((item) => <button className="ih-option" key={item}>{item}<small>{item.includes('Both') ? 'Recomp. Strong and lean.' : item.includes('Fat') ? 'Burn fat. Get sharp.' : 'Add size. Add strength.'}</small></button>)}</> },
-  { label: '04 / TRAINING LEVEL', title: 'CHOOSE YOUR LEVEL.', copy: 'The plan matches your floor, then raises it.', body: <>{['Beginner', 'Intermediate', 'Advanced', 'Elite'].map((item) => <button className="ih-option" key={item}>{item}<small>{item === 'Beginner' ? 'Build the base safely.' : 'Progression ready.'}</small></button>)}</> },
+  { label: '01 / LOCATION + RECOVERY', title: 'Set your starting point', copy: 'City, nearby support, and where you are in recovery.', body: <><label className="ih-input"><span>⌕</span><input placeholder="Enter your city" defaultValue="" /></label><div className="ih-chip-grid"><button>Day 1</button><button>Few days</button><button>Weeks</button><button>Months+</button></div></> },
+  { label: '02 / BODY BASICS', title: 'Add the basics', copy: 'Height, weight, age, and gender help tune training and nutrition.', body: <div className="ih-field-grid">{['Height', 'Weight', 'Age', 'Gender'].map((field) => <div className="ih-field" key={field}>{field}<b>—</b></div>)}</div> },
+  { label: '03 / GOAL', title: 'Choose a direction', copy: 'Start simple. You can adjust it later.', body: <>{['Fat loss', 'Build muscle', 'Recomp'].map((item) => <button className="ih-option" key={item}>{item}<small>{item.includes('Recomp') ? 'Get stronger while leaning out.' : item.includes('Fat') ? 'Lose fat with steady habits.' : 'Add size and strength.'}</small></button>)}</> },
+  { label: '04 / TRAINING LEVEL', title: 'Match your current level', copy: 'The plan starts at your floor, then progresses.', body: <>{['Beginner', 'Intermediate', 'Advanced', 'Elite'].map((item) => <button className="ih-option" key={item}>{item}<small>{item === 'Beginner' ? 'Build the base safely.' : 'Progression ready.'}</small></button>)}</> },
 ];
 
 export function OnboardingFlow() {
   return (
     <section className="ih-page ih-flow ih-onboarding-page">
-      <PhoneStatus />
       <BrandHeader step="SETUP" />
       <div className="ih-onboarding-hero">
         <HelmetCoach small />
-        <div><small>IRON SETUP</small><h1>TALK ONCE. APP PRELOADS.</h1><p>Meetings, Train, Fuel, Today, and Proof get wired around your baseline.</p></div>
+        <div><small>SETUP</small><h1>Build a plan that fits your day.</h1><p>Training, meals, check-ins, meetings, and proof stay organized around your baseline.</p></div>
       </div>
       {onboardingSteps.map((step) => (
         <div className="ih-card ih-question ih-step-card" key={step.label}>
@@ -141,7 +213,7 @@ export function OnboardingFlow() {
       <div className="ih-card ih-complete ih-final-checklist">
         <div><small>05 / ALL SET</small><h1>ALL SET. LET’S BUILD YOU.</h1><p>Your support base, body profile, routine, and first mission are ready.</p></div>
         <HelmetCoach small />
-        {['Profile Created', 'AI Plan Building', 'Local Support Found', 'Your First Mission Ready'].map((item) => <div className="ih-check" key={item}>✓ {item}</div>)}
+        {['Profile Created', 'Plan Building', 'Local Support Found', 'Your First Mission Ready'].map((item) => <div className="ih-check" key={item}>✓ {item}</div>)}
       </div>
       <Link to="/today" className="ih-primary ih-wide">ENTER IRON HABIT →</Link>
       <div className="ih-step-dots"><i /><i /><i /><i /><i /></div>
@@ -152,27 +224,26 @@ export function OnboardingFlow() {
 export function TodayPage() {
   const { day } = useMockData();
   const missions = [
-    { label: 'Morning Check-in', detail: 'Protect the streak first.', status: '✓', done: true },
-    { label: 'Push Workout', detail: 'Chest, delts, triceps.', status: '✓', done: true },
-    { label: 'Hit Protein Goal', detail: 'Fuel the rebuild.', status: '185 / 220g' },
-    { label: '10k Steps', detail: 'Move the stress out.', status: '6,432 / 10k' },
-    { label: 'Night Reflection', detail: 'Close the loop sober.', status: '○' },
+    { label: 'Morning check-in', detail: 'Mood, sleep, sober plan.', status: 'Done', done: true },
+    { label: 'Push workout', detail: 'Chest, delts, triceps.', status: 'Done', done: true },
+    { label: 'Protein target', detail: 'Keep meals steady.', status: '185g' },
+    { label: 'Steps', detail: 'Move stress through.', status: '6.4k' },
+    { label: 'Night reflection', detail: 'Close the loop sober.', status: 'Open' },
   ];
   return (
     <section className="ih-page ih-real-today">
-      <PhoneStatus />
       <BrandHeader />
       <section className="ih-real-today-hero" aria-label="Today mission dashboard">
         <HelmetCoach />
         <div className="ih-dashboard-hero ih-real-dashboard-hero">
-          <small>TODAY’S MISSION</small>
-          <h1>{day} <span>DAYS SOBER</span></h1>
-          <b>⚔ IRON PHASE II</b>
-          <p>One day. One body. One mission stack. Follow the orders and keep the proof moving.</p>
+          <small>TODAY</small>
+          <h1>{day} <span>{day === 1 ? 'DAY SOBER' : 'DAYS SOBER'}</span></h1>
+          <b>Daily plan</b>
+          <p>Check in, train, fuel, and keep proof moving with one clear day plan.</p>
         </div>
         <div className="ih-action-row ih-real-action-row">
-          <Link to="/talk" className="ih-primary">TALK TO IRON</Link>
-          <Link to="/rescue" className="ih-secondary">RESCUE</Link>
+          <Link to="/check-in" className="ih-primary">Check in</Link>
+          <Link to="/rescue?chain=1" className="ih-secondary">Rescue</Link>
         </div>
       </section>
       <div className="ih-stat-grid four ih-real-stat-grid">
@@ -182,7 +253,7 @@ export function TodayPage() {
         <StatCard label="Mind" value="2/3" tone="blue" sub="Calm reps" />
       </div>
       <div className="ih-card">
-        <div className="section-title-row"><div><small>DAILY COMMAND</small><h2>TODAY’S ORDERS</h2></div><b>2 / 5</b></div>
+        <div className="section-title-row"><div><small>Daily loop</small><h2>Today’s plan</h2></div><b>2 / 5 done</b></div>
         <div className="ih-real-orders-list">
           {missions.map((mission, index) => (
             <div className={`ih-mission ${mission.done ? 'mission-complete' : ''}`.trim()} key={mission.label}>
@@ -193,7 +264,6 @@ export function TodayPage() {
           ))}
         </div>
       </div>
-      <Link to="/talk" className="ih-primary ih-wide">🎙 TALK TO IRON</Link>
     </section>
   );
 }
@@ -201,7 +271,6 @@ export function TodayPage() {
 export function TalkPage() {
   return (
     <section className="ih-page ih-talk-page">
-      <PhoneStatus />
       <BrandHeader />
       <div className="ih-card ih-ai-card ih-talk-hero">
         <HelmetCoach small />
@@ -218,7 +287,7 @@ export function TalkPage() {
       <div className="ih-card ih-success ih-talk-loaded-card">
         <small>SETUP RESULT</small>
         <h2>HELMET ON. PLAN LOADED.</h2>
-        <p>Meetings, Train, Rescue, Today, Fuel, and Proof are wired around your baseline.</p>
+        <p>Today, Train, Fuel, Progress, and emergency Rescue are wired around your baseline.</p>
         <div className="ih-action-row"><Link to="/today">Enter Today</Link><Link to="/meetings">View Meetings</Link><Link to="/train">Start Routine</Link></div>
       </div>
     </section>
@@ -227,46 +296,135 @@ export function TalkPage() {
 
 export function MeetingsPage() {
   const { supportLocation } = useMockData();
-  const supportArea = supportLocation === 'your city' ? 'Austin, TX' : supportLocation;
+  const hasSavedSupportLocation = supportLocation !== 'your city';
+  const supportArea = hasSavedSupportLocation ? supportLocation : 'Sample support area';
+  const meetingSearchArea = hasSavedSupportLocation ? supportLocation : 'Austin, TX';
+  const meetingsSummary = hasSavedSupportLocation ? `Meetings near ${supportArea}` : 'Sample meetings for setup preview';
   return (
     <section className="ih-page ih-meetings-page">
-      <PhoneStatus />
       <BrandHeader />
-      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT RADAR</small><h1>FIND SUPPORT.<br />YOU DON’T DO<br />THIS ALONE.</h1><p>Meetings near {supportArea}</p></div><HelmetCoach small /></div>
-      <div className="ih-location-bar"><span>⌖</span><div><small>Current support area</small><strong>{supportArea}</strong></div><Link to="/talk">Change</Link></div>
+      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT NEARBY</small><h1>FIND<br />SUPPORT<br />NEARBY</h1><p>{meetingsSummary}</p></div><HelmetCoach small /></div>
+      <div className="ih-location-bar"><span>⌖</span><div><small>{hasSavedSupportLocation ? 'Current support area' : 'Sample support area'}</small><strong>{supportArea}</strong></div><Link to="/talk">Change</Link></div>
       <div className="ih-tabs ih-pill-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
       <div className="ih-list">
-        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + supportArea)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small></div><em>{meeting.distance}<small>{meeting.time}</small></em><b>›</b></a>)}
+        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + meetingSearchArea)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small></div><em>{meeting.distance}<small>{meeting.time}</small></em><b>›</b></a>)}
       </div>
-      <a className="ih-secondary ih-wide" href="https://www.aa.org/find-aa" target="_blank" rel="noreferrer">VIEW ONLINE MEETINGS</a>
+      <a className="ih-secondary ih-wide" href="https://www.aa.org/find-aa" target="_blank" rel="noreferrer">Online meeting options</a>
     </section>
   );
 }
 
 export function TrainPage() {
+  const { data } = useMockData();
+  const activeLoadout = data.activeLoadout;
+  const activeExercises = activeLoadout?.exercises || [];
+  const activeDay = activeLoadout?.days?.[0] || 'Push';
+  const totalSets = activeExercises.reduce((total, exercise) => total + getSetTotal(exercise.sets), 0);
+  const planLabel = activeLoadout?.label || 'PPL';
+  const workoutRows = [
+    { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic Strength', sets: `${totalSets || 16} sets`, exercises: `${activeExercises.length || 6} exercises`, image: pushPhoto, badge: 'TODAY', path: '/exercise?split=push' },
+    { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic Strength', sets: '16 sets', exercises: '6 exercises', image: pullPhoto, path: '/exercise?split=pull' },
+    { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power Base', sets: '18 sets', exercises: '7 exercises', image: legsPhoto, path: '/exercise?split=legs' },
+  ];
+  const statTiles = [
+    { label: 'Split', value: planLabel, sub: activeLoadout ? 'Active' : 'Default', icon: 'split', tone: 'red', to: '/exercise?split=custom' },
+    { label: 'Day', value: activeDay, sub: activeLoadout?.level || 'Chest/Delts', icon: 'day', tone: 'orange', to: '/exercise?split=push' },
+    { label: 'Sets', value: `${totalSets || 16}`, sub: 'Target', icon: 'sets', tone: 'amber', to: '/workout-mode' },
+    { label: 'Exercises', value: `${activeExercises.length || 6}`, sub: activeLoadout ? 'Loaded' : 'Sample', icon: 'exercises', tone: 'green', to: '/exercise?split=push' },
+  ];
+
   return (
-    <section className="ih-page ih-real-train ih-mock-train-page">
-      <PhoneStatus />
-      <BrandHeader />
-      <div className="ih-card ih-ai-card ih-real-train-hero ih-mock-train-hero">
-        <HelmetCoach small />
-        <div>
-          <small>TRAINING DECK</small>
-          <h1>TRAIN — REBUILD MODE</h1>
-          <p>Pick the split, open the program, log the work. Every set becomes proof.</p>
+    <section className="ih-page ih-real-train ih-reference-train">
+      <div className="ih-ref-status" aria-label="Phone status">
+        <span>2:27</span>
+        <b><i>◢</i> TELEGRAM</b>
+        <div className="ih-ref-system-icons" aria-hidden="true">
+          <span className="ih-signal"><i /><i /><i /></span>
+          <span className="ih-wifi">⌒</span>
+          <span className="ih-battery">39</span>
         </div>
       </div>
-      <div className="ih-stat-grid four ih-real-train-stat-grid ih-train-snapshot">
-        <StatCard label="Split" value="PPL" sub="Active" />
-        <StatCard label="Day" value="Push" sub="Chest/delts" tone="red" />
-        <StatCard label="Sets" value="16" sub="Target" tone="amber" />
-        <StatCard label="Proof" value="1" sub="Card ready" tone="green" />
+
+      <header className="ih-ref-header">
+        <button className="ih-ref-menu" type="button" aria-label="Open menu"><span /><span /><span /></button>
+        <div className="ih-ref-welcome">
+          <span>Welcome back,</span>
+          <strong>Let's get better today.</strong>
+        </div>
+        <div className="ih-ref-header-stats">
+          <div><span>🔥</span><strong>12</strong><small>Day Streak</small></div>
+          <div><span>🏆</span><strong>480</strong><small>Total Points</small></div>
+        </div>
+        <Link className="ih-ref-avatar" to="/profile" aria-label="Open profile">
+          <img src={coachImage} alt="" />
+        </Link>
+      </header>
+
+      <section className="ih-ref-hero" aria-label="Training hero">
+        <div className="ih-ref-hero-art" aria-hidden="true">
+          <span />
+          <img src={trainHeroImage} alt="" />
+        </div>
+        <div className="ih-ref-hero-copy">
+          <small>TRAINING</small>
+          <h1>Train today</h1>
+          <p>Pick the split, open the program, and log the work you actually did.</p>
+          <div className="ih-ref-hero-actions">
+            <Link to="/workout-mode">START WORKOUT <b>›</b></Link>
+            <Link to="/exercise?split=push">VIEW PROGRAM</Link>
+          </div>
+        </div>
+      </section>
+
+      <div className="ih-ref-stat-grid" aria-label="Training summary">
+        {statTiles.map((tile) => (
+          <Link className="ih-ref-stat-card" to={tile.to} key={tile.label}>
+            <span className={`ih-ref-stat-icon ih-ref-${tile.tone} ih-ref-stat-${tile.icon}`} aria-hidden="true" />
+            <small>{tile.label}</small>
+            <strong>{tile.value}</strong>
+            <em>{tile.sub}</em>
+            <b>›</b>
+          </Link>
+        ))}
       </div>
-      <div className="ih-tabs ih-train-tabs"><b>SPLITS</b><span>PROGRAM</span><span>HISTORY</span></div>
-      <div className="ih-list ih-train-split-list">
-        {splits.map((split) => <Link className="ih-split ih-train-split" to={split.path} key={split.name}><MediaTile label="DEMO" src={split.image} /><div><strong>{split.name}</strong><small>{split.meta}</small><span>{split.accent}</span><ProgressBar pct={split.name === 'Recovery' ? 45 : 70} /></div><em>{split.days}</em><b>›</b></Link>)}
+
+      <nav className="ih-ref-tabs" aria-label="Training sections">
+        <Link className="active" to="/train"><span className="ih-ref-tab-icon ih-ref-tab-splits" />SPLITS</Link>
+        <Link to="/exercise?split=push"><span className="ih-ref-tab-icon ih-ref-tab-program" />PROGRAM</Link>
+        <Link to="/profile"><span className="ih-ref-tab-icon ih-ref-tab-history" />HISTORY</Link>
+        <Link to="/progress-dashboard"><span className="ih-ref-tab-icon ih-ref-tab-analytics" />ANALYTICS <b>NEW</b></Link>
+      </nav>
+
+      <div className="ih-ref-workout-list">
+        {workoutRows.map((workout) => (
+          <Link className="ih-ref-workout-card" to={workout.path} key={workout.name}>
+            <div className="ih-ref-workout-media">
+              <img src={workout.image} alt="" />
+              {workout.badge && <span>{workout.badge}</span>}
+            </div>
+            <div className="ih-ref-workout-copy">
+              <strong>{workout.name}</strong>
+              <small>{workout.meta}</small>
+              <em>{workout.accent}</em>
+            </div>
+            <div className="ih-ref-workout-meta">
+              <span><i className="ih-ref-meta-sets" />{workout.sets}</span>
+              <span><i className="ih-ref-meta-exercises" />{workout.exercises}</span>
+            </div>
+            <span className="ih-ref-play" aria-label={`Start ${workout.name}`}>▶</span>
+            <b aria-hidden="true">•••</b>
+          </Link>
+        ))}
       </div>
-      <Link className="ih-secondary ih-wide" to="/exercise?split=custom">⚒ CUSTOM SPLIT BUILDER</Link>
+
+      <section className="ih-ref-help-card">
+        <span className="ih-ref-headset" aria-hidden="true"><i /></span>
+        <div>
+          <strong>Need help?</strong>
+          <small>Our coaching team is here to support you.</small>
+        </div>
+        <Link to="/rescue?chain=1">GET HELP NOW <b>›</b></Link>
+      </section>
     </section>
   );
 }
@@ -274,7 +432,6 @@ export function TrainPage() {
 export function ExerciseDetail() {
   return (
     <section className="ih-page ih-mock-train-page ih-exercise-detail-page">
-      <PhoneStatus />
       <BrandHeader back />
       <div className="ih-card ih-workout-head ih-exercise-hero">
         <HelmetCoach small />
@@ -293,7 +450,6 @@ export function ExerciseDetail() {
 export function WorkoutLogger() {
   return (
     <section className="ih-page ih-mock-train-page ih-workout-logger-page">
-      <PhoneStatus />
       <BrandHeader back />
       <div className="ih-card ih-logger-hero"><div><small>ACTIVE WORKOUT</small><h1>PUSH DAY</h1><b>37:24</b></div><span className="ih-icon-button">Ⅱ</span></div>
       <div className="ih-active-set-card"><div><small>NOW LOGGING</small><h2>Incline Dumbbell Press</h2><p>Set 2 of 3 • Upper chest focus</p></div><b>02/06</b></div>
@@ -306,40 +462,125 @@ export function WorkoutLogger() {
 }
 
 export function FuelPage() {
+  const { data } = useMockData();
+  const targets = calculateMacroTargets(data.bodyProfile);
+  const calorieTarget = targets?.targetCalories || 2400;
+  const proteinTarget = targets?.proteinGrams || 200;
+  const carbTarget = targets?.carbGrams || 300;
+  const fatTarget = targets?.fatGrams || 70;
+  const caloriePct = 77;
+  const proteinPct = 82;
+  const carbPct = 70;
+  const fatPct = 74;
+  const waterPct = 70;
+  const caloriesConsumed = Math.round(calorieTarget * 0.7667 / 10) * 10;
+  const proteinConsumed = Math.round(proteinTarget * 0.825);
+  const carbsConsumed = Math.round(carbTarget * 0.7);
+  const fatConsumed = Math.round(fatTarget * 0.742);
+  const waterConsumed = 2.1;
+  const waterTarget = 3;
+  const todayLabel = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date());
+  const macroRings = [
+    { label: 'Carbs', value: `${formatNumber(carbsConsumed)}g`, target: `${formatNumber(carbTarget)}g`, pct: carbPct, tone: 'green' },
+    { label: 'Protein', value: `${formatNumber(proteinConsumed)}g`, target: `${formatNumber(proteinTarget)}g`, pct: proteinPct, tone: 'red' },
+    { label: 'Fat', value: `${formatNumber(fatConsumed)}g`, target: `${formatNumber(fatTarget)}g`, pct: fatPct, tone: 'amber' },
+  ];
+  const mealResults = [
+    { label: 'Cal', value: '650' },
+    { label: 'Protein', value: '52g' },
+    { label: 'Carbs', value: '48g' },
+    { label: 'Fat', value: '21g' },
+  ];
+
   return (
     <section className="ih-page ih-fuel-page">
-      <PhoneStatus />
-      <BrandHeader />
-      <div className="ih-fuel-hero">
+      <PhoneStatus visible />
+      <div className="ih-fuel-topbar">
         <div>
-          <small>IRON FUEL</small>
-          <h1>FUEL THE REBUILD.</h1>
-          <p>Calories, macros, hydration, meal scan, and craving nutrition rescue in one native dashboard.</p>
+          <h1>Fuel</h1>
+          <p>Today, {todayLabel} <span aria-hidden="true">⌄</span></p>
         </div>
-        <span className="ih-ring-score">78%</span>
+        <Link to="/profile" className="ih-fuel-chart-button" aria-label="Open progress dashboard">
+          <i /><i /><i />
+        </Link>
       </div>
-      <div className="ih-fuel-snapshot">
-        <StatCard label="Cal" value="2.1k" sub="of 2.8k" />
-        <StatCard label="Protein" value="185g" sub="target 220" tone="green" />
-        <StatCard label="Water" value="2.1L" sub="3.0L goal" tone="blue" />
+
+      <div className="ih-fuel-dashboard" aria-label="Daily fuel dashboard">
+        <FuelMetric
+          label="Calories"
+          icon="🔥"
+          consumed={formatNumber(caloriesConsumed)}
+          target={formatNumber(calorieTarget)}
+          remaining={`${formatNumber(Math.max(0, calorieTarget - caloriesConsumed))} kcal`}
+          pct={caloriePct}
+        />
+        <FuelMetric
+          label="Protein"
+          icon="⚡"
+          consumed={`${formatNumber(proteinConsumed)}g`}
+          target={`${formatNumber(proteinTarget)}g`}
+          remaining={`${formatNumber(Math.max(0, proteinTarget - proteinConsumed))}g`}
+          pct={proteinPct}
+        />
+        <FuelMetric
+          label="Water"
+          icon="💧"
+          tone="blue"
+          consumed={`${waterConsumed.toFixed(1)}L`}
+          target={`${waterTarget.toFixed(1)}L`}
+          remaining={`${Math.max(0, waterTarget - waterConsumed).toFixed(1)}L`}
+          pct={waterPct}
+        />
       </div>
-      <div className="ih-card ih-macro-card">
-        <div className="ih-section-head"><div><small>MACRO COMMAND</small><h2>TODAY’S TARGETS</h2></div><b>ON TRACK</b></div>
-        {macroRows.map((row) => <div className="ih-macro" key={row.label}><div><strong>{row.label}</strong><span>{row.value}</span></div><ProgressBar pct={row.pct} tone={row.tone} /></div>)}
+
+      <div className="ih-fuel-rings" aria-label={`${formatCompactCalories(calorieTarget)} calorie target macro progress`}>
+        <div className="ih-macro-ring-row">
+          {macroRings.map((ring) => <MacroRing key={ring.label} {...ring} />)}
+        </div>
       </div>
-      <div className="ih-card ih-meal-scan-card">
-        <div className="ih-section-head"><div><small>CAMERA SCAN</small><h2>SCAN THE PLATE</h2></div><b>AI ESTIMATE</b></div>
-        <MediaTile label="MEAL IMAGE" tall src={mealImage} />
-        <div className="ih-stat-grid four"><StatCard label="CAL" value="650" /><StatCard label="PROTEIN" value="52g" /><StatCard label="CARBS" value="48g" /><StatCard label="FAT" value="21g" /></div>
-        <button className="ih-primary ih-wide">ADD TO LOG</button><button className="ih-secondary ih-wide">SCAN ANOTHER</button>
+
+      <div className="ih-plate-check">
+        <div className="ih-fuel-section-title">
+          <div><small>Plate check</small><h2>Chicken, rice and veggies</h2></div>
+          <b>Estimate</b>
+        </div>
+        <div className="ih-plate-layout">
+          <div className="ih-plate-thumb">
+            <img src={mealImage} alt="" />
+            <span />
+          </div>
+          <div className="ih-plate-side">
+            <div className="ih-plate-results">
+              {mealResults.map((result) => <PlateResult key={result.label} {...result} />)}
+            </div>
+            <div className="ih-plate-actions">
+              <button className="ih-primary">Add to log <span aria-hidden="true">+</span></button>
+              <button className="ih-secondary">Scan another <span aria-hidden="true">⌖</span></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="ih-card ih-fuel-stack">
-        <div className="ih-section-head"><div><small>LOGGED TODAY</small><h2>MEAL STACK</h2></div><b>4/5</b></div>
-        {['Breakfast — 3 eggs, oats, banana', 'Lunch — Chicken rice bowl', 'Post Workout — Whey shake + fruit', 'Dinner — Salmon, sweet potato'].map((meal) => <div className="ih-meal" key={meal}>{meal}<b>✓</b></div>)}
-        <button className="ih-primary ih-wide">+ ADD MEAL</button>
+
+      <div className="ih-meal-history">
+        <div className="ih-fuel-section-title">
+          <div><small>Logged today</small><h2>Meals</h2></div>
+          <b>4 / 5</b>
+        </div>
+        <div className="ih-meal-card-grid">
+          {loggedMeals.map((meal) => (
+            <article className={`ih-compact-meal-card ${meal.state === 'Pending' ? 'is-pending' : ''}`} key={meal.name}>
+              <span className={`ih-meal-icon ih-meal-tone-${meal.tone}`} aria-hidden="true">{meal.icon}</span>
+              <div className="ih-compact-meal-copy">
+                <strong>{meal.name}</strong>
+                <p>{meal.detail}</p>
+              </div>
+              <span className="ih-meal-state">{meal.state}</span>
+              <b className="ih-meal-check">{meal.state === 'Logged' ? '✓' : ''}</b>
+              <span className="ih-meal-arrow" aria-hidden="true">›</span>
+            </article>
+          ))}
+        </div>
       </div>
-      <div className="ih-card ih-ideas-card"><h2>AI MEAL IDEAS</h2>{['High Protein Chicken Bowl', 'Steak & Rice', 'Turkey Wrap', 'Protein Pancakes'].map((meal) => <div className="ih-meal" key={meal}>{meal}<span>Protein-first</span></div>)}</div>
-      <div className="ih-card ih-danger ih-nutrition-rescue"><h2>CRAVING HITTING HARD?</h2><p>Use food as fuel. Beat the urge.</p>{['High Protein Shake', 'Greek Yogurt + Berries', 'Banana + Peanut Butter', 'Beef Jerky', 'Electrolytes'].map((item) => <div className="ih-meal" key={item}>{item}<b>›</b></div>)}<button className="ih-primary ih-wide">I ATE SOMETHING</button></div>
     </section>
   );
 }
@@ -355,7 +596,6 @@ export function RescuePage() {
   ];
   return (
     <section className="ih-page ih-rescue-page">
-      <PhoneStatus />
       <BrandHeader />
       <div className="ih-card ih-danger ih-rescue-hero">
         <div>
@@ -392,7 +632,6 @@ export function ProofPage() {
   ];
   return (
     <section className="ih-page ih-proof-page">
-      <PhoneStatus />
       <BrandHeader />
       <div className="ih-proof-hero"><div><small>PROOF VAULT</small><h1>VICTORY CARDS</h1><p>Receipts for sober days, workouts, cravings survived, and milestones.</p></div><HelmetCoach small /></div>
       <div className="ih-stat-grid four ih-proof-snapshot"><StatCard label="Sober" value={`${day}`} sub="Days" /><StatCard label="Train" value="16" sub="Sets" tone="red" /><StatCard label="Craving" value="10/10" sub="Beat" tone="amber" /><StatCard label="Cards" value="4" sub="Ready" tone="green" /></div>

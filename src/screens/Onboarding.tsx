@@ -7,7 +7,7 @@ import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { defaultData, getTodayKey, loadData, replaceData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry, type IronHabitData, type Profile } from '../utils/storage';
 import { buildSupportSmsHref, hasSupportContact } from '../utils/support';
 import { calculateSobrietyStreak } from '../utils/streaks';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const Onboarding = () => {
   const [searchParams] = useSearchParams();
@@ -307,7 +307,6 @@ const Onboarding = () => {
     <div className={`page warrior-page stack-lg ${needsSetup ? '' : 'ih-page ih-real-today'}`.trim()}>
       {!needsSetup && (
         <>
-          <PhoneStatus />
           <BrandHeader />
         </>
       )}

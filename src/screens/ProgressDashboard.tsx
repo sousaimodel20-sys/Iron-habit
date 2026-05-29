@@ -9,7 +9,7 @@ import { formatMoney, formatNumber, getTransformationMetrics } from '../utils/tr
 import { calculateMacroTargets, formatHeight } from '../utils/nutrition';
 import { getCravingReceipts, getLatestEmergencyCravingReceipt, getLatestProof, getProofStack } from '../utils/proofReceipts';
 import { buildMeetingsPath, buildSupportSmsHref, getMeetingsCtaLabel, getSupportContactLabel, hasSupportContact } from '../utils/support';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const milestones = [7, 14, 30, 60, 90, 365];
 const milestonePlan = [
@@ -125,7 +125,6 @@ const ProgressDashboard = () => {
 
   return (
     <div className="page ih-page ih-real-proof profile-page stack-lg">
-      <PhoneStatus />
       <BrandHeader step="PROOF" />
 
       <section className="ih-card ih-ai-card ih-real-proof-hero" aria-label="Iron Habit proof vault">

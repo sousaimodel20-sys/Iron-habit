@@ -6,7 +6,7 @@ import { Button, Card } from '../components/UI';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { getCravingReceiptByDate, getCravingReceipts, getProofById } from '../utils/proofReceipts';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const templates: { id: VictoryTemplate; label: string; description: string }[] = [
   { id: 'comeback', label: 'Comeback', description: 'Sober transformation energy.' },
@@ -195,7 +195,6 @@ const ShareProgressScreen = () => {
 
   return (
     <div className="page ih-page ih-real-share share-progress-page stack-lg content-studio-page">
-      <PhoneStatus />
       <BrandHeader step="SHARE" />
 
       <section className="ih-card ih-ai-card ih-real-share-hero" aria-label="Iron Habit TikTok Proof Pack">

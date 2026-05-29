@@ -82,13 +82,20 @@ Cursor harness and roadmap files were added for the July 13 sober-anniversary la
 - `.cursor/rules/iron-habit-july13-launch.mdc`
 - `.cursor/rules/iron-habit-shipping-workflow.mdc`
 - `.cursor/rules/iron-habit-safety-and-dates.mdc`
+- `.cursor/rules/iron-habit-visual-sprints.mdc`
 - `docs/plans/july-13-launch-roadmap.md`
+- `docs/plans/visual-sprint-coordination.md`
 - `docs/cursor-code-map.md`
 
-There are active uncommitted app changes from the current onboarding/mobile polish pass:
+There are active uncommitted app changes from the current visual sprint pass:
 
+- `public/mockup-assets/helmet-coach.svg`
+- `public/mockup-assets/iron-habit-coach-v2.png`
+- `src/App.tsx`
 - `src/index.css`
+- `src/screens/LaunchOnboarding.tsx`
 - `src/screens/Onboarding.tsx`
+- Multiple real screens that now use shared `BrandHeader` phone chrome instead of rendering `PhoneStatus` separately.
 
 Do not overwrite those blindly. Inspect diffs before editing.
 

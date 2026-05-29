@@ -1,5 +1,20 @@
 # Iron Habit Progress Log
 
+## 2026-05-29 — Phase 5 visual sprint coordination + Sprint 0 cleanup
+
+Phase 5 visual work now has a coordination gate:
+
+- Added `docs/plans/visual-sprint-coordination.md` with Sprint 0-4 sequencing, Hermes/Cursor roles, and the duplicate-code gate.
+- Added `.cursor/rules/iron-habit-visual-sprints.mdc` so Cursor checks the visual plan and duplicate-code scan before marking visual work done.
+- Updated `docs/cursor-code-map.md` to point Cursor at the active visual sprint files.
+- Removed duplicate launch-only phone status chrome from `LaunchOnboarding`; the first-run flow now reuses shared `PhoneStatus` from `IronHabitMockup`.
+- Removed the unused launch phone-status CSS icon classes and scoped launch onboarding to the shared native status chrome.
+- Remaining launch onboarding save logic is intentionally local for now because it writes existing storage fields and reuses `createStarterLoadout` plus local date formatting.
+- Verification passed: `npm run lint`, `npm run build`, `npm run test:daily-mission`, `npm run test:proof-receipts`, `npm run test:support-helpers`, `npm run test:emergency-support-chain`, and `npm run test:talk-next-move`.
+- Browser smoke passed locally with zero console errors for `/`, `/today`, `/talk`, `/train`, `/rescue`, `/progress-dashboard`, `/share-progress`, `/settings`, `/meetings`, `/fuel`, `/proof`, `/setup-profile`, and `/launch-kit`.
+
+Next step: keep Sprint 0 open only for a final human visual review of the current large CSS/app diff, then move to Sprint 1 onboarding conversion.
+
 ## 2026-05-27 — Phase 4 Real User Readiness closeout
 
 Phase 4 is feature-complete for the current launch-readiness path:
@@ -43,3 +58,9 @@ Phase 2 is feature-complete for the current alpha path:
 - Phase 2 verification passed: `npm run test:talk-next-move`, `npm run test:emergency-support-chain`, `npm run lint`, and `npm run build`.
 
 Next phase: start Phase 3 Share/TikTok engine with share progress cards, milestone celebrations, founder launch copy, and mobile polish.
+
+## 2026-05-29 — Phase 5 sleep roadmap
+
+- Saved current Phase 5 launch roadmap at docs/plans/phase-5-launch-roadmap.md.
+- Current direction: tester-ready mobile polish, PWA/trust polish, tester handoff, final regression/deploy prep.
+- Automated overnight loop requested: every 15 minutes, run small verified coding/polish passes using Cursor/Codex where available.

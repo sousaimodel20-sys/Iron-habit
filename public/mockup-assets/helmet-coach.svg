@@ -1,28 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 680">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" role="img" aria-label="Iron Habit helmet coach">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="25%" r="70%"><stop offset="0" stop-color="#2b2d31"/><stop offset="0.46" stop-color="#08090b"/><stop offset="1" stop-color="#000"/></radialGradient>
-    <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#090a0c"/><stop offset="0.32" stop-color="#4b4f55"/><stop offset="0.5" stop-color="#d5d7dc"/><stop offset="0.58" stop-color="#111318"/><stop offset="1" stop-color="#050507"/></linearGradient>
-    <linearGradient id="hood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#282b2f"/><stop offset="0.44" stop-color="#0d0e11"/><stop offset="1" stop-color="#010101"/></linearGradient>
-    <filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#000" flood-opacity="0.9"/></filter>
-    <filter id="redglow"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff2537" flood-opacity="0.75"/></filter>
+    <linearGradient id="bgGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff2338" stop-opacity="0.22"/>
+      <stop offset="0.44" stop-color="#4a050b" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hoodMain" x1="0.16" y1="0" x2="0.84" y2="1">
+      <stop offset="0" stop-color="#24262d"/>
+      <stop offset="0.22" stop-color="#111319"/>
+      <stop offset="0.56" stop-color="#050609"/>
+      <stop offset="1" stop-color="#010102"/>
+    </linearGradient>
+    <linearGradient id="helmetMain" x1="0.18" y1="0.02" x2="0.82" y2="1">
+      <stop offset="0" stop-color="#323641"/>
+      <stop offset="0.18" stop-color="#171a21"/>
+      <stop offset="0.45" stop-color="#090b10"/>
+      <stop offset="0.7" stop-color="#171a20"/>
+      <stop offset="1" stop-color="#020304"/>
+    </linearGradient>
+    <linearGradient id="helmetRim" x1="0" y1="0.48" x2="1" y2="0.48">
+      <stop offset="0" stop-color="#ff2a3d" stop-opacity="0.54"/>
+      <stop offset="0.18" stop-color="#541018" stop-opacity="0.12"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.03"/>
+      <stop offset="0.82" stop-color="#541018" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ff2a3d" stop-opacity="0.54"/>
+    </linearGradient>
+    <linearGradient id="visor" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1b0508"/>
+      <stop offset="0.22" stop-color="#ff3046"/>
+      <stop offset="0.5" stop-color="#32050a"/>
+      <stop offset="0.78" stop-color="#ff3046"/>
+      <stop offset="1" stop-color="#1b0508"/>
+    </linearGradient>
+    <linearGradient id="steelEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3f4f6" stop-opacity="0.34"/>
+      <stop offset="0.32" stop-color="#8b929d" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-12%" width="140%" height="130%">
+      <feDropShadow dx="0" dy="34" stdDeviation="28" flood-color="#000" flood-opacity="0.95"/>
+    </filter>
+    <filter id="redBloom" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <rect width="520" height="680" fill="none"/>
-  <g filter="url(#shadow)">
-    <path d="M92 642c10-138 42-229 96-274 27 40 54 60 82 60 29 0 58-20 86-60 55 45 85 136 94 274H92Z" fill="url(#hood)" stroke="#35373b" stroke-width="3"/>
-    <path d="M74 656c18-106 53-178 106-217 18 77 46 116 84 116 40 0 70-40 90-119 52 39 84 112 96 220H74Z" fill="#070708" stroke="#1f2125" stroke-width="3"/>
-    <path d="M122 360c-3-109 40-205 137-205 101 0 147 95 142 205-17 75-66 123-140 123-73 0-121-48-139-123Z" fill="url(#hood)" stroke="#272a30" stroke-width="4"/>
-    <path d="M164 324c-3-113 28-187 96-204 68 17 99 91 96 204-9 86-40 137-96 151-55-14-87-65-96-151Z" fill="url(#metal)" stroke="#c7c9cd" stroke-opacity="0.42" stroke-width="4"/>
-    <path d="M260 118v354" stroke="#e4e6eb" stroke-opacity="0.75" stroke-width="5"/>
-    <path d="M180 284h160" stroke="#030303" stroke-width="24" stroke-linecap="round"/>
-    <path d="M189 271h142" stroke="#bfc2c7" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round"/>
-    <path d="M206 374h108" stroke="#090909" stroke-width="54" stroke-linecap="round"/>
-    <path d="M213 350v52M232 345v62M251 342v68M270 342v68M289 345v62M307 350v52" stroke="#888b90" stroke-width="4" opacity="0.75"/>
-    <path d="M158 404c31 54 66 82 104 82 37 0 70-28 99-82" fill="none" stroke="#000" stroke-width="20" opacity="0.55"/>
+
+  <rect width="900" height="1100" fill="none"/>
+  <ellipse cx="450" cy="704" rx="335" ry="372" fill="url(#bgGlow)" opacity="0.85"/>
+
+  <g filter="url(#softShadow)">
+    <!-- broad hoodie silhouette -->
+    <path d="M122 1050c19-185 69-317 151-396 38 68 96 106 177 106 82 0 142-38 181-106 83 78 132 211 147 396H122Z" fill="#020203"/>
+    <path d="M168 1050c20-154 61-260 123-319 37 73 91 110 160 110 70 0 124-37 161-111 62 58 102 165 120 320H168Z" fill="url(#hoodMain)"/>
+    <path d="M237 938c50-45 113-67 214-67 98 0 161 22 212 67-23-110-65-183-128-219-25 36-53 55-85 55-32 0-61-19-86-55-63 36-105 109-127 219Z" fill="#050609" opacity="0.92"/>
+
+    <!-- hood opening -->
+    <path d="M224 545c-7-191 75-333 226-333 153 0 235 142 227 333-24 150-106 236-226 236-121 0-203-86-227-236Z" fill="#030405"/>
+    <path d="M270 552c-8-175 58-307 180-337 123 30 188 162 181 337-20 131-82 205-181 226-98-21-160-95-180-226Z" fill="url(#helmetMain)"/>
+    <path d="M270 552c-8-175 58-307 180-337 123 30 188 162 181 337-20 131-82 205-181 226-98-21-160-95-180-226Z" fill="url(#helmetRim)" opacity="0.9"/>
+
+    <!-- modern helmet facets -->
+    <path d="M318 339c31-68 75-105 132-116 58 11 102 48 133 116-44-24-88-36-133-36-45 0-89 12-132 36Z" fill="#262b35" opacity="0.52"/>
+    <path d="M310 390c35-37 82-56 140-56s105 19 141 56l-20 73H329l-19-73Z" fill="#11151d" opacity="0.96"/>
+    <path d="M329 466h242c-5 42-17 78-37 108H366c-20-30-32-66-37-108Z" fill="#05070b" opacity="0.98"/>
+
+    <!-- visor: clean, not pixel-art -->
+    <path d="M319 420c29-20 72-31 131-31s102 11 132 31c-3 18-8 33-15 45H333c-7-12-12-27-14-45Z" fill="#020203"/>
+    <path d="M344 430c26-10 61-15 106-15s80 5 106 15l-10 16H354l-10-16Z" fill="url(#visor)" opacity="0.88"/>
+    <path d="M360 432h180" stroke="#ff4053" stroke-width="2.8" stroke-linecap="round" opacity="0.75"/>
+
+    <!-- subtle steel/rim details -->
+    <path d="M287 545c-6-139 42-261 135-306" fill="none" stroke="url(#steelEdge)" stroke-width="8" stroke-linecap="round" opacity="0.38"/>
+    <path d="M614 545c6-139-42-261-135-306" fill="none" stroke="#ff2639" stroke-width="5" stroke-linecap="round" opacity="0.18"/>
+    <path d="M350 606c27 18 61 27 101 27 39 0 73-9 100-27" fill="none" stroke="#1f232c" stroke-width="10" stroke-linecap="round" opacity="0.72"/>
+    <path d="M378 662c21 14 45 21 73 21 27 0 51-7 72-21" fill="none" stroke="#0d1016" stroke-width="12" stroke-linecap="round" opacity="0.9"/>
+
+    <!-- shoulder armor hints -->
+    <path d="M161 1034c21-78 58-141 110-190 36 36 89 55 159 58-98 13-173 56-225 132H161Z" fill="#0c0e13" opacity="0.94"/>
+    <path d="M739 1034c-21-78-58-141-110-190-36 36-89 55-159 58 98 13 173 56 225 132h44Z" fill="#090b10" opacity="0.96"/>
   </g>
-  <g filter="url(#redglow)" opacity="0.95">
-    <rect x="78" y="250" width="8" height="205" rx="4" fill="#ff2537"/>
-    <rect x="434" y="250" width="8" height="205" rx="4" fill="#ff2537"/>
+
+  <!-- red cinematic side lights -->
+  <g filter="url(#redBloom)" opacity="0.78">
+    <path d="M156 334v382" stroke="#ff2338" stroke-width="10" stroke-linecap="round" opacity="0.16"/>
+    <path d="M744 334v382" stroke="#ff2338" stroke-width="10" stroke-linecap="round" opacity="0.16"/>
+    <path d="M286 790c43 50 96 74 164 74s122-24 165-74" fill="none" stroke="#ff2338" stroke-width="5" stroke-linecap="round" opacity="0.11"/>
   </g>
-  <text x="260" y="598" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="38" letter-spacing="8" fill="#e7e7e7" opacity="0.8">IRON</text>
-  <text x="260" y="632" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="22" letter-spacing="6" fill="#b91c1c" opacity="0.85">HABIT</text>
 </svg>

@@ -6,7 +6,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const today = () => formatLocalDateKey();
 
@@ -50,7 +50,6 @@ const WorkoutMode = () => {
   if (!loadout) {
     return (
       <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
-        <PhoneStatus />
         <BrandHeader step="WORKOUT" back />
 
         <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Workout mode starter routine">
@@ -156,7 +155,6 @@ const WorkoutMode = () => {
     const proof = victoryProof;
     return (
       <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
-        <PhoneStatus />
         <BrandHeader step="PROOF" back />
 
         <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Workout proof saved">
@@ -225,7 +223,6 @@ const WorkoutMode = () => {
 
   return (
     <div className="page ih-page ih-real-workout warrior-page workout-mode-page stack-lg">
-      <PhoneStatus />
       <BrandHeader step="ROUTINE" back />
 
       <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Iron Habit routine sheet">

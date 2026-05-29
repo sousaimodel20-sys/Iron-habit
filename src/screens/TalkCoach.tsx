@@ -17,7 +17,7 @@ import { calculateSobrietyStreak } from '../utils/streaks';
 import { getTodayKey, loadData, saveData, type ActiveLoadout, type BodyProfile, type CheckIn, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { buildTalkNextMove } from '../utils/talkNextMove';
 import { detectLoadoutId, getLoadoutById, loadouts } from '../utils/workoutLoadouts';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 type WebSpeechRecognitionResultEvent = {
   results: {
@@ -925,7 +925,6 @@ const TalkCoach = () => {
 
   return (
     <div className="page ih-page ih-real-talk warrior-page talk-page loadout-page stack-lg">
-      <PhoneStatus />
       <BrandHeader />
 
       <section className="ih-card ih-ai-card ih-real-talk-hero" aria-label="Iron Habit Talk command center">

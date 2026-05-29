@@ -6,7 +6,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
 const intensities = ['Easy', 'Moderate', 'Hard', 'Beast mode'];
@@ -139,7 +139,6 @@ const FitnessTracker = () => {
 
   return (
     <div className="page ih-page ih-real-train warrior-page fitness-page stack-lg">
-      <PhoneStatus />
       <BrandHeader step="TRAIN" />
 
       <section className="ih-card ih-ai-card ih-real-train-hero" aria-label="Iron Habit training command deck">

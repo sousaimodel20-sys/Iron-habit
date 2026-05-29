@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { defaultData, loadData, replaceData, resetData, type IronHabitData } from '../utils/storage';
 import { formatLocalDateKey } from '../utils/date';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const Settings = () => {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'success'>('idle');
@@ -110,7 +110,6 @@ const Settings = () => {
 
   return (
     <div className="page ih-page ih-real-settings warrior-page stack-lg">
-      <PhoneStatus />
       <BrandHeader step="SETUP" />
 
       <section className="ih-card ih-ai-card ih-real-settings-hero" aria-label="Iron Habit setup control room">

@@ -1,8 +1,9 @@
-import { NavLink, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { Navigate, NavLink, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import DailyCheckIn from './screens/DailyCheckIn';
 import FitnessTracker from './screens/FitnessTracker';
 import HabitTracker from './screens/HabitTracker';
 import LaunchKit from './screens/LaunchKit';
+import LaunchOnboarding from './screens/LaunchOnboarding';
 import Onboarding from './screens/Onboarding';
 import ProgressDashboard from './screens/ProgressDashboard';
 import CravingRescue from './screens/CravingRescue';
@@ -13,42 +14,43 @@ import {
   FuelPage,
   MeetingsPage as MockMeetingsPage,
   OnboardingFlow,
-  ProofPage as MockProofPage,
-  RescuePage as MockRescuePage,
   TalkPage as MockTalkPage,
   TodayPage,
   TrainPage,
-  WelcomeSplash,
   WorkoutLogger,
 } from './screens/IronHabitMockup';
 
 const navItems = [
   { to: '/today', label: 'Today', icon: '⌂' },
-  { to: '/talk', label: 'Talk', icon: '◌' },
-  { to: '/meetings', label: 'Meetings', icon: '♜' },
+  { to: '/meetings', label: 'Meetings', icon: '◎' },
   { to: '/train', label: 'Train', icon: '♞' },
   { to: '/fuel', label: 'Fuel', icon: '◒' },
-  { to: '/rescue', label: 'Rescue', icon: '⚕' },
-  { to: '/proof', label: 'Proof', icon: '◈' },
+  { to: '/profile', label: 'Progress', icon: '◈' },
 ];
 
 const isActiveRoute = (path: string, target: string) => {
+  if (target === '/meetings') return path.startsWith('/meetings');
   if (target === '/train') return ['/train', '/exercise', '/workout-mode', '/fitness-tracker'].some((route) => path.startsWith(route));
-  if (target === '/proof') return ['/proof', '/profile', '/progress-dashboard', '/share-progress'].some((route) => path.startsWith(route));
-  if (target === '/today') return path === '/today';
+  if (target === '/profile') return ['/profile', '/progress-dashboard', '/share-progress', '/proof'].some((route) => path.startsWith(route));
+  if (target === '/today') return path === '/today' || path === '/talk' || path === '/check-in' || path === '/daily-check-in' || path === '/habit-tracker';
   return path.startsWith(target);
 };
 
 function AppLayout() {
   const location = useLocation();
-  const showDock = location.pathname !== '/' && location.pathname !== '/onboarding';
+  const introRoutes = ['/', '/intro', '/onboarding', '/onboarding-preview', '/setup-profile'];
+  const showDock = !introRoutes.includes(location.pathname);
+  const useFloatingRescue = location.pathname.startsWith('/fuel');
+  const useReferenceTrainDock = location.pathname === '/train';
 
   return (
     <div className="app-shell ih-app-shell">
       <main className="screen-frame ih-screen-frame">
         <Routes>
-          <Route path="/" element={<WelcomeSplash />} />
-          <Route path="/onboarding" element={<OnboardingFlow />} />
+          <Route path="/" element={<LaunchOnboarding />} />
+          <Route path="/intro" element={<LaunchOnboarding />} />
+          <Route path="/onboarding" element={<LaunchOnboarding />} />
+          <Route path="/onboarding-preview" element={<OnboardingFlow />} />
           <Route path="/setup-profile" element={<Onboarding />} />
           <Route path="/today" element={<TodayPage />} />
           <Route path="/talk" element={<MockTalkPage />} />
@@ -58,9 +60,9 @@ function AppLayout() {
           <Route path="/exercise" element={<ExerciseDetail />} />
           <Route path="/workout-mode" element={<WorkoutLogger />} />
           <Route path="/fuel" element={<FuelPage />} />
-          <Route path="/rescue" element={<MockRescuePage />} />
+          <Route path="/rescue" element={<CravingRescue />} />
           <Route path="/craving-rescue" element={<CravingRescue />} />
-          <Route path="/proof" element={<MockProofPage />} />
+          <Route path="/proof" element={<Navigate to="/profile" replace />} />
           <Route path="/profile" element={<ProgressDashboard />} />
           <Route path="/progress-dashboard" element={<ProgressDashboard />} />
           <Route path="/share-progress" element={<ShareProgressScreen />} />
@@ -72,19 +74,34 @@ function AppLayout() {
         </Routes>
       </main>
 
+      {showDock && useFloatingRescue && (
+        <NavLink to="/rescue?chain=1" className="ih-floating-rescue" aria-label="Open Rescue">
+          <span aria-hidden="true">+</span>
+          <b>Rescue</b>
+        </NavLink>
+      )}
+
       {showDock && (
-        <nav className="bottom-nav ih-bottom-nav" aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={isActiveRoute(location.pathname, item.to) ? 'active' : ''}
-            >
-              <span aria-hidden="true">{item.icon}</span>
-              {item.label}
+        <div className={`ih-dock-wrap${useFloatingRescue ? ' ih-dock-wrap-compact' : ''}${useReferenceTrainDock ? ' ih-dock-reference' : ''}`} aria-label="Launch navigation">
+          {!useFloatingRescue && !useReferenceTrainDock && (
+            <NavLink to="/rescue?chain=1" className="ih-rescue-dock-action">
+              <span aria-hidden="true">⚕</span>
+              Need help now?
             </NavLink>
-          ))}
-        </nav>
+          )}
+          <nav className="bottom-nav ih-bottom-nav" aria-label="Primary navigation">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={isActiveRoute(location.pathname, item.to) ? 'active' : ''}
+              >
+                <span aria-hidden="true">{item.icon}</span>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
       )}
     </div>
   );

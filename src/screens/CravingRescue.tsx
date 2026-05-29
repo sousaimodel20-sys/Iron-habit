@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
-import { BrandHeader, HelmetCoach, PhoneStatus, StatCard } from './IronHabitMockup';
+import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const protocol = [
   'Put the drink plan on pause. Say: “I only need to win ten minutes.”',
@@ -187,7 +187,6 @@ const CravingRescue = () => {
 
   return (
     <div className="page ih-page ih-real-rescue rescue-page stack-lg">
-      <PhoneStatus />
       <BrandHeader step="RESCUE" />
 
       <section className="ih-card ih-ai-card ih-real-rescue-hero" aria-label="Iron Habit emergency rescue deck">

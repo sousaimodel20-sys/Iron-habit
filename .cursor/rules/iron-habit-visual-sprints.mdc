@@ -1,0 +1,49 @@
+---
+description: Iron Habit visual sprint coordination and duplicate-code gate
+alwaysApply: true
+---
+
+# Iron Habit Visual Sprint Rules
+
+Read `docs/plans/visual-sprint-coordination.md` before visual UI edits.
+
+## Sprint discipline
+
+- Work on one approved visual sprint chunk at a time.
+- Inspect `git diff --stat` and relevant files before editing.
+- State the smallest shippable task, expected files, out-of-scope items, and verification commands.
+- Do not start a second visual surface while an unverified visual pass is still in the working tree.
+
+## Reuse before creating
+
+Prefer existing visual primitives and helpers before adding new ones:
+
+- `BrandHeader`
+- `PhoneStatus`
+- `HelmetCoach`
+- `StatCard`
+- `Card`
+- `Button`
+- storage helpers in `src/utils/storage.ts`
+- local date helpers in `src/utils/date.ts`
+- mission/proof/support helpers in `src/utils/*`
+
+Do not ship private copies of shared chrome, date logic, persistence logic, option mapping, or starter-loadout behavior unless the duplicate is explicitly temporary and documented in the handoff.
+
+## Required duplicate-code check
+
+Before reporting a visual sprint as done, run or answer this check:
+
+```bash
+git diff --stat
+rg -n "renderPhoneStatus|PhoneStatus|renderBrand|BrandHeader|estimateSobrietyDate|createStarterLoadout|saveData\\(|toISOString\\(\\)\\.slice\\(0, 10\\)" src
+npm run lint
+npm run build
+```
+
+Then report:
+
+1. Shared components/helpers reused.
+2. Duplicate code found and removed.
+3. Any remaining duplicate code and why it is acceptable.
+4. Verification commands and results.
