@@ -52,7 +52,7 @@ const LaunchKit = () => {
           ))}
         </div>
         <div className="hero-actions">
-          <Link className="btn btn-primary" to="/">Start demo on Today</Link>
+          <Link className="btn btn-primary" to="/today">Start demo on Today</Link>
           <Link className="btn btn-secondary" to="/talk?command=first-proof">Open Talk proof path</Link>
           <Link className="btn btn-secondary" to="/share-progress#founder-launch-copy">Founder copy</Link>
         </div>

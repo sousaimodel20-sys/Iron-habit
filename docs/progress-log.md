@@ -64,3 +64,11 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Saved current Phase 5 launch roadmap at docs/plans/phase-5-launch-roadmap.md.
 - Current direction: tester-ready mobile polish, PWA/trust polish, tester handoff, final regression/deploy prep.
 - Automated overnight loop requested: every 15 minutes, run small verified coding/polish passes using Cursor/Codex where available.
+
+## 2026-05-29 — Phase 5 Launch Kit demo CTA route polish
+
+- Change: fixed the Launch Kit primary `Start demo on Today` CTA so it opens `/today` directly instead of sending testers back through `/` first-run onboarding.
+- Files: `src/screens/LaunchKit.tsx`, `docs/progress-log.md`.
+- Verification: `npm run build` passed.
+- Cursor status: used advisory wrapper; it recommended this one-line Launch Kit route fix.
+- Next remaining task: continue tiny tester-readiness polish, likely Launch Kit handoff copy or mobile scroll-clearance checks.
