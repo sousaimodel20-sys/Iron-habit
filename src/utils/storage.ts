@@ -26,6 +26,25 @@ export type FitnessEntry = {
   note: string;
 };
 
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'custom';
+
+export type MealSource = 'scan' | 'manual' | 'quick-add';
+
+export type MealEntry = {
+  id: string;
+  date: string;
+  mealType: MealType;
+  name: string;
+  calories: number;
+  proteinGrams: number;
+  carbGrams: number;
+  fatGrams: number;
+  source: MealSource;
+  createdAt: string;
+  photoName?: string;
+  estimateNote?: string;
+};
+
 export type SavedExercise = {
   name: string;
   muscle: string;
@@ -104,6 +123,8 @@ export type IronHabitData = {
   checkIns: Record<string, CheckIn>;
   habits: Habit[];
   fitnessEntries: FitnessEntry[];
+  mealEntries: MealEntry[];
+  waterLogs: Record<string, number>;
   activeLoadout: ActiveLoadout | null;
   completedLoadouts: CompletedLoadout[];
   latestVictoryProof: CompletedLoadout | null;
@@ -158,6 +179,8 @@ export const defaultData: IronHabitData = {
     },
   ],
   fitnessEntries: [],
+  mealEntries: [],
+  waterLogs: {},
   activeLoadout: null,
   completedLoadouts: [],
   latestVictoryProof: null,
@@ -178,6 +201,8 @@ export const loadData = (): IronHabitData => {
       checkIns: parsed.checkIns || {},
       habits: parsed.habits || defaultData.habits,
       fitnessEntries: parsed.fitnessEntries || [],
+      mealEntries: parsed.mealEntries || [],
+      waterLogs: parsed.waterLogs || {},
       activeLoadout: parsed.activeLoadout || null,
       completedLoadouts: parsed.completedLoadouts || [],
       latestVictoryProof: parsed.latestVictoryProof || null,
@@ -210,6 +235,7 @@ export const replaceData = (data: IronHabitData) => {
     checkIns: data.checkIns || {},
     habits: data.habits || defaultData.habits,
     fitnessEntries: data.fitnessEntries || [],
+    mealEntries: data.mealEntries || [],
     activeLoadout: data.activeLoadout || null,
     completedLoadouts: data.completedLoadouts || [],
     latestVictoryProof: data.latestVictoryProof || null,

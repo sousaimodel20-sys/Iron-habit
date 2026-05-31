@@ -12,6 +12,8 @@
     "test:support-helpers": "node --experimental-transform-types scripts/test-support-helpers.mjs",
     "test:emergency-support-chain": "node --experimental-transform-types scripts/test-emergency-support-chain.mjs",
     "test:talk-next-move": "node --experimental-transform-types scripts/test-talk-next-move.mjs",
+    "test:fuel-macros": "node --experimental-transform-types scripts/test-fuel-macros.mjs",
+    "test:nutrition-log": "node --experimental-transform-types scripts/test-nutrition-log.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

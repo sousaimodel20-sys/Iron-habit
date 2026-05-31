@@ -233,6 +233,9 @@ const Settings = () => {
         <p>
           <strong>Privacy:</strong> Your sober dates, training logs, and personal details stay on your device. Make sure to back up your data.
         </p>
+        <p>
+          <strong>Safety:</strong> Iron Habit is supportive wellness software, not emergency care. If you may hurt yourself or someone else, call local emergency services now.
+        </p>
         <div className="button-group stack-xs">
           <Link to="/launch-kit" className="btn btn-primary">Open tester launch kit</Link>
           <Link to="/share-progress#founder-launch-copy" className="btn btn-secondary">Founder launch copy</Link>

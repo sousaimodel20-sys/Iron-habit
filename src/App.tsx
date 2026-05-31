@@ -9,6 +9,7 @@ import ProgressDashboard from './screens/ProgressDashboard';
 import CravingRescue from './screens/CravingRescue';
 import Settings from './screens/Settings';
 import ShareProgressScreen from './screens/ShareProgressScreen';
+import WorkoutMode from './screens/WorkoutMode';
 import {
   ExerciseDetail,
   FuelPage,
@@ -17,7 +18,6 @@ import {
   TalkPage as MockTalkPage,
   TodayPage,
   TrainPage,
-  WorkoutLogger,
 } from './screens/IronHabitMockup';
 
 const navItems = [
@@ -41,11 +41,11 @@ function AppLayout() {
   const introRoutes = ['/', '/intro', '/onboarding', '/onboarding-preview', '/setup-profile'];
   const showDock = !introRoutes.includes(location.pathname);
   const useFloatingRescue = location.pathname.startsWith('/fuel');
-  const useReferenceTrainDock = location.pathname === '/train';
+  const useReferenceTrainDock = location.pathname === '/train' || location.pathname.startsWith('/workout-mode');
 
   return (
     <div className="app-shell ih-app-shell">
-      <main className="screen-frame ih-screen-frame">
+      <main className={`screen-frame ih-screen-frame${useReferenceTrainDock ? ' ih-reference-scroll-frame' : ''}`}>
         <Routes>
           <Route path="/" element={<LaunchOnboarding />} />
           <Route path="/intro" element={<LaunchOnboarding />} />
@@ -58,7 +58,7 @@ function AppLayout() {
           <Route path="/train" element={<TrainPage />} />
           <Route path="/fitness-tracker" element={<FitnessTracker />} />
           <Route path="/exercise" element={<ExerciseDetail />} />
-          <Route path="/workout-mode" element={<WorkoutLogger />} />
+          <Route path="/workout-mode" element={<WorkoutMode />} />
           <Route path="/fuel" element={<FuelPage />} />
           <Route path="/rescue" element={<CravingRescue />} />
           <Route path="/craving-rescue" element={<CravingRescue />} />

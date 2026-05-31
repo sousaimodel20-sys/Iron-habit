@@ -1,8 +1,10 @@
-import type { CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { loadData } from '../utils/storage';
+import { loadData, saveData } from '../utils/storage';
 import { calculateMacroTargets } from '../utils/nutrition';
+import { buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
 import { calculateSobrietyStreak } from '../utils/streaks';
+import { formatLocalDateKey } from '../utils/date';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
@@ -40,11 +42,62 @@ const getSetTotal = (sets: string) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const loggedMeals = [
-  { name: 'Breakfast', detail: '620 cal • 42g protein', state: 'Logged', icon: '☼', tone: 'red' },
-  { name: 'Lunch', detail: '780 cal • 68g protein', state: 'Logged', icon: '☼', tone: 'amber' },
-  { name: 'Dinner', detail: '440 cal • 35g protein', state: 'Logged', icon: '☾', tone: 'violet' },
-  { name: 'Snack', detail: '—', state: 'Pending', icon: '▱', tone: 'gold' },
+const mealToneByType = {
+  breakfast: { icon: '☼', tone: 'red' },
+  lunch: { icon: '☼', tone: 'amber' },
+  dinner: { icon: '☾', tone: 'violet' },
+  snack: { icon: '▱', tone: 'gold' },
+  custom: { icon: '◆', tone: 'red' },
+};
+
+type PlateDraft = {
+  name: string;
+  calories: string;
+  proteinGrams: string;
+  carbGrams: string;
+  fatGrams: string;
+  photoName: string;
+  estimateNote: string;
+};
+
+const starterPlateDraft: PlateDraft = {
+  name: 'Chicken, rice and veggies',
+  calories: '650',
+  proteinGrams: '52',
+  carbGrams: '48',
+  fatGrams: '21',
+  photoName: '',
+  estimateNote: 'Editable estimate — review before logging.',
+};
+
+const fuelQuickEstimates: PlateDraft[] = [
+  {
+    name: 'Greek yogurt + berries',
+    calories: '280',
+    proteinGrams: '28',
+    carbGrams: '32',
+    fatGrams: '4',
+    photoName: '',
+    estimateNote: 'Quick estimate — adjust brand/serving before logging.',
+  },
+  {
+    name: 'Eggs + toast',
+    calories: '430',
+    proteinGrams: '25',
+    carbGrams: '34',
+    fatGrams: '22',
+    photoName: '',
+    estimateNote: 'Quick estimate — review portion size before logging.',
+  },
+  {
+    name: 'Protein shake',
+    calories: '240',
+    proteinGrams: '32',
+    carbGrams: '14',
+    fatGrams: '6',
+    photoName: '',
+    estimateNote: 'Quick estimate — adjust milk/powder before logging.',
+  },
 ];
 
 function useMockData() {
@@ -70,12 +123,12 @@ export function PhoneStatus({ visible = false }: { visible?: boolean }) {
   );
 }
 
-export function BrandHeader({ step, back = false }: { step?: string; back?: boolean }) {
+export function BrandHeader({ step, back = false, backTo = '/today' }: { step?: string; back?: boolean; backTo?: string }) {
   return (
     <>
       <PhoneStatus />
       <div className="ih-header">
-        {back ? <Link to="/today" className="ih-back">←</Link> : <span />}
+        {back ? <Link to={backTo} className="ih-back">←</Link> : <span />}
         <Link to="/today" className="ih-wordmark"><span>IRON</span><b>HABIT</b></Link>
         <span className="ih-step">{step}</span>
       </div>
@@ -110,7 +163,7 @@ function FuelMetric({ label, icon, tone = 'red', consumed, target, remaining, pc
       <div className="ih-fuel-metric-icon" aria-hidden="true">{icon}</div>
       <div className="ih-fuel-metric-label">{label}</div>
       <strong>{consumed}<small>/ {target}</small></strong>
-      <p>{remaining} remaining</p>
+      <p>{remaining}</p>
       <div className="ih-fuel-progress-line">
         <div className="ih-fuel-mini-track"><i /></div>
         <b>{clampPct(pct)}%</b>
@@ -128,15 +181,6 @@ function MacroRing({ label, value, target, pct, tone }: { label: string; value: 
         <b>{value}</b>
         <small>/ {target}</small>
       </div>
-    </div>
-  );
-}
-
-function PlateResult({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="ih-plate-result">
-      <strong>{value}</strong>
-      <span>{label}</span>
     </div>
   );
 }
@@ -222,11 +266,17 @@ export function OnboardingFlow() {
 }
 
 export function TodayPage() {
-  const { day } = useMockData();
+  const { data, day } = useMockData();
+  const targets = calculateMacroTargets(data.bodyProfile);
+  const mealTotals = sumMealsForDate(data);
+  const proteinPct = targets ? clampPct((mealTotals.proteinGrams / targets.proteinGrams) * 100) : 0;
+  const proteinStatus = targets ? `${formatNumber(mealTotals.proteinGrams)}g / ${formatNumber(targets.proteinGrams)}g` : 'Set baseline';
+  const fuelValue = targets ? `${proteinPct}%` : 'Set';
+  const fuelSub = targets ? proteinStatus : 'Set baseline';
   const missions = [
     { label: 'Morning check-in', detail: 'Mood, sleep, sober plan.', status: 'Done', done: true },
     { label: 'Push workout', detail: 'Chest, delts, triceps.', status: 'Done', done: true },
-    { label: 'Protein target', detail: 'Keep meals steady.', status: '185g' },
+    { label: 'Protein target', detail: 'Keep meals steady.', status: proteinStatus },
     { label: 'Steps', detail: 'Move stress through.', status: '6.4k' },
     { label: 'Night reflection', detail: 'Close the loop sober.', status: 'Open' },
   ];
@@ -249,7 +299,7 @@ export function TodayPage() {
       <div className="ih-stat-grid four ih-real-stat-grid">
         <StatCard label="Discipline" value="78%" tone="green" sub="Orders locked" />
         <StatCard label="Train" value="3/4" tone="red" sub="Push week" />
-        <StatCard label="Fuel" value="78%" tone="amber" sub="Protein rising" />
+        <StatCard label="Fuel" value={fuelValue} tone="amber" sub={fuelSub} />
         <StatCard label="Mind" value="2/3" tone="blue" sub="Calm reps" />
       </div>
       <div className="ih-card">
@@ -335,35 +385,14 @@ export function TrainPage() {
 
   return (
     <section className="ih-page ih-real-train ih-reference-train">
-      <div className="ih-ref-status" aria-label="Phone status">
-        <span>2:27</span>
-        <b><i>◢</i> TELEGRAM</b>
-        <div className="ih-ref-system-icons" aria-hidden="true">
-          <span className="ih-signal"><i /><i /><i /></span>
-          <span className="ih-wifi">⌒</span>
-          <span className="ih-battery">39</span>
-        </div>
-      </div>
-
-      <header className="ih-ref-header">
-        <button className="ih-ref-menu" type="button" aria-label="Open menu"><span /><span /><span /></button>
-        <div className="ih-ref-welcome">
-          <span>Welcome back,</span>
-          <strong>Let's get better today.</strong>
-        </div>
-        <div className="ih-ref-header-stats">
-          <div><span>🔥</span><strong>12</strong><small>Day Streak</small></div>
-          <div><span>🏆</span><strong>480</strong><small>Total Points</small></div>
-        </div>
-        <Link className="ih-ref-avatar" to="/profile" aria-label="Open profile">
-          <img src={coachImage} alt="" />
-        </Link>
-      </header>
-
       <section className="ih-ref-hero" aria-label="Training hero">
         <div className="ih-ref-hero-art" aria-hidden="true">
           <span />
           <img src={trainHeroImage} alt="" />
+        </div>
+        <div className="ih-ref-hero-stats" aria-label="Training proof summary">
+          <div><span>🔥</span><strong>12</strong><small>Day Streak</small></div>
+          <div><span>🏆</span><strong>480</strong><small>Total Points</small></div>
         </div>
         <div className="ih-ref-hero-copy">
           <small>TRAINING</small>
@@ -412,7 +441,7 @@ export function TrainPage() {
               <span><i className="ih-ref-meta-exercises" />{workout.exercises}</span>
             </div>
             <span className="ih-ref-play" aria-label={`Start ${workout.name}`}>▶</span>
-            <b aria-hidden="true">•••</b>
+            <b aria-hidden="true">›</b>
           </Link>
         ))}
       </div>
@@ -462,39 +491,141 @@ export function WorkoutLogger() {
 }
 
 export function FuelPage() {
-  const { data } = useMockData();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [data, setData] = useState(() => loadData());
+  const [plateDraft, setPlateDraft] = useState<PlateDraft | null>(null);
+  const [editingMealId, setEditingMealId] = useState<string | null>(null);
+  const [scanStatus, setScanStatus] = useState('Tap scan, review the estimate, then log it.');
   const targets = calculateMacroTargets(data.bodyProfile);
-  const calorieTarget = targets?.targetCalories || 2400;
-  const proteinTarget = targets?.proteinGrams || 200;
-  const carbTarget = targets?.carbGrams || 300;
-  const fatTarget = targets?.fatGrams || 70;
-  const caloriePct = 77;
-  const proteinPct = 82;
-  const carbPct = 70;
-  const fatPct = 74;
-  const waterPct = 70;
-  const caloriesConsumed = Math.round(calorieTarget * 0.7667 / 10) * 10;
-  const proteinConsumed = Math.round(proteinTarget * 0.825);
-  const carbsConsumed = Math.round(carbTarget * 0.7);
-  const fatConsumed = Math.round(fatTarget * 0.742);
-  const waterConsumed = 2.1;
+  const hasMacroTargets = Boolean(targets);
+  const todayMeals = getMealsForDate(data);
+  const mealTotals = sumMealsForDate(data);
+  const todayKey = formatLocalDateKey();
+  const todayCheckIn = data.checkIns[todayKey];
+  const cravingLevel = todayCheckIn?.craving || 0;
+  const calorieTarget = targets?.targetCalories || 0;
+  const proteinTarget = targets?.proteinGrams || 0;
+  const carbTarget = targets?.carbGrams || 0;
+  const fatTarget = targets?.fatGrams || 0;
+  const caloriePct = calorieTarget ? (mealTotals.calories / calorieTarget) * 100 : 0;
+  const proteinPct = proteinTarget ? (mealTotals.proteinGrams / proteinTarget) * 100 : 0;
+  const carbPct = carbTarget ? (mealTotals.carbGrams / carbTarget) * 100 : 0;
+  const fatPct = fatTarget ? (mealTotals.fatGrams / fatTarget) * 100 : 0;
+  const waterConsumed = data.waterLogs?.[todayKey] || 0;
   const waterTarget = 3;
+  const waterPct = (waterConsumed / waterTarget) * 100;
   const todayLabel = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date());
+  const currentHour = new Date().getHours();
+  const proteinRemaining = Math.max(0, proteinTarget - mealTotals.proteinGrams);
+  const calorieRemaining = Math.max(0, calorieTarget - mealTotals.calories);
+  const fuelNudge = cravingLevel >= 7
+    ? { label: 'Craving defense', copy: 'High urge logged — hydrate, add protein, then start Rescue if it stays loud.', action: '/rescue?chain=1', cta: 'Open Rescue Chain' }
+    : hasMacroTargets && proteinPct < 50
+      ? { label: 'Protein low', copy: 'Put real food between you and the urge. Log protein before discipline gets expensive.', action: '', cta: '' }
+      : hasMacroTargets && currentHour >= 17 && caloriePct < 45
+        ? { label: 'Eat before cravings', copy: 'Calories are light for this late. Eat real food before cravings get loud.', action: '', cta: '' }
+        : { label: 'Fuel check', copy: 'Review estimates before logging. These macros guide the rebuild, not medical advice.', action: '', cta: '' };
+  const calorieRemainingCopy = hasMacroTargets
+    ? fuelNudge.label === 'Eat before cravings'
+      ? `${formatNumber(calorieRemaining)} kcal left — eat real food first`
+      : `${formatNumber(calorieRemaining)} kcal remaining`
+    : 'Set profile to unlock targets';
+  const proteinRemainingCopy = hasMacroTargets
+    ? `${formatNumber(proteinRemaining)}g left — defense fuel`
+    : 'Add body baseline first';
+  const formatMacroTarget = (value: number) => hasMacroTargets ? `${formatNumber(value)}g` : 'Set baseline';
   const macroRings = [
-    { label: 'Carbs', value: `${formatNumber(carbsConsumed)}g`, target: `${formatNumber(carbTarget)}g`, pct: carbPct, tone: 'green' },
-    { label: 'Protein', value: `${formatNumber(proteinConsumed)}g`, target: `${formatNumber(proteinTarget)}g`, pct: proteinPct, tone: 'red' },
-    { label: 'Fat', value: `${formatNumber(fatConsumed)}g`, target: `${formatNumber(fatTarget)}g`, pct: fatPct, tone: 'amber' },
+    { label: 'Carbs', value: `${formatNumber(mealTotals.carbGrams)}g`, target: formatMacroTarget(carbTarget), pct: carbPct, tone: 'green' },
+    { label: 'Protein', value: `${formatNumber(mealTotals.proteinGrams)}g`, target: formatMacroTarget(proteinTarget), pct: proteinPct, tone: 'red' },
+    { label: 'Fat', value: `${formatNumber(mealTotals.fatGrams)}g`, target: formatMacroTarget(fatTarget), pct: fatPct, tone: 'amber' },
   ];
-  const mealResults = [
-    { label: 'Cal', value: '650' },
-    { label: 'Protein', value: '52g' },
-    { label: 'Carbs', value: '48g' },
-    { label: 'Fat', value: '21g' },
+  const mealResults = plateDraft ? [
+    { label: 'Cal', key: 'calories', value: plateDraft.calories },
+    { label: 'Protein', key: 'proteinGrams', value: plateDraft.proteinGrams },
+    { label: 'Carbs', key: 'carbGrams', value: plateDraft.carbGrams },
+    { label: 'Fat', key: 'fatGrams', value: plateDraft.fatGrams },
+  ] : [
+    { label: 'Cal', value: '—' },
+    { label: 'Protein', value: '—' },
+    { label: 'Carbs', value: '—' },
+    { label: 'Fat', value: '—' },
   ];
+
+  const updatePlateDraft = (field: keyof PlateDraft, value: string) => {
+    setPlateDraft((current) => ({ ...(current || starterPlateDraft), [field]: value }));
+  };
+
+  const startEstimate = (photoName = '', draft = starterPlateDraft) => {
+    setPlateDraft({ ...draft, photoName });
+    setEditingMealId(null);
+    setScanStatus(photoName ? `Photo added for review: ${photoName}` : `${draft.name} estimate ready. Review before logging.`);
+  };
+
+  const editMeal = (mealId: string) => {
+    const meal = todayMeals.find((entry) => entry.id === mealId);
+    if (!meal) return;
+    setEditingMealId(meal.id);
+    setPlateDraft({
+      name: meal.name,
+      calories: String(meal.calories),
+      proteinGrams: String(meal.proteinGrams),
+      carbGrams: String(meal.carbGrams),
+      fatGrams: String(meal.fatGrams),
+      photoName: meal.photoName || '',
+      estimateNote: meal.estimateNote || 'Edited from today’s log.',
+    });
+    setScanStatus(`${meal.name} loaded for correction. Review, then update the log.`);
+  };
+
+  const deleteMeal = (mealId: string) => {
+    const meal = todayMeals.find((entry) => entry.id === mealId);
+    const updated = saveData({ mealEntries: removeMealEntry(data.mealEntries || [], mealId) });
+    setData(updated);
+    if (editingMealId === mealId) {
+      setEditingMealId(null);
+      setPlateDraft(null);
+    }
+    setScanStatus(`${meal?.name || 'Meal'} removed. Totals updated.`);
+  };
+
+  const logWater = () => {
+    const nextWater = Math.min(waterTarget, Number((waterConsumed + 0.5).toFixed(1)));
+    const updated = saveData({ waterLogs: { ...(data.waterLogs || {}), [todayKey]: nextWater } });
+    setData(updated);
+    setScanStatus(`Water logged: ${nextWater.toFixed(1)}L today.`);
+  };
+
+  const handlePlatePhoto = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileName = event.target.files?.[0]?.name || '';
+    startEstimate(fileName);
+    event.target.value = '';
+  };
+
+  const addPlateToLog = () => {
+    if (!plateDraft) return;
+
+    const meal = buildMealEntry({
+      name: plateDraft.name,
+      calories: plateDraft.calories,
+      proteinGrams: plateDraft.proteinGrams,
+      carbGrams: plateDraft.carbGrams,
+      fatGrams: plateDraft.fatGrams,
+      source: 'scan',
+      mealType: 'custom',
+      id: editingMealId || undefined,
+      photoName: plateDraft.photoName,
+      estimateNote: plateDraft.estimateNote,
+    });
+    const updated = saveData({ mealEntries: upsertMealEntry(data.mealEntries || [], meal) });
+    setData(updated);
+    const wasEditing = Boolean(editingMealId);
+    setEditingMealId(null);
+    setPlateDraft(null);
+    setScanStatus(wasEditing ? 'Meal correction saved. Totals updated.' : 'Reviewed estimate logged. Totals updated.');
+  };
 
   return (
     <section className="ih-page ih-fuel-page">
-      <PhoneStatus visible />
       <div className="ih-fuel-topbar">
         <div>
           <h1>Fuel</h1>
@@ -509,17 +640,17 @@ export function FuelPage() {
         <FuelMetric
           label="Calories"
           icon="🔥"
-          consumed={formatNumber(caloriesConsumed)}
-          target={formatNumber(calorieTarget)}
-          remaining={`${formatNumber(Math.max(0, calorieTarget - caloriesConsumed))} kcal`}
+          consumed={formatNumber(mealTotals.calories)}
+          target={hasMacroTargets ? formatNumber(calorieTarget) : 'Set baseline'}
+          remaining={calorieRemainingCopy}
           pct={caloriePct}
         />
         <FuelMetric
           label="Protein"
           icon="⚡"
-          consumed={`${formatNumber(proteinConsumed)}g`}
-          target={`${formatNumber(proteinTarget)}g`}
-          remaining={`${formatNumber(Math.max(0, proteinTarget - proteinConsumed))}g`}
+          consumed={`${formatNumber(mealTotals.proteinGrams)}g`}
+          target={hasMacroTargets ? `${formatNumber(proteinTarget)}g` : 'Set baseline'}
+          remaining={proteinRemainingCopy}
           pct={proteinPct}
         />
         <FuelMetric
@@ -528,35 +659,77 @@ export function FuelPage() {
           tone="blue"
           consumed={`${waterConsumed.toFixed(1)}L`}
           target={`${waterTarget.toFixed(1)}L`}
-          remaining={`${Math.max(0, waterTarget - waterConsumed).toFixed(1)}L`}
+          remaining={`${Math.max(0, waterTarget - waterConsumed).toFixed(1)}L remaining`}
           pct={waterPct}
         />
       </div>
 
-      <div className="ih-fuel-rings" aria-label={`${formatCompactCalories(calorieTarget)} calorie target macro progress`}>
+      <div className="ih-fuel-rings" aria-label={hasMacroTargets ? `${formatCompactCalories(calorieTarget)} calorie target macro progress` : 'Macro target setup needed'}>
         <div className="ih-macro-ring-row">
           {macroRings.map((ring) => <MacroRing key={ring.label} {...ring} />)}
         </div>
+        {!hasMacroTargets && <Link to="/setup-profile" className="ih-secondary ih-wide">Set body baseline for accurate macros</Link>}
+        {(hasMacroTargets || cravingLevel >= 7) && (
+          <div className="ih-fuel-nudge" aria-label="Fuel coach nudge">
+            <div>
+              <small>{fuelNudge.label}</small>
+              <p>{fuelNudge.copy}</p>
+            </div>
+            {fuelNudge.action ? <Link to={fuelNudge.action}>{fuelNudge.cta}</Link> : <button type="button" onClick={() => startEstimate()}>Review estimates</button>}
+          </div>
+        )}
       </div>
 
       <div className="ih-plate-check">
         <div className="ih-fuel-section-title">
-          <div><small>Plate check</small><h2>Chicken, rice and veggies</h2></div>
-          <b>Estimate</b>
+          <div>
+            <small>Plate check</small>
+            {plateDraft ? (
+              <input
+                className="ih-plate-title-input"
+                aria-label="Meal estimate name"
+                value={plateDraft.name}
+                onChange={(event) => updatePlateDraft('name', event.target.value)}
+              />
+            ) : <h2>Scan item</h2>}
+            <p className="ih-plate-note">{scanStatus}</p>
+          </div>
+          <b>{plateDraft ? 'Review' : 'Estimate'}</b>
         </div>
         <div className="ih-plate-layout">
           <div className="ih-plate-thumb">
-            <img src={mealImage} alt="" />
+            <img src={mealImage} alt="Plate estimate preview" />
             <span />
           </div>
           <div className="ih-plate-side">
             <div className="ih-plate-results">
-              {mealResults.map((result) => <PlateResult key={result.label} {...result} />)}
+              {mealResults.map((result) => (
+                <div className="ih-plate-result" key={result.label}>
+                  {plateDraft && 'key' in result ? (
+                    <input
+                      aria-label={`${result.label} estimate`}
+                      inputMode="numeric"
+                      value={result.value}
+                      onChange={(event) => updatePlateDraft(result.key as keyof PlateDraft, event.target.value)}
+                    />
+                  ) : <strong>{result.value}</strong>}
+                  <span>{result.label}</span>
+                </div>
+              ))}
             </div>
             <div className="ih-plate-actions">
-              <button className="ih-primary">Add to log <span aria-hidden="true">+</span></button>
-              <button className="ih-secondary">Scan another <span aria-hidden="true">⌖</span></button>
+              <button className="ih-primary" onClick={addPlateToLog} disabled={!plateDraft}>{editingMealId ? 'Update log' : 'Add to log'} <span aria-hidden="true">+</span></button>
+              <button className="ih-secondary" type="button" onClick={() => fileInputRef.current?.click()}>{plateDraft ? 'Scan another' : 'Scan item'} <span aria-hidden="true">⌖</span></button>
             </div>
+            <button className="ih-water-log-button" type="button" onClick={logWater}>Log 0.5L water</button>
+            <div className="ih-fuel-quick-estimates" aria-label="Quick sober fuel estimates">
+              {fuelQuickEstimates.map((estimate) => (
+                <button type="button" key={estimate.name} onClick={() => startEstimate('', estimate)}>
+                  {estimate.name}
+                </button>
+              ))}
+            </div>
+            <input ref={fileInputRef} className="ih-plate-file-input" type="file" accept="image/*" aria-label="Add plate photo for review" onChange={handlePlatePhoto} />
           </div>
         </div>
       </div>
@@ -564,21 +737,35 @@ export function FuelPage() {
       <div className="ih-meal-history">
         <div className="ih-fuel-section-title">
           <div><small>Logged today</small><h2>Meals</h2></div>
-          <b>4 / 5</b>
+          <b>{todayMeals.length} / 5</b>
         </div>
         <div className="ih-meal-card-grid">
-          {loggedMeals.map((meal) => (
-            <article className={`ih-compact-meal-card ${meal.state === 'Pending' ? 'is-pending' : ''}`} key={meal.name}>
-              <span className={`ih-meal-icon ih-meal-tone-${meal.tone}`} aria-hidden="true">{meal.icon}</span>
+          {todayMeals.length > 0 ? todayMeals.map((meal) => {
+            const mealTone = mealToneByType[meal.mealType] || mealToneByType.custom;
+            return (
+              <article className="ih-compact-meal-card" key={meal.id}>
+                <span className={`ih-meal-icon ih-meal-tone-${mealTone.tone}`} aria-hidden="true">{mealTone.icon}</span>
+                <div className="ih-compact-meal-copy">
+                  <strong>{meal.name}</strong>
+                  <p>{formatNumber(meal.calories)} cal • {formatNumber(meal.proteinGrams)}g protein</p>
+                </div>
+                <span className="ih-meal-state">{meal.source === 'scan' ? 'Reviewed' : 'Logged'}</span>
+                <button className="ih-meal-edit" type="button" onClick={() => editMeal(meal.id)} aria-label={`Edit ${meal.name}`}>Edit</button>
+                <button className="ih-meal-delete" type="button" onClick={() => deleteMeal(meal.id)} aria-label={`Remove ${meal.name}`}>×</button>
+              </article>
+            );
+          }) : (
+            <article className="ih-compact-meal-card is-pending">
+              <span className="ih-meal-icon ih-meal-tone-gold" aria-hidden="true">▱</span>
               <div className="ih-compact-meal-copy">
-                <strong>{meal.name}</strong>
-                <p>{meal.detail}</p>
+                <strong>No meals logged yet</strong>
+                <p>Review an estimate before logging. No fake totals here.</p>
               </div>
-              <span className="ih-meal-state">{meal.state}</span>
-              <b className="ih-meal-check">{meal.state === 'Logged' ? '✓' : ''}</b>
+              <span className="ih-meal-state">Pending</span>
+              <b className="ih-meal-check" />
               <span className="ih-meal-arrow" aria-hidden="true">›</span>
             </article>
-          ))}
+          )}
         </div>
       </div>
     </section>
