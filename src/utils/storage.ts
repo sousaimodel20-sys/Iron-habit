@@ -45,6 +45,18 @@ export type MealEntry = {
   estimateNote?: string;
 };
 
+export type FavoriteMeal = {
+  id: string;
+  mealType: MealType;
+  name: string;
+  calories: number;
+  proteinGrams: number;
+  carbGrams: number;
+  fatGrams: number;
+  createdAt: string;
+  lastUsedAt?: string;
+};
+
 export type SavedExercise = {
   name: string;
   muscle: string;
@@ -124,6 +136,7 @@ export type IronHabitData = {
   habits: Habit[];
   fitnessEntries: FitnessEntry[];
   mealEntries: MealEntry[];
+  favoriteMeals: FavoriteMeal[];
   waterLogs: Record<string, number>;
   activeLoadout: ActiveLoadout | null;
   completedLoadouts: CompletedLoadout[];
@@ -180,6 +193,7 @@ export const defaultData: IronHabitData = {
   ],
   fitnessEntries: [],
   mealEntries: [],
+  favoriteMeals: [],
   waterLogs: {},
   activeLoadout: null,
   completedLoadouts: [],
@@ -202,6 +216,7 @@ export const loadData = (): IronHabitData => {
       habits: parsed.habits || defaultData.habits,
       fitnessEntries: parsed.fitnessEntries || [],
       mealEntries: parsed.mealEntries || [],
+      favoriteMeals: parsed.favoriteMeals || [],
       waterLogs: parsed.waterLogs || {},
       activeLoadout: parsed.activeLoadout || null,
       completedLoadouts: parsed.completedLoadouts || [],
@@ -236,6 +251,7 @@ export const replaceData = (data: IronHabitData) => {
     habits: data.habits || defaultData.habits,
     fitnessEntries: data.fitnessEntries || [],
     mealEntries: data.mealEntries || [],
+    favoriteMeals: data.favoriteMeals || [],
     activeLoadout: data.activeLoadout || null,
     completedLoadouts: data.completedLoadouts || [],
     latestVictoryProof: data.latestVictoryProof || null,

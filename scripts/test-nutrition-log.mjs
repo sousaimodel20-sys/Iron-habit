@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildManualMealEntry, buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../src/utils/nutritionLog.ts';
+import { addFavoriteMeal, buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntryFromFavorite, getMealsForDate, removeFavoriteMeal, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../src/utils/nutritionLog.ts';
 
 const breakfast = buildMealEntry({
   id: 'meal-breakfast',
@@ -101,5 +101,33 @@ assert.equal(manualDinner.mealType, 'dinner');
 assert.equal(manualDinner.name, 'Chicken bowl');
 assert.equal(manualDinner.estimateNote, 'Manual food entry.');
 assert.equal(manualDinner.calories, 640);
+
+const favoriteChicken = buildFavoriteMeal(manualDinner, '2026-05-30T18:05:00.000Z');
+assert.equal(favoriteChicken.id, 'favorite-chicken-bowl');
+assert.equal(favoriteChicken.name, 'Chicken bowl');
+assert.equal(favoriteChicken.mealType, 'dinner');
+assert.equal(favoriteChicken.calories, 640);
+assert.equal(favoriteChicken.createdAt, '2026-05-30T18:05:00.000Z');
+
+const favoriteShake = buildFavoriteMeal({
+  id: 'custom-favorite-id',
+  name: 'Protein shake',
+  mealType: 'snack',
+  calories: '240',
+  proteinGrams: '32',
+  carbGrams: '14',
+  fatGrams: '6',
+}, '2026-05-30T19:00:00.000Z');
+
+assert.deepEqual(addFavoriteMeal([favoriteChicken], favoriteShake).map((meal) => meal.id), ['custom-favorite-id', 'favorite-chicken-bowl']);
+assert.deepEqual(addFavoriteMeal([favoriteChicken], { ...favoriteChicken, calories: 650 }).map((meal) => meal.calories), [650]);
+assert.deepEqual(removeFavoriteMeal([favoriteChicken, favoriteShake], favoriteChicken.id).map((meal) => meal.id), ['custom-favorite-id']);
+
+const favoriteLoggedToday = buildMealEntryFromFavorite(favoriteChicken, '2026-05-31', '2026-05-31T07:00:00.000Z');
+assert.equal(favoriteLoggedToday.id, 'meal-2026-05-31-2026-05-31T07:00:00.000Z');
+assert.equal(favoriteLoggedToday.date, '2026-05-31');
+assert.equal(favoriteLoggedToday.name, 'Chicken bowl');
+assert.equal(favoriteLoggedToday.source, 'quick-add');
+assert.equal(favoriteLoggedToday.estimateNote, 'Added from saved favorite.');
 
 console.log('nutrition log tests passed');

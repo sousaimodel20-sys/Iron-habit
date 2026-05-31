@@ -1,5 +1,5 @@
 import { formatLocalDateKey } from './date.ts';
-import type { IronHabitData, MealEntry, MealSource, MealType } from './storage';
+import type { FavoriteMeal, IronHabitData, MealEntry, MealSource, MealType } from './storage';
 
 export type MealTotals = {
   calories: number;
@@ -31,6 +31,15 @@ const toPositiveNumber = (value: number | string) => {
 };
 
 const cleanName = (name: string) => name.trim() || 'Reviewed fuel estimate';
+
+const favoriteIdForName = (name: string) => {
+  const slug = cleanName(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return `favorite-${slug || 'meal'}`;
+};
 
 export const emptyMealTotals = (): MealTotals => ({
   calories: 0,
@@ -91,3 +100,43 @@ export const upsertMealEntry = (entries: MealEntry[], meal: MealEntry) => {
 
 export const removeMealEntry = (entries: MealEntry[], mealId: string) =>
   entries.filter((entry) => entry.id !== mealId);
+
+export const buildFavoriteMeal = (input: MealEntryInput | MealEntry, createdAt = new Date().toISOString()): FavoriteMeal => {
+  const name = cleanName(input.name);
+
+  return {
+    id: input.id && !input.id.startsWith('meal-') && !input.id.startsWith('manual-') ? input.id : favoriteIdForName(name),
+    mealType: input.mealType || 'custom',
+    name,
+    calories: toPositiveNumber(input.calories),
+    proteinGrams: toPositiveNumber(input.proteinGrams),
+    carbGrams: toPositiveNumber(input.carbGrams),
+    fatGrams: toPositiveNumber(input.fatGrams),
+    createdAt,
+  };
+};
+
+export const addFavoriteMeal = (favorites: FavoriteMeal[], favorite: FavoriteMeal) => {
+  const existing = favorites.some((entry) => entry.id === favorite.id);
+  return existing
+    ? favorites.map((entry) => (entry.id === favorite.id ? favorite : entry))
+    : [favorite, ...favorites];
+};
+
+export const removeFavoriteMeal = (favorites: FavoriteMeal[], favoriteId: string) =>
+  favorites.filter((entry) => entry.id !== favoriteId);
+
+export const buildMealEntryFromFavorite = (favorite: FavoriteMeal, date = formatLocalDateKey(), createdAt = new Date().toISOString()): MealEntry =>
+  buildMealEntry({
+    id: `meal-${date}-${createdAt}`,
+    date,
+    mealType: favorite.mealType,
+    name: favorite.name,
+    calories: favorite.calories,
+    proteinGrams: favorite.proteinGrams,
+    carbGrams: favorite.carbGrams,
+    fatGrams: favorite.fatGrams,
+    source: 'quick-add',
+    createdAt,
+    estimateNote: 'Added from saved favorite.',
+  });

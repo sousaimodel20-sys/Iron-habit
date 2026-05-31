@@ -2,7 +2,7 @@ import { useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, type MealType } from '../utils/storage';
 import { calculateMacroTargets } from '../utils/nutrition';
-import { buildManualMealEntry, buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
+import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntryFromFavorite, addFavoriteMeal, getMealsForDate, removeFavoriteMeal, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 
@@ -518,6 +518,7 @@ export function FuelPage() {
   const targets = calculateMacroTargets(data.bodyProfile);
   const hasMacroTargets = Boolean(targets);
   const todayMeals = getMealsForDate(data);
+  const favoriteMeals = data.favoriteMeals || [];
   const mealTotals = sumMealsForDate(data);
   const todayKey = formatLocalDateKey();
   const todayCheckIn = data.checkIns[todayKey];
@@ -619,6 +620,36 @@ export function FuelPage() {
       setPlateDraft(null);
     }
     setScanStatus(`${meal?.name || 'Meal'} removed. Totals updated.`);
+  };
+
+  const saveFavoriteMeal = (mealId: string) => {
+    const meal = todayMeals.find((entry) => entry.id === mealId);
+    if (!meal) return;
+
+    const favorite = buildFavoriteMeal(meal);
+    const updated = saveData({ favoriteMeals: addFavoriteMeal(favoriteMeals, favorite) });
+    setData(updated);
+    setScanStatus(`${favorite.name} saved as a favorite.`);
+  };
+
+  const addFavoriteToToday = (favoriteId: string) => {
+    const favorite = favoriteMeals.find((entry) => entry.id === favoriteId);
+    if (!favorite) return;
+
+    const meal = buildMealEntryFromFavorite(favorite, todayKey);
+    const updated = saveData({
+      mealEntries: upsertMealEntry(data.mealEntries || [], meal),
+      favoriteMeals: addFavoriteMeal(favoriteMeals, { ...favorite, lastUsedAt: meal.createdAt }),
+    });
+    setData(updated);
+    setScanStatus(`${favorite.name} added from favorites. Totals updated.`);
+  };
+
+  const deleteFavoriteMeal = (favoriteId: string) => {
+    const favorite = favoriteMeals.find((entry) => entry.id === favoriteId);
+    const updated = saveData({ favoriteMeals: removeFavoriteMeal(favoriteMeals, favoriteId) });
+    setData(updated);
+    setScanStatus(`${favorite?.name || 'Favorite'} removed from saved meals.`);
   };
 
   const logWater = () => {
@@ -812,6 +843,30 @@ export function FuelPage() {
         )}
       </div>
 
+      <div className="ih-favorite-meals-card">
+        <div className="ih-fuel-section-title">
+          <div><small>Saved meals</small><h2>Favorites</h2></div>
+          <b>{favoriteMeals.length}</b>
+        </div>
+        <div className="ih-favorite-meal-list">
+          {favoriteMeals.length > 0 ? favoriteMeals.map((favorite) => (
+            <article className="ih-favorite-meal" key={favorite.id}>
+              <div>
+                <strong>{favorite.name}</strong>
+                <p>{formatNumber(favorite.calories)} cal • {formatNumber(favorite.proteinGrams)}g protein</p>
+              </div>
+              <button type="button" onClick={() => addFavoriteToToday(favorite.id)}>Add</button>
+              <button className="ih-favorite-remove" type="button" onClick={() => deleteFavoriteMeal(favorite.id)} aria-label={`Remove favorite ${favorite.name}`}>×</button>
+            </article>
+          )) : (
+            <article className="ih-favorite-empty">
+              <strong>No favorites saved yet</strong>
+              <p>Log a meal, then tap Save favorite so repeat meals become one-tap.</p>
+            </article>
+          )}
+        </div>
+      </div>
+
       <div className="ih-meal-history">
         <div className="ih-fuel-section-title">
           <div><small>Logged today</small><h2>Meals</h2></div>
@@ -828,6 +883,7 @@ export function FuelPage() {
                   <p>{formatNumber(meal.calories)} cal • {formatNumber(meal.proteinGrams)}g protein</p>
                 </div>
                 <span className="ih-meal-state">{meal.source === 'scan' ? 'Reviewed' : 'Logged'}</span>
+                <button className="ih-meal-save-favorite" type="button" onClick={() => saveFavoriteMeal(meal.id)} aria-label={`Save ${meal.name} as favorite`}>Save favorite</button>
                 <button className="ih-meal-edit" type="button" onClick={() => editMeal(meal.id)} aria-label={`Edit ${meal.name}`}>Edit</button>
                 <button className="ih-meal-delete" type="button" onClick={() => deleteMeal(meal.id)} aria-label={`Remove ${meal.name}`}>×</button>
               </article>
