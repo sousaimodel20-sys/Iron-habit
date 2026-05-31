@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../src/utils/nutritionLog.ts';
+import { buildManualMealEntry, buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../src/utils/nutritionLog.ts';
 
 const breakfast = buildMealEntry({
   id: 'meal-breakfast',
@@ -83,5 +83,23 @@ assert.equal(clamped.calories, 0);
 assert.equal(clamped.proteinGrams, 0);
 assert.equal(clamped.mealType, 'custom');
 assert.equal(clamped.source, 'manual');
+
+const manualDinner = buildManualMealEntry({
+  id: 'manual-dinner',
+  date: '2026-05-30',
+  mealType: 'dinner',
+  name: '  Chicken bowl  ',
+  calories: '640',
+  proteinGrams: '54',
+  carbGrams: '58',
+  fatGrams: '16',
+  createdAt: '2026-05-30T18:00:00.000Z',
+});
+
+assert.equal(manualDinner.source, 'manual');
+assert.equal(manualDinner.mealType, 'dinner');
+assert.equal(manualDinner.name, 'Chicken bowl');
+assert.equal(manualDinner.estimateNote, 'Manual food entry.');
+assert.equal(manualDinner.calories, 640);
 
 console.log('nutrition log tests passed');

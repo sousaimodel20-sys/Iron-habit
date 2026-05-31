@@ -1,8 +1,8 @@
 import { useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { loadData, saveData } from '../utils/storage';
+import { loadData, saveData, type MealType } from '../utils/storage';
 import { calculateMacroTargets } from '../utils/nutrition';
-import { buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
+import { buildManualMealEntry, buildMealEntry, getMealsForDate, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 
@@ -69,6 +69,23 @@ const starterPlateDraft: PlateDraft = {
   photoName: '',
   estimateNote: 'Editable estimate — review before logging.',
 };
+
+const starterManualDraft: PlateDraft = {
+  name: '',
+  calories: '',
+  proteinGrams: '',
+  carbGrams: '',
+  fatGrams: '',
+  photoName: '',
+  estimateNote: 'Manual food entry.',
+};
+
+const mealTypeOptions: { value: MealType; label: string }[] = [
+  { value: 'breakfast', label: 'Breakfast' },
+  { value: 'lunch', label: 'Lunch' },
+  { value: 'dinner', label: 'Dinner' },
+  { value: 'snack', label: 'Snack' },
+];
 
 const fuelQuickEstimates: PlateDraft[] = [
   {
@@ -494,6 +511,8 @@ export function FuelPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [data, setData] = useState(() => loadData());
   const [plateDraft, setPlateDraft] = useState<PlateDraft | null>(null);
+  const [manualDraft, setManualDraft] = useState<PlateDraft | null>(null);
+  const [manualMealType, setManualMealType] = useState<MealType>('breakfast');
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState('Tap scan, review the estimate, then log it.');
   const targets = calculateMacroTargets(data.bodyProfile);
@@ -555,6 +574,20 @@ export function FuelPage() {
     setPlateDraft((current) => ({ ...(current || starterPlateDraft), [field]: value }));
   };
 
+  const updateManualDraft = (field: keyof PlateDraft, value: string) => {
+    setManualDraft((current) => ({ ...(current || starterManualDraft), [field]: value }));
+  };
+
+  const openManualFood = () => {
+    setManualDraft({ ...starterManualDraft });
+    setScanStatus('Manual food entry opened. Add macros, pick meal type, then save.');
+  };
+
+  const closeManualFood = () => {
+    setManualDraft(null);
+    setScanStatus('Manual entry closed. Scan, quick add, or add food when ready.');
+  };
+
   const startEstimate = (photoName = '', draft = starterPlateDraft) => {
     setPlateDraft({ ...draft, photoName });
     setEditingMealId(null);
@@ -593,6 +626,23 @@ export function FuelPage() {
     const updated = saveData({ waterLogs: { ...(data.waterLogs || {}), [todayKey]: nextWater } });
     setData(updated);
     setScanStatus(`Water logged: ${nextWater.toFixed(1)}L today.`);
+  };
+
+  const addManualFoodToLog = () => {
+    if (!manualDraft) return;
+
+    const meal = buildManualMealEntry({
+      name: manualDraft.name,
+      calories: manualDraft.calories,
+      proteinGrams: manualDraft.proteinGrams,
+      carbGrams: manualDraft.carbGrams,
+      fatGrams: manualDraft.fatGrams,
+      mealType: manualMealType,
+    });
+    const updated = saveData({ mealEntries: upsertMealEntry(data.mealEntries || [], meal) });
+    setData(updated);
+    setManualDraft(null);
+    setScanStatus(`${meal.name} added to ${manualMealType}. Totals updated.`);
   };
 
   const handlePlatePhoto = (event: ChangeEvent<HTMLInputElement>) => {
@@ -732,6 +782,34 @@ export function FuelPage() {
             <input ref={fileInputRef} className="ih-plate-file-input" type="file" accept="image/*" aria-label="Add plate photo for review" onChange={handlePlatePhoto} />
           </div>
         </div>
+      </div>
+
+      <div className="ih-manual-food-card">
+        <div className="ih-fuel-section-title">
+          <div><small>Manual log</small><h2>Add food</h2></div>
+          <button className="ih-manual-toggle" type="button" onClick={manualDraft ? closeManualFood : openManualFood}>{manualDraft ? 'Close' : 'Add Food'}</button>
+        </div>
+        {manualDraft && (
+          <div className="ih-manual-food-form">
+            <label>
+              <span>Food name</span>
+              <input aria-label="Manual food name" value={manualDraft.name} onChange={(event) => updateManualDraft('name', event.target.value)} placeholder="Chicken bowl" />
+            </label>
+            <label>
+              <span>Meal type</span>
+              <select aria-label="Manual meal type" value={manualMealType} onChange={(event) => setManualMealType(event.target.value as MealType)}>
+                {mealTypeOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            <div className="ih-manual-macro-grid">
+              <label><span>Calories</span><input aria-label="Manual calories" inputMode="numeric" value={manualDraft.calories} onChange={(event) => updateManualDraft('calories', event.target.value)} placeholder="640" /></label>
+              <label><span>Protein</span><input aria-label="Manual protein" inputMode="numeric" value={manualDraft.proteinGrams} onChange={(event) => updateManualDraft('proteinGrams', event.target.value)} placeholder="54" /></label>
+              <label><span>Carbs</span><input aria-label="Manual carbs" inputMode="numeric" value={manualDraft.carbGrams} onChange={(event) => updateManualDraft('carbGrams', event.target.value)} placeholder="58" /></label>
+              <label><span>Fat</span><input aria-label="Manual fat" inputMode="numeric" value={manualDraft.fatGrams} onChange={(event) => updateManualDraft('fatGrams', event.target.value)} placeholder="16" /></label>
+            </div>
+            <button className="ih-primary ih-wide" type="button" onClick={addManualFoodToLog}>Save food to today</button>
+          </div>
+        )}
       </div>
 
       <div className="ih-meal-history">

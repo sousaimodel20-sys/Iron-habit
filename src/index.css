@@ -7327,6 +7327,78 @@ body {
   padding-bottom: 10px;
 }
 
+.ih-manual-food-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+  box-shadow: inset 0 1px rgba(255,255,255,.055), 0 16px 40px rgba(0,0,0,.24);
+}
+
+.ih-manual-toggle {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(255,48,71,.28);
+  border-radius: 999px;
+  color: #fecdd3;
+  background: rgba(255,48,71,.1);
+  font-family: inherit;
+  font-size: .66rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.ih-manual-food-form {
+  display: grid;
+  gap: 10px;
+}
+
+.ih-manual-food-form label {
+  display: grid;
+  gap: 5px;
+}
+
+.ih-manual-food-form span {
+  color: rgba(248,250,252,.56);
+  font-size: .62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.ih-manual-food-form input,
+.ih-manual-food-form select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 0 11px;
+  color: #fff;
+  background: rgba(0,0,0,.26);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 850;
+  outline: none;
+}
+
+.ih-manual-food-form input:focus,
+.ih-manual-food-form select:focus {
+  border-color: rgba(255,48,71,.45);
+  box-shadow: 0 0 0 2px rgba(255,48,71,.1);
+}
+
+.ih-manual-macro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.ih-manual-macro-grid input {
+  text-align: center;
+  padding: 0 6px;
+}
+
 .ih-meal-card-grid {
   grid-template-columns: 1fr;
   gap: 7px;

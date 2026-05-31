@@ -54,6 +54,13 @@ export const sumMealsForDate = (data: Pick<IronHabitData, 'mealEntries'>, date =
     mealCount: totals.mealCount + 1,
   }), emptyMealTotals());
 
+export const buildManualMealEntry = (input: MealEntryInput): MealEntry =>
+  buildMealEntry({
+    ...input,
+    source: 'manual',
+    estimateNote: input.estimateNote || 'Manual food entry.',
+  });
+
 export const buildMealEntry = (input: MealEntryInput): MealEntry => {
   const createdAt = input.createdAt || new Date().toISOString();
   const date = input.date || formatLocalDateKey();
