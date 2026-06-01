@@ -47,6 +47,21 @@ assert.equal(female.targetCalories, 2525);
 assert.ok(female.targetCalories < male.targetCalories, 'female BMR branch should lower target for same stats');
 assertMacroCaloriesFit(female);
 
+const maleAlias = target({ sex: 'M', bodyGoal: 'maintain', pace: 'steady' });
+assert.equal(maleAlias.bmr, male.bmr);
+assert.equal(maleAlias.targetCalories, male.targetCalories);
+
+const femaleAlias = target({ sex: 'F', bodyGoal: 'maintain', pace: 'steady' });
+assert.equal(femaleAlias.bmr, female.bmr);
+assert.equal(femaleAlias.targetCalories, female.targetCalories);
+
+const neutralSex = target({ sex: 'other', bodyGoal: 'maintain', pace: 'steady' });
+assert.equal(neutralSex.bmr, 1720);
+assert.equal(neutralSex.maintenanceCalories, 2675);
+assert.ok(neutralSex.targetCalories < male.targetCalories);
+assert.ok(neutralSex.targetCalories > female.targetCalories);
+assertMacroCaloriesFit(neutralSex);
+
 const steadyCut = target({ bodyGoal: 'cut-fat', pace: 'steady' });
 assert.equal(steadyCut.targetCalories, 2350);
 assert.equal(steadyCut.proteinGrams, 180);

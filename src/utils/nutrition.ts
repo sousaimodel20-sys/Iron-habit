@@ -23,6 +23,17 @@ const roundTo = (value: number, step: number) => Math.round(value / step) * step
 export const hasBodyProfile = (profile: BodyProfile) =>
   Boolean(Number(profile.weightLbs) && Number(profile.heightInches) && Number(profile.age));
 
+const sexAdjustmentFor = (sex: string) => {
+  const normalized = sex.trim().toLowerCase();
+
+  if (['female', 'f', 'woman', 'girl'].includes(normalized)) return -161;
+  if (['male', 'm', 'man', 'guy', 'boy'].includes(normalized)) return 5;
+
+  // Mifflin-St Jeor is sex-specific. If a user chooses Other or leaves it blank,
+  // use the midpoint instead of silently treating them as male or female.
+  return -78;
+};
+
 export const calculateMacroTargets = (profile: BodyProfile): MacroTargets | null => {
   const weightLbs = Number(profile.weightLbs);
   const heightInches = Number(profile.heightInches);
@@ -32,7 +43,7 @@ export const calculateMacroTargets = (profile: BodyProfile): MacroTargets | null
 
   const weightKg = weightLbs * 0.453592;
   const heightCm = heightInches * 2.54;
-  const sexAdjustment = profile.sex.toLowerCase().startsWith('f') ? -161 : 5;
+  const sexAdjustment = sexAdjustmentFor(profile.sex);
   const bmr = Math.round((10 * weightKg) + (6.25 * heightCm) - (5 * age) + sexAdjustment);
   const maintenance = Math.round(bmr * (activityMultipliers[profile.activityLevel] || activityMultipliers.moderate));
 

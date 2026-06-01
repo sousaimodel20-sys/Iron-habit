@@ -1,5 +1,14 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Fuel macro sex calculation guardrail
+
+Made Fuel macro math explicit for male and female BMR branches.
+
+- Added tested sex-adjustment handling for `male`/`M` and `female`/`F` so M/F inputs map to the correct Mifflin-St Jeor offsets.
+- Changed blank/Other sex from silently using the male branch to a neutral midpoint fallback.
+- Expanded `npm run test:fuel-macros` to cover male, female, M/F aliases, and neutral fallback behavior.
+- Verification passed: `npm run test:fuel-macros`, `npm run test:launch-onboarding-date`, `npm run build`, and `npm run lint`.
+
 ## 2026-06-01 — Launch onboarding imperial body metrics
 
 Aligned the Body Basics onboarding fields with the app's imperial body profile model.
