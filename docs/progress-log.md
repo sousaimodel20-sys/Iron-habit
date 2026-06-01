@@ -12,7 +12,14 @@ B3 reduced the Meetings launch bundle hit from the AA Canada starter data:
 - Bundle check: production app shell JS dropped to about 474 kB / 138 kB gzip; the starter meeting JSON remains a route-demand asset at about 1.93 MB.
 - Browser smoke passed locally for `/meetings?q=Kelowna%2C%20BC` and `/rescue` with zero console errors.
 
-Next B3/B4 follow-up: production deploy smoke, then tester handoff/final launch regression if Joshua wants the launch gate closed now.
+Follow-up B3 finish pass:
+
+- Removed the stale Austin/sample default preview from `/meetings`; empty state now stays generic until the user enters or saves a support area.
+- Softened Meetings/Rescue copy from “loaded/ready” language to “starter data,” “available,” and “trusted handoffs,” while keeping source and checked-date provenance visible.
+- Re-ran verification: `git diff --check`, `npm run test:meeting-locator`, `npm run test:aa-canada-import`, `npm run build`, and `npm run lint` all passed.
+- Browser smoke passed locally for `/meetings`, `/meetings?q=Kelowna%2C%20BC`, fallback `/meetings?q=Moose%20Jaw%2C%20SK`, and `/rescue` with zero console errors.
+
+B3 is locally complete. Next gate is shipping: push/deploy and live production smoke before tester handoff/final launch regression.
 
 ## 2026-05-29 — Phase 5 visual sprint coordination + Sprint 0 cleanup
 

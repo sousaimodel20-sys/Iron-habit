@@ -304,12 +304,12 @@ export const getMeetingSearchLabel = (location: string) => {
 export const getMeetingSupportSummary = (loadout: CityMeetingLoadout) => {
   const hasStarterCards = !loadout.isFallback;
   return {
-    eyebrow: loadout.hasImportedData ? 'MEETING DATA LOADED' : hasStarterCards ? 'HANDOFFS LOADED' : 'MEETING HANDOFF',
+    eyebrow: loadout.hasImportedData ? 'LOCAL AA DATA' : hasStarterCards ? 'TRUSTED HANDOFFS' : 'MEETING HANDOFF',
     headline: loadout.hasImportedData ? `AA options near ${loadout.city}` : hasStarterCards ? `Trusted handoffs for ${loadout.city}` : `Find a room near ${loadout.city}`,
     todayLine: loadout.hasImportedData
-      ? `AA meeting rows are loaded for ${loadout.city}. Verify the schedule before going.`
+      ? `Starter AA rows are available for ${loadout.city}. Verify the schedule before going.`
       : hasStarterCards
-        ? `Finder cards are ready for ${loadout.city}. Verify the schedule before going.`
+        ? `Finder handoffs are available for ${loadout.city}. Verify the schedule before going.`
         : `Open trusted finder/map results for ${loadout.city}.`,
     rescueLine: hasStarterCards
       ? `Do not browse alone — open the ${loadout.city} room list and move toward people.`
@@ -381,7 +381,7 @@ const buildCanadianStarterLoadout = (city: string, aaName: string, aaHref: strin
 const verifiedCityMeetings: Record<string, Omit<CityMeetingLoadout, 'isFallback'>> = {
   burnaby: {
     city: 'Burnaby, BC',
-    sourceNote: 'Starter cards loaded from public finder/search results. Verify time before going.',
+    sourceNote: 'Starter finder/search cards. Verify time before going.',
     meetings: [
       {
         type: 'aa',
@@ -426,7 +426,7 @@ const verifiedCityMeetings: Record<string, Omit<CityMeetingLoadout, 'isFallback'
   },
   vancouver: {
     city: 'Vancouver, BC',
-    sourceNote: 'Starter cards loaded from public finder/search results. Verify time before going.',
+    sourceNote: 'Starter finder/search cards. Verify time before going.',
     meetings: [
       {
         type: 'aa',
@@ -471,7 +471,7 @@ const verifiedCityMeetings: Record<string, Omit<CityMeetingLoadout, 'isFallback'
   },
   surrey: {
     city: 'Surrey, BC',
-    sourceNote: 'Starter cards loaded from public finder/search results. Verify time before going.',
+    sourceNote: 'Starter finder/search cards. Verify time before going.',
     meetings: [
       {
         type: 'na',
@@ -516,7 +516,7 @@ const verifiedCityMeetings: Record<string, Omit<CityMeetingLoadout, 'isFallback'
   },
   richmond: {
     city: 'Richmond, BC',
-    sourceNote: 'Starter cards loaded from public finder/search results. Verify time before going.',
+    sourceNote: 'Starter finder/search cards. Verify time before going.',
     meetings: [
       {
         type: 'aa',
@@ -747,7 +747,7 @@ export const getMeetingsForLocation = (location: string, aaCanadaData?: AaCanada
     return {
       ...loadout,
       sourceNote: hasImportedData
-        ? `AA Canada local data loaded from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
+        ? `AA Canada starter data from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
         : loadout.sourceNote,
       meetings: [...aaDataMeetings, ...starterMeetings],
       isFallback: false,
@@ -761,12 +761,12 @@ export const getMeetingsForLocation = (location: string, aaCanadaData?: AaCanada
   return {
     city,
     sourceNote: hasImportedData
-      ? `AA Canada local data loaded from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
+      ? `AA Canada starter data from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
       : cleanLocation
         ? canadaMode
-          ? 'Canada-wide finder mode: trusted AA, NA, SMART, and map handoffs are loaded. Verify the schedule before going.'
-          : 'Trusted finder/map handoffs are loaded automatically. Verify the schedule before going.'
-        : 'Enter a city during setup to load meeting handoffs automatically.',
+          ? 'Canada-wide finder mode: trusted AA, NA, SMART, and map handoffs are available. Verify the schedule before going.'
+          : 'Trusted finder/map handoffs are available. Verify the schedule before going.'
+        : 'Enter a city during setup to show meeting handoffs.',
     meetings: hasImportedData ? [...aaDataMeetings, ...fallbackMeetings.filter((meeting) => meeting.type !== 'aa')] : fallbackMeetings,
     isFallback: !hasImportedData,
     hasImportedData,
