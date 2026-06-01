@@ -16,6 +16,7 @@
     "test:nutrition-log": "node --experimental-transform-types scripts/test-nutrition-log.mjs",
     "test:food-scan-mock": "node --experimental-transform-types scripts/test-food-scan-mock.mjs",
     "test:meeting-locator": "node --experimental-transform-types scripts/test-meeting-locator.mjs",
+    "test:launch-onboarding-date": "node --experimental-transform-types scripts/test-launch-onboarding-date.mjs",
     "test:training-summary": "node --experimental-transform-types scripts/test-training-summary.mjs",
     "import:aa-canada-meetings": "node scripts/import-aa-canada-meetings.mjs",
     "test:aa-canada-import": "node --experimental-transform-types scripts/test-aa-canada-import.mjs",

@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { formatLocalDateKey } from '../utils/date';
+import { estimateSobrietyDate, normalizeSoberDateInput, recoveryBaselineOptions, resolveSobrietyDate, type RecoveryBaseline } from '../utils/launchOnboarding';
 import { createStarterLoadout } from '../utils/starterLoadout';
 import { getTodayKey, loadData, saveData, type ActiveLoadout } from '../utils/storage';
 
-type Baseline = 'today' | 'few-days' | 'weeks' | 'months';
+type Baseline = RecoveryBaseline;
 type Goal = 'cut-fat' | 'build-muscle' | 'recomposition';
 type TrainingLevel = 'beginner' | 'intermediate' | 'advanced' | 'elite';
 
@@ -20,12 +20,7 @@ type LaunchForm = {
   trainingLevel: TrainingLevel;
 };
 
-const baselineOptions: Array<{ value: Baseline; label: string; detail: string; daysAgo: number }> = [
-  { value: 'today', label: 'Just Starting', detail: 'Day one', daysAgo: 0 },
-  { value: 'few-days', label: 'A Few Days', detail: 'Recent start', daysAgo: 3 },
-  { value: 'weeks', label: 'Weeks', detail: 'Building momentum', daysAgo: 21 },
-  { value: 'months', label: 'Months+', detail: 'Longer streak', daysAgo: 90 },
-];
+const baselineOptions = recoveryBaselineOptions;
 
 const goalOptions: Array<{ value: Goal; title: string; detail: string; loadoutGoal: string }> = [
   { value: 'cut-fat', title: 'Fat Loss', detail: 'Burn fat. Get lean.', loadoutGoal: 'Lose fat while protecting muscle and sobriety.' },
@@ -94,13 +89,6 @@ const setupMetricFields: Array<{ key: keyof Pick<LaunchForm, 'heightInches' | 'w
   { key: 'weightLbs', label: 'Weight', unit: 'kg', icon: 'weight', placeholder: '--', inputMode: 'numeric' },
   { key: 'age', label: 'Age', unit: 'yrs', icon: 'age', placeholder: '--', inputMode: 'numeric' },
 ];
-
-const estimateSobrietyDate = (baseline: Baseline) => {
-  const option = baselineOptions.find((item) => item.value === baseline) || baselineOptions[0];
-  const date = new Date();
-  date.setDate(date.getDate() - option.daysAgo);
-  return formatLocalDateKey(date);
-};
 
 const makeStarterLoadout = (form: LaunchForm): ActiveLoadout => {
   const selectedGoal = goalOptions.find((item) => item.value === form.bodyGoal) || goalOptions[2];
@@ -323,7 +311,7 @@ const LaunchOnboarding = () => {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<LaunchForm>({
     supportLocation: saved.profile.supportLocation || '',
-    soberDate: '',
+    soberDate: saved.profile.sobrietyDate || '',
     baseline: 'today',
     heightInches: saved.bodyProfile.heightInches || '',
     weightLbs: saved.bodyProfile.weightLbs || '',
@@ -341,6 +329,17 @@ const LaunchOnboarding = () => {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const chooseBaseline = (baseline: Baseline) => {
+    setForm((current) => ({ ...current, baseline, soberDate: estimateSobrietyDate(baseline) }));
+  };
+
+  const normalizeSoberDate = () => {
+    setForm((current) => {
+      const normalized = normalizeSoberDateInput(current.soberDate);
+      return normalized && normalized !== current.soberDate ? { ...current, soberDate: normalized } : current;
+    });
+  };
+
   const goNext = () => {
     setStep((current) => Math.min(current + 1, stepLabels.length - 1));
   };
@@ -356,7 +355,12 @@ const LaunchOnboarding = () => {
   const saveAndEnter = () => {
     const current = loadData();
     const activeLoadout = makeStarterLoadout(form);
-    const sobrietyDate = form.soberDate.trim() || estimateSobrietyDate(form.baseline) || current.profile.sobrietyDate || getTodayKey();
+    const sobrietyDate = resolveSobrietyDate({
+      enteredDate: form.soberDate,
+      baseline: form.baseline,
+      savedDate: current.profile.sobrietyDate,
+      todayKey: getTodayKey(),
+    });
 
     saveData({
       profile: {
@@ -514,21 +518,28 @@ const LaunchOnboarding = () => {
                   <span>
                     <b>Sober date</b>
                     <input
-                      type={form.soberDate ? 'date' : 'text'}
+                      inputMode="numeric"
                       value={form.soberDate}
                       onChange={(event) => update('soberDate', event.target.value)}
-                      onFocus={(event) => {
-                        event.currentTarget.type = 'date';
-                        event.currentTarget.showPicker?.();
-                      }}
-                      onBlur={(event) => {
-                        if (!event.currentTarget.value) event.currentTarget.type = 'text';
-                      }}
-                      placeholder="Select your sober date..."
+                      onBlur={normalizeSoberDate}
+                      placeholder="YYYY-MM-DD or MM/DD/YYYY"
                       aria-label="Select your sober date"
                     />
                   </span>
                 </label>
+                <div className="launch-baseline-row" aria-label="Quick sober date choices">
+                  {baselineOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={form.baseline === option.value ? 'selected' : ''}
+                      onClick={() => chooseBaseline(option.value)}
+                    >
+                      <b>{option.label}</b>
+                      <small>{option.detail}</small>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <aside className="launch-counts-card">

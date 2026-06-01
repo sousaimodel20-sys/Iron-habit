@@ -1,5 +1,18 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Launch onboarding sober-date fix
+
+Fixed the intro/setup sober-date field so tester onboarding can save the actual recovery start date.
+
+- Root cause: the field switched between text/date input modes and called the native picker on focus, which caused typed values to clear or reject user-friendly formats.
+- Replaced the dynamic date input with a stable text input that accepts and normalizes `YYYY-MM-DD`, `YYYY-M-D`, `MM/DD/YYYY`, and `M/D/YY`.
+- Added quick sober-date presets for Just Starting, A Few Days, Weeks, and Months+ while still saving the exact normalized date.
+- Added `npm run test:launch-onboarding-date` for date normalization, baseline estimates, and save-resolution behavior.
+- Browser smoke passed locally from `/` → Start My Plan → enter `06/01/2025` → normalize to `2025-06-01` → Save & Continue → Enter Iron Habit → `/today`, with `profile.sobrietyDate` saved as `2025-06-01` and zero JS errors.
+- Verification passed: `git diff --check`, `npm run test:launch-onboarding-date`, `npm run build`, and `npm run lint`.
+
+Next Phase 5 polish slice: continue mobile launch cleanup on the remaining first-run surfaces, then final regression/tester handoff.
+
 ## 2026-06-01 — Fuel dock polish: remove Rescue obstruction
 
 Removed the Fuel-page Rescue dock/floating affordance so the bottom navigation stays clear on mobile.
