@@ -90,3 +90,14 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification passed: `npm run test:food-scan-mock`, `npm run test:nutrition-log`, `npm run build`, and `npm run lint`.
 - Local smoke passed: preview server returned 200 for `/fuel` and `/`; browser CDP was unavailable in this session, so route smoke used HTTP fetch.
 - Paid boundary: real Gemini/OpenAI integration still requires an approved backend/serverless function, API key, model choice, and spending cap before any paid call is made.
+
+## 2026-06-01 — Fuel scan readiness polish
+
+- Change: polished the mock-only Fuel scan flow before paid AI discussion.
+- Added selected-photo preview using a local object URL, while keeping the sample plate fallback.
+- Added scanned meal-type selection, serving-size review, confidence copy, and detected-food chips before logging.
+- Improved daily scan-limit UX so the mock analyze button becomes an intentional `Daily scan limit reached` state.
+- Scanned meals now save to the selected meal type instead of always logging as custom.
+- Verification passed: `npm run test:food-scan-mock`, `npm run test:nutrition-log`, `npm run build`, and `npm run lint`.
+- Local smoke passed: preview server returned 200 for `/fuel` and `/`.
+- Paid boundary remains unchanged: no Gemini/OpenAI/Claude calls, no API key, no paid backend route.
