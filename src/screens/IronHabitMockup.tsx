@@ -6,6 +6,7 @@ import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntry
 import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from '../utils/aiFoodScan';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getMeetingsForLocation, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
@@ -24,13 +25,7 @@ const exercises = [
   { name: 'Rope Tricep Pushdown', sets: '3 × 12–15', muscle: 'Triceps' },
 ];
 
-const meetings = [
-  { type: 'A', name: 'Central Austin AA', time: '7:00 PM', distance: '0.8 mi', meta: 'Open Meeting', tag: '' },
-  { type: 'A', name: 'Hope & Freedom Group', time: '8:00 PM', distance: '1.4 mi', meta: 'Open Meeting', tag: '' },
-  { type: 'NA', name: 'NA Unity Meeting', time: '7:30 PM', distance: '2.1 mi', meta: 'Open Meeting', tag: '' },
-  { type: 'S', name: 'SMART Recovery Austin', time: '6:30 PM', distance: '2.3 mi', meta: 'Support Group', tag: '' },
-  { type: '✥', name: 'Daily Reflections', time: '7:00 PM', distance: '3.1 mi', meta: 'Open Meeting', tag: '' },
-];
+const meetingPrograms: MeetingProgram[] = ['all', 'aa', 'na', 'smart', 'other'];
 
 const formatNumber = (value: number) => value.toLocaleString();
 
@@ -382,20 +377,64 @@ export function TalkPage() {
 
 export function MeetingsPage() {
   const { supportLocation } = useMockData();
+  const initialLocation = supportLocation !== 'your city' ? supportLocation : '';
+  const [draftLocation, setDraftLocation] = useState(initialLocation);
+  const [activeProgram, setActiveProgram] = useState<MeetingProgram>('all');
+  const cleanLocation = cleanMeetingLocation(draftLocation);
   const hasSavedSupportLocation = supportLocation !== 'your city';
-  const supportArea = hasSavedSupportLocation ? supportLocation : 'Sample support area';
-  const meetingSearchArea = hasSavedSupportLocation ? supportLocation : 'Austin, TX';
-  const meetingsSummary = hasSavedSupportLocation ? `Meetings near ${supportArea}` : 'Sample meetings for setup preview';
+  const supportArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Sample support area');
+  const meetingSearchArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Austin, TX');
+  const meetingLoadout = getMeetingsForLocation(meetingSearchArea);
+  const meetingsSummary = cleanLocation
+    ? `Meetings loaded for ${meetingLoadout.city}`
+    : hasSavedSupportLocation
+      ? `Meetings loaded for ${meetingLoadout.city}`
+      : 'Preview the handoff, then save your real support area.';
+  const visibleMeetings = activeProgram === 'all' ? meetingLoadout.meetings : meetingLoadout.meetings.filter((meeting) => meeting.type === activeProgram);
+  const mapUrl = buildMeetingSearchUrl(meetingSearchArea, 'maps');
+  const saveSupportArea = () => {
+    if (!cleanLocation) return;
+    const current = loadData();
+    saveData({ profile: { ...current.profile, supportLocation: cleanLocation } });
+  };
+
   return (
     <section className="ih-page ih-meetings-page">
       <BrandHeader />
-      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT NEARBY</small><h1>FIND<br />SUPPORT<br />NEARBY</h1><p>{meetingsSummary}</p></div><HelmetCoach small /></div>
-      <div className="ih-location-bar"><span>⌖</span><div><small>{hasSavedSupportLocation ? 'Current support area' : 'Sample support area'}</small><strong>{supportArea}</strong></div><Link to="/talk">Change</Link></div>
-      <div className="ih-tabs ih-pill-tabs"><b>ALL</b><span>AA</span><span>NA</span><span>SMART</span><span>OTHER</span></div>
-      <div className="ih-list">
-        {meetings.map((meeting) => <a className="ih-meeting" href={`https://www.google.com/search?q=${encodeURIComponent(meeting.name + ' near ' + meetingSearchArea)}`} key={meeting.name} target="_blank" rel="noreferrer"><i>{meeting.type}</i><div><strong>{meeting.name}</strong><small>{meeting.meta}</small></div><em>{meeting.distance}<small>{meeting.time}</small></em><b>›</b></a>)}
+      <div className="ih-hero-split ih-meetings-hero"><div><small>SUPPORT NEARBY</small><h1>FIND<br />A ROOM<br />TONIGHT</h1><p>{meetingsSummary}</p></div><HelmetCoach small /></div>
+      <div className="ih-location-bar ih-meetings-search-bar">
+        <span>⌖</span>
+        <label>
+          <small>{cleanLocation ? 'Current search area' : 'Add city or postal code'}</small>
+          <input value={draftLocation} onChange={(event) => setDraftLocation(event.target.value)} placeholder="Vancouver, BC" />
+        </label>
+        <button type="button" onClick={saveSupportArea} disabled={!cleanLocation}>Save</button>
       </div>
-      <a className="ih-secondary ih-wide" href="https://www.aa.org/find-aa" target="_blank" rel="noreferrer">Online meeting options</a>
+      <div className="ih-meetings-action-card ih-card">
+        <div><small>FAST HANDOFF</small><strong>{supportArea}</strong><span>{meetingLoadout.sourceNote}</span></div>
+        <a className="ih-primary-mini" href={mapUrl} target="_blank" rel="noreferrer">Open map</a>
+      </div>
+      <div className="ih-tabs ih-pill-tabs ih-meeting-tabs" aria-label="Meeting type filter">
+        {meetingPrograms.map((program) => {
+          const isActive = activeProgram === program;
+          return <button className={isActive ? 'active' : ''} type="button" key={program} onClick={() => setActiveProgram(program)}>{meetingProgramLabels[program]}</button>;
+        })}
+      </div>
+      <div className="ih-list ih-meeting-list">
+        {visibleMeetings.map((meeting) => (
+          <a className="ih-meeting ih-meeting-real" href={meeting.href} key={`${meeting.name}-${meeting.address}`} target="_blank" rel="noreferrer">
+            <i>{meeting.badge}</i>
+            <div><strong>{meeting.name}</strong><small>{meeting.address}</small><span>{meeting.meta} • {meeting.nextStep}</span></div>
+            <em>{meeting.distance}<small>{meeting.time}</small><small>{meeting.intensity}</small></em><b>›</b>
+          </a>
+        ))}
+      </div>
+      <div className="ih-meeting-source-grid">
+        <a href={buildMeetingSourceUrl('aa', meetingSearchArea)} target="_blank" rel="noreferrer">AA official finder</a>
+        <a href={buildMeetingSourceUrl('na', meetingSearchArea)} target="_blank" rel="noreferrer">NA official finder</a>
+        <a href={buildMeetingSourceUrl('smart', meetingSearchArea)} target="_blank" rel="noreferrer">SMART finder</a>
+      </div>
+      <div className="ih-card ih-meeting-safety-card"><small>IF THE URGE IS LOUD</small><strong>Do not browse alone.</strong><p>Open Rescue, text your safe person, or go to the closest room. The goal is contact, not perfect filtering.</p><div className="ih-action-row"><Link to="/rescue?chain=1">Open Rescue</Link><a href={mapUrl} target="_blank" rel="noreferrer">Open map</a></div></div>
     </section>
   );
 }

@@ -3,39 +3,26 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Field, PageHeader } from '../components/UI';
 import { loadData, saveData } from '../utils/storage';
 import { buildSupportSmsHref, buildSupportTelHref, getSupportContactLabel, hasSupportContact } from '../utils/support';
-
-const buildSearchUrl = (query: string, type: 'aa' | 'na' | 'smart' | 'maps') => {
-  const location = query.trim();
-  const terms = {
-    aa: location ? `${location} AA meetings` : 'AA meetings near me',
-    na: location ? `${location} NA meetings` : 'NA meetings near me',
-    smart: location ? `${location} SMART Recovery meetings` : 'SMART Recovery meetings near me',
-    maps: location ? `${location} recovery meetings` : 'recovery meetings near me',
-  }[type];
-
-  return type === 'maps'
-    ? `https://www.google.com/maps/search/${encodeURIComponent(terms)}`
-    : `https://www.google.com/search?q=${encodeURIComponent(terms)}`;
-};
+import { buildMeetingSearchUrl } from '../utils/meetings';
 
 const buildSupportCards = (query: string) => [
   {
     title: 'AA meetings',
     body: 'Alcohol recovery rooms. Start here when you need sober voices around you.',
     cta: 'Search AA',
-    href: buildSearchUrl(query, 'aa'),
+    href: buildMeetingSearchUrl(query, 'aa'),
   },
   {
     title: 'NA meetings',
     body: 'Recovery support for substance cravings, isolation, and old-pattern thinking.',
     cta: 'Search NA',
-    href: buildSearchUrl(query, 'na'),
+    href: buildMeetingSearchUrl(query, 'na'),
   },
   {
     title: 'SMART Recovery',
     body: 'Practical tools, peer support, and structured recovery groups if you want another lane besides AA/NA.',
     cta: 'Search SMART',
-    href: buildSearchUrl(query, 'smart'),
+    href: buildMeetingSearchUrl(query, 'smart'),
   },
 ];
 
@@ -84,7 +71,7 @@ const Meetings = () => {
     } else {
       setSearchParams({});
     }
-    window.open(buildSearchUrl(cleanLocation, 'maps'), '_blank', 'noopener,noreferrer');
+    window.open(buildMeetingSearchUrl(cleanLocation, 'maps'), '_blank', 'noopener,noreferrer');
   };
 
   return (
