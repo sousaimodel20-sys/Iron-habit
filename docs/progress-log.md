@@ -1,5 +1,16 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Fuel dock polish: remove Rescue obstruction
+
+Removed the Fuel-page Rescue dock/floating affordance so the bottom navigation stays clear on mobile.
+
+- `/fuel` now hides both the floating Rescue button and the dock-level Rescue action.
+- Kept the normal Today / Meetings / Train / Fuel / Progress bottom nav intact.
+- Verification passed: `git diff --check`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for `/fuel`: no `.ih-floating-rescue`, no `.ih-rescue-dock-action`, five primary nav links visible, and zero reported JS errors.
+
+Next Phase 5 polish slice: continue mobile visual cleanup page-by-page, likely Today/Rescue/Talk/Proof.
+
 ## 2026-06-01 — Training Sprint T4: final Training regression
 
 Closed the Training page sprint sequence with a no-redesign regression pass.

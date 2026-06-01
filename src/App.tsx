@@ -40,7 +40,7 @@ function AppLayout() {
   const location = useLocation();
   const introRoutes = ['/', '/intro', '/onboarding', '/onboarding-preview', '/setup-profile'];
   const showDock = !introRoutes.includes(location.pathname);
-  const useFloatingRescue = location.pathname.startsWith('/fuel');
+  const hideDockRescueAction = location.pathname.startsWith('/fuel');
   const useReferenceTrainDock = location.pathname === '/train' || location.pathname.startsWith('/workout-mode');
 
   return (
@@ -74,16 +74,9 @@ function AppLayout() {
         </Routes>
       </main>
 
-      {showDock && useFloatingRescue && (
-        <NavLink to="/rescue?chain=1" className="ih-floating-rescue" aria-label="Open Rescue">
-          <span aria-hidden="true">+</span>
-          <b>Rescue</b>
-        </NavLink>
-      )}
-
       {showDock && (
-        <div className={`ih-dock-wrap${useFloatingRescue ? ' ih-dock-wrap-compact' : ''}${useReferenceTrainDock ? ' ih-dock-reference' : ''}`} aria-label="Launch navigation">
-          {!useFloatingRescue && !useReferenceTrainDock && (
+        <div className={`ih-dock-wrap${useReferenceTrainDock ? ' ih-dock-reference' : ''}`} aria-label="Launch navigation">
+          {!hideDockRescueAction && !useReferenceTrainDock && (
             <NavLink to="/rescue?chain=1" className="ih-rescue-dock-action">
               <span aria-hidden="true">⚕</span>
               Need help now?
