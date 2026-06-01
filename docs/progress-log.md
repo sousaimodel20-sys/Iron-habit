@@ -120,3 +120,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification passed: `npm run build` and `npm run lint`.
 - Local route smoke passed: preview served `/launch-kit` successfully.
 
+## 2026-06-01 — Phase 5 local final regression gate
+
+- Change: ran the final local regression gate across the tester path before deploy/push.
+- Checks passed: `git diff --check`, all focused test scripts, `npm run build`, and `npm run lint`.
+- Focused tests: daily mission, proof receipts, support helpers, emergency support chain, Talk next move, Fuel macros, nutrition log, food-scan mock guardrail, and meeting locator.
+- Local route smoke passed via Vite preview for `/`, `/setup-profile`, `/today`, `/check-in`, `/rescue`, `/meetings`, `/train`, `/fuel`, `/proof`, and `/launch-kit`.
+- Browser/CDP visual console smoke was unavailable in this session because no CDP endpoint was reachable at `127.0.0.1:9222`; HTTP route smoke covered route availability only.
+- No blocking code issues found. Remaining gate: push/deploy and verify the production URL.
+
