@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { aaCanadaImportSummary, aaCanadaMeetings } from '../src/data/aaCanadaMeetings.generated.ts';
 import { aaCanadaMeetingIndex, aaCanadaMeetingIndexSummary } from '../src/data/aaCanadaMeetingIndex.generated.ts';
 
@@ -44,6 +45,11 @@ assert.ok(aaCanadaMeetingIndex.every((meeting) => meeting.program === 'aa' && me
 assert.ok(aaCanadaMeetingIndex.some((meeting) => meeting.sourceId === 'toronto' && meeting.province === 'ON'));
 assert.ok(aaCanadaMeetingIndex.some((meeting) => meeting.sourceId === 'calgary' && meeting.province === 'AB'));
 assert.ok(aaCanadaMeetingIndex.some((meeting) => meeting.sourceId === 'regina' && meeting.province === 'SK'));
+
+const publicIndex = JSON.parse(await readFile('public/data/aa-canada-meeting-index.json', 'utf8'));
+assert.equal(publicIndex.summary.indexedRows, aaCanadaMeetingIndexSummary.indexedRows);
+assert.equal(publicIndex.meetings.length, aaCanadaMeetingIndex.length);
+assert.ok(publicIndex.meetings.some((meeting) => meeting.sourceId === 'toronto' && meeting.province === 'ON'));
 
 const indexBucketCounts = new Map();
 for (const meeting of aaCanadaMeetingIndex) {

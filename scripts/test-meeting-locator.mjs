@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   buildMeetingSearchUrl,
   buildMeetingSourceUrl,
@@ -8,6 +9,8 @@ import {
   getAaCanadaMeetingDataSummary,
   getMeetingsForLocation,
 } from '../src/utils/meetings.ts';
+
+const aaCanadaData = JSON.parse(await readFile('public/data/aa-canada-meeting-index.json', 'utf8'));
 
 assert.equal(cleanMeetingLocation('  Vancouver   BC  '), 'Vancouver BC');
 assert.equal(getMeetingSearchLabel('Burnaby, BC'), 'Open map near Burnaby, BC');
@@ -61,7 +64,7 @@ const canadaStarterCities = [
 ];
 
 for (const [input, expectedCity] of canadaStarterCities) {
-  const loadout = getMeetingsForLocation(input);
+  const loadout = getMeetingsForLocation(input, aaCanadaData);
   assert.equal(loadout.isFallback, false);
   assert.equal(loadout.city, expectedCity);
   assert.equal(loadout.hasImportedData, true);
@@ -77,7 +80,7 @@ assert.equal(getMeetingsForLocation('YHZ').city, 'Halifax, NS');
 assert.equal(getMeetingsForLocation('Victoria, B.C.').city, 'Victoria, BC');
 assert.equal(getMeetingsForLocation('west kelowna').city, 'Kelowna, BC');
 
-const kelowna = getMeetingsForLocation('Kelowna, BC');
+const kelowna = getMeetingsForLocation('Kelowna, BC', aaCanadaData);
 assert.equal(kelowna.isFallback, false);
 assert.equal(kelowna.city, 'Kelowna, BC');
 assert.equal(kelowna.hasImportedData, true);
@@ -87,7 +90,7 @@ const kelownaSupport = getMeetingSupportSummary(kelowna);
 assert.equal(kelownaSupport.eyebrow, 'MEETING DATA LOADED');
 assert.equal(kelownaSupport.headline, 'AA options near Kelowna, BC');
 
-const unknown = getMeetingsForLocation('Moose Jaw, SK');
+const unknown = getMeetingsForLocation('Moose Jaw, SK', aaCanadaData);
 assert.equal(unknown.isFallback, true);
 assert.equal(unknown.city, 'Moose Jaw, SK');
 assert.ok(unknown.sourceNote.includes('Canada-wide finder mode'));
@@ -100,12 +103,15 @@ const unknownSupport = getMeetingSupportSummary(unknown);
 assert.equal(unknownSupport.eyebrow, 'MEETING HANDOFF');
 assert.equal(unknownSupport.headline, 'Find a room near Moose Jaw, SK');
 
-const regina = getMeetingsForLocation('Regina, SK');
+const regina = getMeetingsForLocation('Regina, SK', aaCanadaData);
 assert.equal(regina.isFallback, false);
 assert.equal(regina.hasImportedData, true);
 assert.ok(regina.meetings.some((meeting) => meeting.isImported && meeting.sourceName.includes('Regina')));
 
-const dataSummary = getAaCanadaMeetingDataSummary();
+const unloadedSummary = getAaCanadaMeetingDataSummary();
+assert.equal(unloadedSummary.indexedRows, 0);
+
+const dataSummary = getAaCanadaMeetingDataSummary(aaCanadaData);
 assert.equal(dataSummary.normalizedRows, 5770);
 assert.ok(dataSummary.warning.includes('Verify schedules'));
 

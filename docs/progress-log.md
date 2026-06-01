@@ -1,5 +1,19 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — B3 meetings bundle/data-loading polish
+
+B3 reduced the Meetings launch bundle hit from the AA Canada starter data:
+
+- Moved the 2,057-row AA Canada starter index to `public/data/aa-canada-meeting-index.json` so it is fetched only on meeting-support screens instead of imported into the main app shell.
+- Added a cached `useAaCanadaMeetingIndex` loader and made `getMeetingsForLocation` accept optional starter data, preserving finder fallback behavior before/if the JSON loads.
+- Updated `/meetings` and `/rescue` to use the on-demand data payload while keeping source/checked-date provenance and safe handoff copy.
+- Updated the importer so future AA Canada regenerations write both the verification TS module and the public JSON payload.
+- Verification passed: `git diff --check`, `npm run test:meeting-locator`, `npm run test:aa-canada-import`, `npm run build`, and `npm run lint`.
+- Bundle check: production app shell JS dropped to about 474 kB / 138 kB gzip; the starter meeting JSON remains a route-demand asset at about 1.93 MB.
+- Browser smoke passed locally for `/meetings?q=Kelowna%2C%20BC` and `/rescue` with zero console errors.
+
+Next B3/B4 follow-up: production deploy smoke, then tester handoff/final launch regression if Joshua wants the launch gate closed now.
+
 ## 2026-05-29 — Phase 5 visual sprint coordination + Sprint 0 cleanup
 
 Phase 5 visual work now has a coordination gate:

@@ -1,4 +1,62 @@
-import { aaCanadaMeetingIndex, aaCanadaMeetingIndexSummary, type AaCanadaMeetingIndexRow } from '../data/aaCanadaMeetingIndex.generated.ts';
+export type AaCanadaMeetingIndexRow = {
+  id: string;
+  program: 'aa';
+  name: string;
+  day: string;
+  time: string;
+  endTime: string;
+  timezone: string;
+  location: string;
+  address: string;
+  city: string;
+  province: string;
+  country: 'CA';
+  latitude: number | null;
+  longitude: number | null;
+  types: string[];
+  conferenceUrl: string;
+  sourceId: string;
+  sourceName: string;
+  sourceUrl: string;
+  sourceMeetingId: string;
+  sourceSlug: string;
+  meetingUrl: string;
+  updated: string;
+  checkedAt: string;
+};
+
+export type AaCanadaMeetingIndexSummary = {
+  checkedAt: string;
+  sourceManifest: string;
+  sourceCount: number;
+  fetchedSourceCount: number;
+  failedSourceCount: number;
+  rawRows: number;
+  normalizedRows: number;
+  provinces: string[];
+  warning: string;
+  indexedRows: number;
+  indexPolicy: string;
+};
+
+export type AaCanadaMeetingIndexPayload = {
+  summary: AaCanadaMeetingIndexSummary;
+  meetings: AaCanadaMeetingIndexRow[];
+};
+
+const emptyAaCanadaMeetingIndexSummary: AaCanadaMeetingIndexSummary = {
+  checkedAt: '',
+  sourceManifest: '',
+  sourceCount: 0,
+  fetchedSourceCount: 0,
+  failedSourceCount: 0,
+  rawRows: 0,
+  normalizedRows: 0,
+  provinces: [],
+  warning: 'AA Canada starter data loads on demand. Verify schedules with source links before going.',
+  indexedRows: 0,
+  indexPolicy: 'AA Canada starter data is fetched only on meeting-support screens to keep the app shell light.',
+};
 
 export type MeetingProgram = 'all' | 'aa' | 'na' | 'smart' | 'other';
 export type MeetingSearchTarget = Exclude<MeetingProgram, 'all'> | 'maps';
@@ -183,12 +241,12 @@ const getProvinceFromLocation = (location: string) => {
 
 const getMeetingUrl = (meeting: AaCanadaMeetingIndexRow) => meeting.meetingUrl || meeting.sourceUrl || buildMeetingSearchUrl(`${meeting.name} ${meeting.address}`, 'maps');
 
-const getAaCanadaDataMeetings = (location: string, limit = 8): LoadedMeeting[] => {
+const getAaCanadaDataMeetings = (location: string, aaCanadaData?: AaCanadaMeetingIndexPayload | null, limit = 8): LoadedMeeting[] => {
   const normalized = normalizeMeetingLocation(location);
   const province = getProvinceFromLocation(location);
-  if (!normalized || (!province && !isLikelyCanadianLocation(location))) return [];
+  if (!aaCanadaData?.meetings.length || !normalized || (!province && !isLikelyCanadianLocation(location))) return [];
 
-  const matches = aaCanadaMeetingIndex
+  const matches = aaCanadaData.meetings
     .filter((meeting) => {
       const meetingCity = normalizeMeetingLocation(meeting.city);
       const meetingAddress = normalizeMeetingLocation(meeting.address);
@@ -217,7 +275,7 @@ const getAaCanadaDataMeetings = (location: string, limit = 8): LoadedMeeting[] =
   }));
 };
 
-export const getAaCanadaMeetingDataSummary = () => aaCanadaMeetingIndexSummary;
+export const getAaCanadaMeetingDataSummary = (aaCanadaData?: AaCanadaMeetingIndexPayload | null) => aaCanadaData?.summary || emptyAaCanadaMeetingIndexSummary;
 
 
 export const buildMeetingSearchUrl = (location: string, target: MeetingSearchTarget = 'maps') => {
@@ -678,10 +736,10 @@ const buildFallbackMeetings = (location: string): LoadedMeeting[] => {
   ];
 };
 
-export const getMeetingsForLocation = (location: string): CityMeetingLoadout => {
+export const getMeetingsForLocation = (location: string, aaCanadaData?: AaCanadaMeetingIndexPayload | null): CityMeetingLoadout => {
   const cleanLocation = cleanMeetingLocation(location);
   const cityKey = getMeetingCityKey(cleanLocation);
-  const aaDataMeetings = getAaCanadaDataMeetings(cleanLocation);
+  const aaDataMeetings = getAaCanadaDataMeetings(cleanLocation, aaCanadaData);
   const hasImportedData = aaDataMeetings.length > 0;
   if (cityKey) {
     const loadout = verifiedCityMeetings[cityKey];
@@ -689,7 +747,7 @@ export const getMeetingsForLocation = (location: string): CityMeetingLoadout => 
     return {
       ...loadout,
       sourceNote: hasImportedData
-        ? `AA Canada local data loaded from ${aaCanadaMeetingIndexSummary.fetchedSourceCount} public source feeds. Verify the schedule before going.`
+        ? `AA Canada local data loaded from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
         : loadout.sourceNote,
       meetings: [...aaDataMeetings, ...starterMeetings],
       isFallback: false,
@@ -703,7 +761,7 @@ export const getMeetingsForLocation = (location: string): CityMeetingLoadout => 
   return {
     city,
     sourceNote: hasImportedData
-      ? `AA Canada local data loaded from ${aaCanadaMeetingIndexSummary.fetchedSourceCount} public source feeds. Verify the schedule before going.`
+      ? `AA Canada local data loaded from ${getAaCanadaMeetingDataSummary(aaCanadaData).fetchedSourceCount} public source feeds. Verify the schedule before going.`
       : cleanLocation
         ? canadaMode
           ? 'Canada-wide finder mode: trusted AA, NA, SMART, and map handoffs are loaded. Verify the schedule before going.'

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
+import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
 import { getMeetingsForLocation, getMeetingSupportSummary } from '../utils/meetings';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
@@ -26,7 +27,8 @@ const CravingRescue = () => {
   const profile = data.profile;
   const supportLocation = getSupportLocation(profile);
   const rescueMeetingArea = supportLocation || 'your area';
-  const meetingLoadout = getMeetingsForLocation(rescueMeetingArea);
+  const aaCanadaData = useAaCanadaMeetingIndex();
+  const meetingLoadout = getMeetingsForLocation(rescueMeetingArea, aaCanadaData);
   const meetingSupport = getMeetingSupportSummary(meetingLoadout);
   const primaryMeeting = meetingLoadout.meetings[0];
   const meetingsPath = buildMeetingsPath(profile);

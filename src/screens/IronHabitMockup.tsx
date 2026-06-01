@@ -6,6 +6,7 @@ import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntry
 import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from '../utils/aiFoodScan';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
 import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
@@ -391,11 +392,12 @@ export function MeetingsPage() {
   const [draftLocation, setDraftLocation] = useState(initialLocation);
   const [activeProgram, setActiveProgram] = useState<MeetingProgram>('all');
   const cleanLocation = cleanMeetingLocation(draftLocation);
+  const aaCanadaData = useAaCanadaMeetingIndex();
   const hasSavedSupportLocation = supportLocation !== 'your city';
   const supportArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Sample support area');
   const meetingSearchArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Austin, TX');
-  const meetingLoadout = getMeetingsForLocation(meetingSearchArea);
-  const meetingsDataSummary = getAaCanadaMeetingDataSummary();
+  const meetingLoadout = getMeetingsForLocation(meetingSearchArea, aaCanadaData);
+  const meetingsDataSummary = getAaCanadaMeetingDataSummary(aaCanadaData);
   const meetingsSummary = cleanLocation || hasSavedSupportLocation
     ? meetingLoadout.hasImportedData
       ? `${meetingLoadout.meetings.filter((meeting) => meeting.isImported).length} AA rows ready for ${meetingLoadout.city}`
