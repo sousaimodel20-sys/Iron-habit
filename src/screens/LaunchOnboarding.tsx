@@ -90,6 +90,36 @@ const setupMetricFields: Array<{ key: keyof Pick<LaunchForm, 'heightInches' | 'w
   { key: 'age', label: 'Age', unit: 'yrs', icon: 'age', placeholder: '--', inputMode: 'numeric' },
 ];
 
+const soberDateMonths = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const daysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
+
+const parseSoberDateParts = (value: string, fallback = getTodayKey()) => {
+  const normalized = normalizeSoberDateInput(value) || fallback;
+  const [yearText, monthText, dayText] = normalized.split('-');
+  return {
+    year: Number(yearText),
+    month: Number(monthText),
+    day: Number(dayText),
+  };
+};
+
+const formatSoberDateParts = ({ year, month, day }: { year: number; month: number; day: number }) =>
+  `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
 const makeStarterLoadout = (form: LaunchForm): ActiveLoadout => {
   const selectedGoal = goalOptions.find((item) => item.value === form.bodyGoal) || goalOptions[2];
   const selectedLevel = levelOptions.find((item) => item.value === form.trainingLevel) || levelOptions[1];
@@ -311,7 +341,7 @@ const LaunchOnboarding = () => {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<LaunchForm>({
     supportLocation: saved.profile.supportLocation || '',
-    soberDate: saved.profile.sobrietyDate || '',
+    soberDate: normalizeSoberDateInput(saved.profile.sobrietyDate || '') || estimateSobrietyDate('today'),
     baseline: 'today',
     heightInches: saved.bodyProfile.heightInches || '',
     weightLbs: saved.bodyProfile.weightLbs || '',
@@ -323,6 +353,15 @@ const LaunchOnboarding = () => {
 
   const selectedGoal = goalOptions.find((item) => item.value === form.bodyGoal) || goalOptions[2];
   const selectedLevel = levelOptions.find((item) => item.value === form.trainingLevel) || levelOptions[1];
+  const soberDateParts = useMemo(() => parseSoberDateParts(form.soberDate), [form.soberDate]);
+  const soberDateYearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 81 }, (_, index) => currentYear - index);
+  }, []);
+  const soberDateDayOptions = useMemo(
+    () => Array.from({ length: daysInMonth(soberDateParts.year, soberDateParts.month) }, (_, index) => index + 1),
+    [soberDateParts.month, soberDateParts.year],
+  );
   const isFinalStep = step === finalStep;
 
   const update = (key: keyof LaunchForm, value: string) => {
@@ -333,10 +372,16 @@ const LaunchOnboarding = () => {
     setForm((current) => ({ ...current, baseline, soberDate: estimateSobrietyDate(baseline) }));
   };
 
-  const normalizeSoberDate = () => {
+  const updateSoberDatePart = (part: 'month' | 'day' | 'year', value: string) => {
     setForm((current) => {
-      const normalized = normalizeSoberDateInput(current.soberDate);
-      return normalized && normalized !== current.soberDate ? { ...current, soberDate: normalized } : current;
+      const currentParts = parseSoberDateParts(current.soberDate);
+      const nextParts = { ...currentParts, [part]: Number(value) };
+      const safeDay = Math.min(nextParts.day, daysInMonth(nextParts.year, nextParts.month));
+
+      return {
+        ...current,
+        soberDate: formatSoberDateParts({ ...nextParts, day: safeDay }),
+      };
     });
   };
 
@@ -513,20 +558,41 @@ const LaunchOnboarding = () => {
                     />
                   </span>
                 </label>
-                <label className="launch-setup-input">
+                <div className="launch-setup-input launch-sober-date-picker">
                   <LaunchSetupSvg name="calendar" />
                   <span>
                     <b>Sober date</b>
-                    <input
-                      inputMode="numeric"
-                      value={form.soberDate}
-                      onChange={(event) => update('soberDate', event.target.value)}
-                      onBlur={normalizeSoberDate}
-                      placeholder="YYYY-MM-DD or MM/DD/YYYY"
-                      aria-label="Select your sober date"
-                    />
+                    <div className="launch-sober-date-selects" aria-label="Select your sober date">
+                      <select
+                        value={soberDateParts.month}
+                        onChange={(event) => updateSoberDatePart('month', event.target.value)}
+                        aria-label="Sober date month"
+                      >
+                        {soberDateMonths.map((month, index) => (
+                          <option key={month} value={index + 1}>{month}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={soberDateParts.day}
+                        onChange={(event) => updateSoberDatePart('day', event.target.value)}
+                        aria-label="Sober date day"
+                      >
+                        {soberDateDayOptions.map((day) => (
+                          <option key={day} value={day}>{day}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={soberDateParts.year}
+                        onChange={(event) => updateSoberDatePart('year', event.target.value)}
+                        aria-label="Sober date year"
+                      >
+                        {soberDateYearOptions.map((year) => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                    </div>
                   </span>
-                </label>
+                </div>
                 <div className="launch-baseline-row" aria-label="Quick sober date choices">
                   {baselineOptions.map((option) => (
                     <button
