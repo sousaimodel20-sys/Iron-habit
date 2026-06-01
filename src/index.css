@@ -9509,13 +9509,19 @@ body {
   align-items: start;
 }
 
-.launch-sober-date-selects {
+.launch-sober-date-selects,
+.launch-height-selects {
   display: grid;
   grid-template-columns: minmax(48px, 1fr) minmax(48px, .78fr) minmax(64px, .9fr);
   gap: 4px;
 }
 
-.launch-sober-date-selects select {
+.launch-height-selects {
+  grid-template-columns: repeat(2, minmax(58px, 1fr));
+}
+
+.launch-sober-date-selects select,
+.launch-height-selects select {
   min-height: 32px;
   padding: 0 4px;
   border: 1px solid rgba(255,255,255,.1);

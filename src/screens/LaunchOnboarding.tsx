@@ -84,11 +84,13 @@ const setupHeroTiles: Array<{ label: string; icon: LaunchSetupIcon }> = [
   { label: 'Proof', icon: 'proof' },
 ];
 
-const setupMetricFields: Array<{ key: keyof Pick<LaunchForm, 'heightInches' | 'weightLbs' | 'age'>; label: string; unit: string; icon: LaunchSetupIcon; placeholder: string; inputMode: 'numeric' }> = [
-  { key: 'heightInches', label: 'Height', unit: 'cm', icon: 'height', placeholder: '--', inputMode: 'numeric' },
-  { key: 'weightLbs', label: 'Weight', unit: 'kg', icon: 'weight', placeholder: '--', inputMode: 'numeric' },
-  { key: 'age', label: 'Age', unit: 'yrs', icon: 'age', placeholder: '--', inputMode: 'numeric' },
+const setupMetricFields: Array<{ key: keyof Pick<LaunchForm, 'weightLbs' | 'age'>; label: string; unit: string; icon: LaunchSetupIcon; placeholder: string; inputMode: 'numeric' }> = [
+  { key: 'weightLbs', label: 'Weight', unit: 'lb', icon: 'weight', placeholder: '185', inputMode: 'numeric' },
+  { key: 'age', label: 'Age', unit: 'yrs', icon: 'age', placeholder: '35', inputMode: 'numeric' },
 ];
+
+const heightFeetOptions = [4, 5, 6, 7];
+const heightInchOptions = Array.from({ length: 12 }, (_, index) => index);
 
 const soberDateMonths = [
   'Jan',
@@ -343,7 +345,7 @@ const LaunchOnboarding = () => {
     supportLocation: saved.profile.supportLocation || '',
     soberDate: normalizeSoberDateInput(saved.profile.sobrietyDate || '') || estimateSobrietyDate('today'),
     baseline: 'today',
-    heightInches: saved.bodyProfile.heightInches || '',
+    heightInches: saved.bodyProfile.heightInches || '70',
     weightLbs: saved.bodyProfile.weightLbs || '',
     age: saved.bodyProfile.age || '',
     sex: saved.bodyProfile.sex || '',
@@ -353,6 +355,9 @@ const LaunchOnboarding = () => {
 
   const selectedGoal = goalOptions.find((item) => item.value === form.bodyGoal) || goalOptions[2];
   const selectedLevel = levelOptions.find((item) => item.value === form.trainingLevel) || levelOptions[1];
+  const heightTotalInches = Number(form.heightInches) || 70;
+  const heightFeet = Math.floor(heightTotalInches / 12);
+  const heightInches = heightTotalInches % 12;
   const soberDateParts = useMemo(() => parseSoberDateParts(form.soberDate), [form.soberDate]);
   const soberDateYearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -382,6 +387,17 @@ const LaunchOnboarding = () => {
         ...current,
         soberDate: formatSoberDateParts({ ...nextParts, day: safeDay }),
       };
+    });
+  };
+
+  const updateHeightPart = (part: 'feet' | 'inches', value: string) => {
+    setForm((current) => {
+      const currentTotal = Number(current.heightInches) || 70;
+      const currentFeet = Math.floor(currentTotal / 12);
+      const currentInches = currentTotal % 12;
+      const nextFeet = part === 'feet' ? Number(value) : currentFeet;
+      const nextInches = part === 'inches' ? Number(value) : currentInches;
+      return { ...current, heightInches: String((nextFeet * 12) + nextInches) };
     });
   };
 
@@ -644,6 +660,32 @@ const LaunchOnboarding = () => {
                 <p>Height, weight, age, and gender help tune training and nutrition.</p>
               </div>
               <div className="launch-basics-grid">
+                <div className="launch-setup-input launch-metric-setup-input launch-height-picker">
+                  <LaunchSetupSvg name="height" />
+                  <span>
+                    <b>Height</b>
+                    <div className="launch-height-selects" aria-label="Select your height">
+                      <select
+                        value={heightFeet}
+                        onChange={(event) => updateHeightPart('feet', event.target.value)}
+                        aria-label="Height feet"
+                      >
+                        {heightFeetOptions.map((feet) => (
+                          <option key={feet} value={feet}>{feet} ft</option>
+                        ))}
+                      </select>
+                      <select
+                        value={heightInches}
+                        onChange={(event) => updateHeightPart('inches', event.target.value)}
+                        aria-label="Height inches"
+                      >
+                        {heightInchOptions.map((inches) => (
+                          <option key={inches} value={inches}>{inches} in</option>
+                        ))}
+                      </select>
+                    </div>
+                  </span>
+                </div>
                 {setupMetricFields.map((field) => (
                   <label className="launch-setup-input launch-metric-setup-input" key={field.key}>
                     <LaunchSetupSvg name={field.icon} />

@@ -1,5 +1,15 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Launch onboarding imperial body metrics
+
+Aligned the Body Basics onboarding fields with the app's imperial body profile model.
+
+- Replaced the confusing height numeric field with a feet/inches picker that saves total `heightInches`.
+- Changed weight copy/unit from `kg` to `lb` and kept age as `yrs`.
+- Verified save-through locally from onboarding to `/today`: selected `6 ft 2 in`, `205 lb`, `35 yrs`, and confirmed `heightInches = 74`, `weightLbs = 205`, and `age = 35` in saved storage.
+- Verification passed: `npm run test:launch-onboarding-date`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for the Body Basics picker with no layout overflow and zero JS errors.
+
 ## 2026-06-01 — Launch onboarding sober-date fix
 
 Fixed the intro/setup sober-date field so tester onboarding can save the actual recovery start date.
