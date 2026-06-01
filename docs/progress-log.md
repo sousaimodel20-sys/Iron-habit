@@ -1,5 +1,17 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Training Sprint T1: first-screen clarity
+
+Started Training page dial-in without changing the page layout.
+
+- Added `buildTrainingHeroSummary` so the `/train` hero and stat cards derive a clear today summary from the active loadout or the default PPL fallback.
+- Kept the same hero/stat/program-card structure, but sharpened first-screen copy around today's session, target sets/moves/time, and proof logging.
+- Added `npm run test:training-summary` for the training summary contract.
+- Verification passed: `git diff --check`, `npm run test:training-summary`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for `/train`: hero summary, Start Workout/View Program actions, stat cards, program cards, and zero console errors. Screenshot vision timed out, so smoke used DOM/snapshot inspection instead.
+
+Next Training slice: program-card usefulness polish, still without changing the overall layout.
+
 ## 2026-06-01 — Meetings improvement pass: day/time filters
 
 Continued the post-B3 improvements with a small no-cost Meetings usability slice.

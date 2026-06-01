@@ -8137,11 +8137,20 @@ body {
 
 .ih-ref-hero-copy p {
   max-width: 29ch;
-  margin: 0 0 9px;
+  margin: 0 0 6px;
   color: #cfd2d8;
   font-size: .77rem;
   font-weight: 700;
   line-height: 1.22;
+}
+
+.ih-ref-hero-proof-line {
+  max-width: 31ch;
+  margin: 0 0 9px;
+  color: #fecdd3;
+  font-size: .62rem;
+  font-weight: 900;
+  line-height: 1.18;
 }
 
 .ih-ref-hero-actions {

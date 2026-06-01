@@ -7,6 +7,7 @@ import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from 
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
+import { buildTrainingHeroSummary } from '../utils/trainingSummary';
 import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, filterMeetingsByTimeIntent, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, meetingTimeFilterLabels, type MeetingProgram, type MeetingTimeFilter } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
@@ -34,11 +35,6 @@ const formatNumber = (value: number) => value.toLocaleString();
 const formatCompactCalories = (value: number) => value >= 1000 ? `${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k` : `${value}`;
 
 const clampPct = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
-
-const getSetTotal = (sets: string) => {
-  const parsed = Number.parseInt(sets, 10);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
 
 const mealToneByType = {
   breakfast: { icon: '☼', tone: 'red' },
@@ -507,20 +503,17 @@ export function MeetingsPage() {
 export function TrainPage() {
   const { data } = useMockData();
   const activeLoadout = data.activeLoadout;
-  const activeExercises = activeLoadout?.exercises || [];
-  const activeDay = activeLoadout?.days?.[0] || 'Push';
-  const totalSets = activeExercises.reduce((total, exercise) => total + getSetTotal(exercise.sets), 0);
-  const planLabel = activeLoadout?.label || 'PPL';
+  const trainingSummary = buildTrainingHeroSummary(activeLoadout);
   const workoutRows = [
-    { name: 'Push Day', meta: 'Chest • Shoulders • Triceps', accent: 'Classic Strength', sets: `${totalSets || 16} sets`, exercises: `${activeExercises.length || 6} exercises`, image: pushPhoto, badge: 'TODAY', path: '/exercise?split=push' },
+    { name: `${trainingSummary.activeDay} Day`, meta: activeLoadout?.goal || 'Chest • Shoulders • Triceps', accent: activeLoadout ? 'Loaded today' : 'Classic Strength', sets: `${trainingSummary.totalSets} sets`, exercises: `${trainingSummary.exerciseCount} exercises`, image: pushPhoto, badge: 'TODAY', path: '/exercise?split=push' },
     { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic Strength', sets: '16 sets', exercises: '6 exercises', image: pullPhoto, path: '/exercise?split=pull' },
     { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power Base', sets: '18 sets', exercises: '7 exercises', image: legsPhoto, path: '/exercise?split=legs' },
   ];
   const statTiles = [
-    { label: 'Split', value: planLabel, sub: activeLoadout ? 'Active' : 'Default', icon: 'split', tone: 'red', to: '/exercise?split=custom' },
-    { label: 'Day', value: activeDay, sub: activeLoadout?.level || 'Chest/Delts', icon: 'day', tone: 'orange', to: '/exercise?split=push' },
-    { label: 'Sets', value: `${totalSets || 16}`, sub: 'Target', icon: 'sets', tone: 'amber', to: '/workout-mode' },
-    { label: 'Exercises', value: `${activeExercises.length || 6}`, sub: activeLoadout ? 'Loaded' : 'Sample', icon: 'exercises', tone: 'green', to: '/exercise?split=push' },
+    { label: 'Split', value: trainingSummary.planLabel, sub: activeLoadout ? 'Active' : 'Default', icon: 'split', tone: 'red', to: '/exercise?split=custom' },
+    { label: 'Day', value: trainingSummary.activeDay, sub: activeLoadout?.level || 'Chest/Delts', icon: 'day', tone: 'orange', to: '/exercise?split=push' },
+    { label: 'Sets', value: `${trainingSummary.totalSets}`, sub: 'Target', icon: 'sets', tone: 'amber', to: '/workout-mode' },
+    { label: 'Time', value: trainingSummary.timeCap.replace(/\s*min$/i, ''), sub: 'Min cap', icon: 'exercises', tone: 'green', to: '/workout-mode' },
   ];
 
   return (
@@ -535,9 +528,10 @@ export function TrainPage() {
           <div><span>🏆</span><strong>480</strong><small>Total Points</small></div>
         </div>
         <div className="ih-ref-hero-copy">
-          <small>TRAINING</small>
-          <h1>Train today</h1>
-          <p>Pick the split, open the program, and log the work you actually did.</p>
+          <small>{trainingSummary.eyebrow}</small>
+          <h1>{trainingSummary.headline}</h1>
+          <p>{trainingSummary.missionLine}</p>
+          <div className="ih-ref-hero-proof-line">{trainingSummary.proofLine}</div>
           <div className="ih-ref-hero-actions">
             <Link to="/workout-mode">START WORKOUT <b>›</b></Link>
             <Link to="/exercise?split=push">VIEW PROGRAM</Link>
