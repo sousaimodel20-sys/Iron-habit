@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { loadData, saveData, type MealType } from '../utils/storage';
 import { calculateMacroTargets } from '../utils/nutrition';
 import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntryFromFavorite, addFavoriteMeal, getMealsForDate, removeFavoriteMeal, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
+import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from '../utils/aiFoodScan';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 
@@ -511,6 +512,8 @@ export function FuelPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [data, setData] = useState(() => loadData());
   const [plateDraft, setPlateDraft] = useState<PlateDraft | null>(null);
+  const [pendingPhotoName, setPendingPhotoName] = useState('');
+  const [scanUsage, setScanUsage] = useState(() => getFoodScanUsage(formatLocalDateKey()));
   const [manualDraft, setManualDraft] = useState<PlateDraft | null>(null);
   const [manualMealType, setManualMealType] = useState<MealType>('breakfast');
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
@@ -678,8 +681,43 @@ export function FuelPage() {
 
   const handlePlatePhoto = (event: ChangeEvent<HTMLInputElement>) => {
     const fileName = event.target.files?.[0]?.name || '';
-    startEstimate(fileName);
+    if (!fileName) return;
+
+    setPendingPhotoName(fileName);
+    setEditingMealId(null);
+    setPlateDraft(null);
+    setScanStatus(`Photo staged: ${fileName}. Tap Mock analyze to test the flow with $0 AI spend.`);
     event.target.value = '';
+  };
+
+  const runMockFoodScan = () => {
+    if (!pendingPhotoName && !plateDraft?.photoName) {
+      setScanStatus('Add a meal photo first. Real AI remains off until you approve an API key and spending cap.');
+      return;
+    }
+
+    const usage = getFoodScanUsage(todayKey);
+    if (usage.remaining <= 0) {
+      setScanStatus('Daily mock scan cap reached. This mirrors the paid guardrail before real AI is enabled.');
+      return;
+    }
+
+    const photoName = pendingPhotoName || plateDraft?.photoName || 'meal-photo.jpg';
+    const estimate = buildMockFoodScanEstimate(photoName);
+    const nextUsage = recordMockFoodScan(todayKey);
+    setScanUsage(nextUsage);
+    setPlateDraft({
+      name: estimate.name,
+      calories: String(estimate.calories),
+      proteinGrams: String(estimate.proteinGrams),
+      carbGrams: String(estimate.carbGrams),
+      fatGrams: String(estimate.fatGrams),
+      photoName,
+      estimateNote: estimate.estimateNote,
+    });
+    setPendingPhotoName('');
+    setEditingMealId(null);
+    setScanStatus(`${estimate.confidence} confidence mock scan ready. ${nextUsage.remaining}/${nextUsage.limit} scans left today. Review before logging.`);
   };
 
   const addPlateToLog = () => {
@@ -774,8 +812,12 @@ export function FuelPage() {
               />
             ) : <h2>Scan item</h2>}
             <p className="ih-plate-note">{scanStatus}</p>
+            <div className="ih-ai-scan-guardrail">
+              <span>{pendingPhotoName ? `Ready: ${pendingPhotoName}` : 'Mock mode: no AI API calls'}</span>
+              <b>{scanUsage.remaining}/{scanUsage.limit} scans left</b>
+            </div>
           </div>
-          <b>{plateDraft ? 'Review' : 'Estimate'}</b>
+          <b>{plateDraft ? 'Review' : pendingPhotoName ? 'Staged' : 'Estimate'}</b>
         </div>
         <div className="ih-plate-layout">
           <div className="ih-plate-thumb">
@@ -800,8 +842,9 @@ export function FuelPage() {
             </div>
             <div className="ih-plate-actions">
               <button className="ih-primary" onClick={addPlateToLog} disabled={!plateDraft}>{editingMealId ? 'Update log' : 'Add to log'} <span aria-hidden="true">+</span></button>
-              <button className="ih-secondary" type="button" onClick={() => fileInputRef.current?.click()}>{plateDraft ? 'Scan another' : 'Scan item'} <span aria-hidden="true">⌖</span></button>
+              <button className="ih-secondary" type="button" onClick={() => fileInputRef.current?.click()}>{plateDraft || pendingPhotoName ? 'Choose photo' : 'Scan item'} <span aria-hidden="true">⌖</span></button>
             </div>
+            <button className="ih-mock-ai-button ih-wide" type="button" onClick={runMockFoodScan} disabled={!pendingPhotoName && !plateDraft?.photoName}>Mock analyze — $0 AI spend</button>
             <button className="ih-water-log-button" type="button" onClick={logWater}>Log 0.5L water</button>
             <div className="ih-fuel-quick-estimates" aria-label="Quick sober fuel estimates">
               {fuelQuickEstimates.map((estimate) => (

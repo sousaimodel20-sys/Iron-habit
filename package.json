@@ -14,6 +14,7 @@
     "test:talk-next-move": "node --experimental-transform-types scripts/test-talk-next-move.mjs",
     "test:fuel-macros": "node --experimental-transform-types scripts/test-fuel-macros.mjs",
     "test:nutrition-log": "node --experimental-transform-types scripts/test-nutrition-log.mjs",
+    "test:food-scan-mock": "node --experimental-transform-types scripts/test-food-scan-mock.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

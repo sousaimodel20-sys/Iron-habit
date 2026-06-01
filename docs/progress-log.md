@@ -80,3 +80,13 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification: `npm run build` passed.
 - Cursor status: used advisory wrapper; it recommended this tiny copy polish.
 - Next remaining task: continue Launch Kit / Settings tester-readiness polish, likely mobile scroll-clearance or PWA trust copy.
+
+## 2026-06-01 — Fuel AI scan mock-mode guardrail
+
+- Change: staged the Fuel photo scan flow up to the paid-provider boundary without enabling any real AI API calls.
+- Added `src/utils/aiFoodScan.ts` with deterministic mock estimates, confidence copy, and a 3-scan/day guardrail that mirrors the future paid cap.
+- Updated `/fuel` so photos are staged first, then `Mock analyze — $0 AI spend` creates an editable estimate before logging.
+- Files: `src/screens/IronHabitMockup.tsx`, `src/utils/aiFoodScan.ts`, `src/index.css`, `scripts/test-food-scan-mock.mjs`, `package.json`, `docs/progress-log.md`.
+- Verification passed: `npm run test:food-scan-mock`, `npm run test:nutrition-log`, `npm run build`, and `npm run lint`.
+- Local smoke passed: preview server returned 200 for `/fuel` and `/`; browser CDP was unavailable in this session, so route smoke used HTTP fetch.
+- Paid boundary: real Gemini/OpenAI integration still requires an approved backend/serverless function, API key, model choice, and spending cap before any paid call is made.
