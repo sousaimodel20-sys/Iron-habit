@@ -1,0 +1,313 @@
+{
+  "checkedAt": "2026-06-01",
+  "sourceManifest": "docs/handoffs/aa-canada-source-manifest-2026-06-01.json",
+  "sourceCount": 24,
+  "fetchedSourceCount": 24,
+  "failedSourceCount": 0,
+  "rawRows": 5871,
+  "normalizedRows": 5770,
+  "provinces": [
+    "AB",
+    "BC",
+    "MB",
+    "NB",
+    "NL",
+    "NS",
+    "NU",
+    "ON",
+    "QC",
+    "SK",
+    "YT"
+  ],
+  "warning": "Starter AA Canada local dataset. Verify schedules with source links before going; feeds can change.",
+  "sources": [
+    {
+      "id": "bcyukon-area79",
+      "name": "BC/Yukon Area 79",
+      "priority": "primary",
+      "endpointUsed": "https://bcyukonaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://bcyukonaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 1134,
+      "expectedRows": 1134,
+      "error": ""
+    },
+    {
+      "id": "aa-quebec",
+      "name": "AA Quebec meetings",
+      "priority": "primary",
+      "endpointUsed": "https://meetings.aa-quebec.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://meetings.aa-quebec.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 1446,
+      "expectedRows": 1446,
+      "error": ""
+    },
+    {
+      "id": "aamanitoba",
+      "name": "Manitoba Central Office",
+      "priority": "primary",
+      "endpointUsed": "https://aamanitoba.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://aamanitoba.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 416,
+      "expectedRows": 416,
+      "error": ""
+    },
+    {
+      "id": "area82",
+      "name": "Area 82",
+      "priority": "primary",
+      "endpointUsed": "https://area82aa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://area82aa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 198,
+      "expectedRows": 198,
+      "error": ""
+    },
+    {
+      "id": "area84",
+      "name": "Area 84 Northeast Ontario",
+      "priority": "primary",
+      "endpointUsed": "https://area84aa.org/aa/wp-json/tsml/meetings",
+      "attempted": [
+        "https://area84aa.org/aa/wp-json/tsml/meetings"
+      ],
+      "rawRows": 133,
+      "expectedRows": 133,
+      "error": ""
+    },
+    {
+      "id": "toronto",
+      "name": "Toronto Intergroup",
+      "priority": "primary",
+      "endpointUsed": "https://www.aatoronto.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aatoronto.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 493,
+      "expectedRows": 493,
+      "error": ""
+    },
+    {
+      "id": "calgary",
+      "name": "Calgary Central Service Office",
+      "priority": "primary",
+      "endpointUsed": "https://www.calgaryaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.calgaryaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 452,
+      "expectedRows": 452,
+      "error": ""
+    },
+    {
+      "id": "ottawa",
+      "name": "Ottawa Area Intergroup",
+      "priority": "primary",
+      "endpointUsed": "https://www.ottawaaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.ottawaaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 385,
+      "expectedRows": 385,
+      "error": ""
+    },
+    {
+      "id": "edmonton",
+      "name": "Edmonton Central Office",
+      "priority": "primary",
+      "endpointUsed": "https://www.edmontonaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.edmontonaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 324,
+      "expectedRows": 324,
+      "error": ""
+    },
+    {
+      "id": "regina",
+      "name": "Regina Alcoholics Anonymous Office",
+      "priority": "primary",
+      "endpointUsed": "https://www.aaregina.com/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aaregina.com/wp-json/tsml/meetings"
+      ],
+      "rawRows": 84,
+      "expectedRows": 84,
+      "error": ""
+    },
+    {
+      "id": "saskatoon",
+      "name": "Saskatoon & District Central Office",
+      "priority": "primary",
+      "endpointUsed": "https://www.aasaskatoon.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aasaskatoon.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 78,
+      "expectedRows": 78,
+      "error": ""
+    },
+    {
+      "id": "mississauga",
+      "name": "AA Mississauga",
+      "priority": "primary",
+      "endpointUsed": "https://aamississauga.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://aamississauga.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 125,
+      "expectedRows": 125,
+      "error": ""
+    },
+    {
+      "id": "durham-lakeshore",
+      "name": "Lakeshore Intergroup",
+      "priority": "primary",
+      "endpointUsed": "https://www.aadurham.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aadurham.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 79,
+      "expectedRows": 79,
+      "error": ""
+    },
+    {
+      "id": "kitchener-waterloo",
+      "name": "Kitchener-Waterloo AA",
+      "priority": "primary",
+      "endpointUsed": "https://www.kwaa.ca/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.kwaa.ca/wp-json/tsml/meetings"
+      ],
+      "rawRows": 78,
+      "expectedRows": 78,
+      "error": ""
+    },
+    {
+      "id": "london-district11",
+      "name": "London Area Intergroup Of A.A.",
+      "priority": "primary",
+      "endpointUsed": "https://www.aadistrict11.ca/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aadistrict11.ca/wp-json/tsml/meetings"
+      ],
+      "rawRows": 74,
+      "expectedRows": 74,
+      "error": ""
+    },
+    {
+      "id": "halton",
+      "name": "Halton Service Office",
+      "priority": "primary",
+      "endpointUsed": "https://www.aahalton.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aahalton.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 62,
+      "expectedRows": 62,
+      "error": ""
+    },
+    {
+      "id": "brant-erie",
+      "name": "Brant - Erie AA",
+      "priority": "primary",
+      "endpointUsed": "https://Branterie-aa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://Branterie-aa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 59,
+      "expectedRows": 59,
+      "error": ""
+    },
+    {
+      "id": "barrie",
+      "name": "Barrie Intergroup",
+      "priority": "primary",
+      "endpointUsed": "https://www.barrieaa.com/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.barrieaa.com/wp-json/tsml/meetings"
+      ],
+      "rawRows": 57,
+      "expectedRows": 57,
+      "error": ""
+    },
+    {
+      "id": "peterborough-kawartha",
+      "name": "Kawartha District Intergroup",
+      "priority": "primary",
+      "endpointUsed": "https://www.peterboroughaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.peterboroughaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 48,
+      "expectedRows": 48,
+      "error": ""
+    },
+    {
+      "id": "kingston",
+      "name": "Dist 36 Answering Service",
+      "priority": "primary",
+      "endpointUsed": "https://www.kingstonaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.kingstonaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 42,
+      "expectedRows": 42,
+      "error": ""
+    },
+    {
+      "id": "chatham-kent",
+      "name": "District 15 Chatham-Kent",
+      "priority": "primary",
+      "endpointUsed": "https://aachathamkent.com/wp-json/tsml/meetings",
+      "attempted": [
+        "https://aachathamkent.com/wp-json/tsml/meetings"
+      ],
+      "rawRows": 28,
+      "expectedRows": 28,
+      "error": ""
+    },
+    {
+      "id": "quinte-west",
+      "name": "District 30",
+      "priority": "primary",
+      "endpointUsed": "https://www.quintewestaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.quintewestaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 27,
+      "expectedRows": 27,
+      "error": ""
+    },
+    {
+      "id": "st-thomas",
+      "name": "St. Thomas And Area Answering Service",
+      "priority": "primary",
+      "endpointUsed": "https://www.aastthomasarea.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.aastthomasarea.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 25,
+      "expectedRows": 25,
+      "error": ""
+    },
+    {
+      "id": "pembroke",
+      "name": "Pembroke & Area District 74",
+      "priority": "primary",
+      "endpointUsed": "https://www.pembrokeaa.org/wp-json/tsml/meetings",
+      "attempted": [
+        "https://www.pembrokeaa.org/wp-json/tsml/meetings"
+      ],
+      "rawRows": 24,
+      "expectedRows": 24,
+      "error": ""
+    }
+  ]
+}

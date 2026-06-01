@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { loadData, saveData, type MealType } from '../utils/storage';
 import { calculateMacroTargets } from '../utils/nutrition';
 import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntryFromFavorite, addFavoriteMeal, getMealsForDate, removeFavoriteMeal, removeMealEntry, sumMealsForDate, upsertMealEntry } from '../utils/nutritionLog';
 import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from '../utils/aiFoodScan';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
-import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
+import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
@@ -384,8 +384,10 @@ export function TalkPage() {
 }
 
 export function MeetingsPage() {
+  const [searchParams] = useSearchParams();
   const { supportLocation } = useMockData();
-  const initialLocation = supportLocation !== 'your city' ? supportLocation : '';
+  const queryLocation = cleanMeetingLocation(searchParams.get('q') || '');
+  const initialLocation = queryLocation || (supportLocation !== 'your city' ? supportLocation : '');
   const [draftLocation, setDraftLocation] = useState(initialLocation);
   const [activeProgram, setActiveProgram] = useState<MeetingProgram>('all');
   const cleanLocation = cleanMeetingLocation(draftLocation);
@@ -393,11 +395,12 @@ export function MeetingsPage() {
   const supportArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Sample support area');
   const meetingSearchArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Austin, TX');
   const meetingLoadout = getMeetingsForLocation(meetingSearchArea);
-  const meetingsSummary = cleanLocation
-    ? `Meetings loaded for ${meetingLoadout.city}`
-    : hasSavedSupportLocation
-      ? `Meetings loaded for ${meetingLoadout.city}`
-      : 'Preview the handoff, then save your real support area.';
+  const meetingsDataSummary = getAaCanadaMeetingDataSummary();
+  const meetingsSummary = cleanLocation || hasSavedSupportLocation
+    ? meetingLoadout.hasImportedData
+      ? `${meetingLoadout.meetings.filter((meeting) => meeting.isImported).length} AA rows ready for ${meetingLoadout.city}`
+      : `Finder handoffs ready for ${meetingLoadout.city}`
+    : 'Preview the handoff, then save your real support area.';
   const visibleMeetings = activeProgram === 'all' ? meetingLoadout.meetings : meetingLoadout.meetings.filter((meeting) => meeting.type === activeProgram);
   const mapUrl = buildMeetingSearchUrl(meetingSearchArea, 'maps');
   const saveSupportArea = () => {
@@ -419,9 +422,16 @@ export function MeetingsPage() {
         <button type="button" onClick={saveSupportArea} disabled={!cleanLocation}>Save</button>
       </div>
       <div className="ih-meetings-action-card ih-card">
-        <div><small>FAST HANDOFF</small><strong>{supportArea}</strong><span>{meetingLoadout.sourceNote}</span></div>
+        <div><small>{meetingLoadout.hasImportedData ? 'LOCAL AA DATA' : 'FAST HANDOFF'}</small><strong>{supportArea}</strong><span>{meetingLoadout.sourceNote}</span></div>
         <a className="ih-primary-mini" href={mapUrl} target="_blank" rel="noreferrer">Open map</a>
       </div>
+      {meetingLoadout.hasImportedData && (
+        <div className="ih-card ih-meeting-safety-card">
+          <small>AA CANADA STARTER DATA</small>
+          <strong>{meetingsDataSummary.normalizedRows.toLocaleString()} rows imported · {meetingsDataSummary.indexedRows.toLocaleString()} indexed for app · checked {meetingsDataSummary.checkedAt}</strong>
+          <p>Showing matching starter AA rows from public source feeds. Verify the schedule with the source before going.</p>
+        </div>
+      )}
       <div className="ih-tabs ih-pill-tabs ih-meeting-tabs" aria-label="Meeting type filter">
         {meetingPrograms.map((program) => {
           const isActive = activeProgram === program;
@@ -432,7 +442,12 @@ export function MeetingsPage() {
         {visibleMeetings.map((meeting) => (
           <a className="ih-meeting ih-meeting-real" href={meeting.href} key={`${meeting.name}-${meeting.address}`} target="_blank" rel="noreferrer">
             <i>{meeting.badge}</i>
-            <div><strong>{meeting.name}</strong><small>{meeting.address}</small><span>{meeting.meta} • {meeting.nextStep}</span></div>
+            <div>
+              <strong>{meeting.name}</strong>
+              <small>{meeting.address}</small>
+              <span>{meeting.meta} • {meeting.nextStep}</span>
+              {meeting.isImported && <span>Source: {meeting.sourceName} • Checked {meeting.checkedAt}</span>}
+            </div>
             <em>{meeting.distance}<small>{meeting.time}</small><small>{meeting.intensity}</small></em><b>›</b>
           </a>
         ))}

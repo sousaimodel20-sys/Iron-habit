@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card } from '../components/UI';
 import { getTodayKey, loadData, saveData, type CheckIn } from '../utils/storage';
 import { buildMeetingsPath, buildSupportSmsHref, buildSupportTelHref, getMeetingsCtaLabel, getSupportContactLabel, getSupportLocation, hasSupportContact } from '../utils/support';
+import { getMeetingsForLocation, getMeetingSupportSummary } from '../utils/meetings';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const protocol = [
@@ -24,6 +25,10 @@ const CravingRescue = () => {
   const data = loadData();
   const profile = data.profile;
   const supportLocation = getSupportLocation(profile);
+  const rescueMeetingArea = supportLocation || 'your area';
+  const meetingLoadout = getMeetingsForLocation(rescueMeetingArea);
+  const meetingSupport = getMeetingSupportSummary(meetingLoadout);
+  const primaryMeeting = meetingLoadout.meetings[0];
   const meetingsPath = buildMeetingsPath(profile);
   const meetingsLabel = getMeetingsCtaLabel(profile);
   const recoveryReceiptCount = Object.values(data.checkIns).filter((entry) => entry.sober && entry.craving >= 3).length;
@@ -267,6 +272,21 @@ const CravingRescue = () => {
 
         {secondsLeft === 0 && outcome !== 'win' && <p className="success-msg">You made it through the wave. Log the rescue win.</p>}
         {status && <p className="success-msg">{status}</p>}
+      </Card>
+
+      <Card className="stack-sm">
+        <span className="tag">{meetingLoadout.hasImportedData ? 'Local AA data' : 'Meeting handoff'}</span>
+        <h2>{meetingSupport.headline}</h2>
+        <p className="rescue-support-note">{meetingSupport.rescueLine}</p>
+        {primaryMeeting && (
+          <small className="rescue-support-note">
+            First path: {primaryMeeting.name} · {primaryMeeting.intensity}{primaryMeeting.sourceName ? ` · Source: ${primaryMeeting.sourceName} · Checked ${primaryMeeting.checkedAt}` : ''}
+          </small>
+        )}
+        <div className="rescue-actions">
+          <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>
+          {primaryMeeting && <a href={primaryMeeting.href} target="_blank" rel="noreferrer" className="btn btn-ghost">{primaryMeeting.nextStep}</a>}
+        </div>
       </Card>
 
       {outcome !== 'idle' && (

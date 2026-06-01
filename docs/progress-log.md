@@ -101,6 +101,22 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification passed: `npm run test:food-scan-mock`, `npm run test:nutrition-log`, `npm run build`, and `npm run lint`.
 - Local smoke passed: preview server returned 200 for `/fuel` and `/`.
 - Paid boundary remains unchanged: no Gemini/OpenAI/Claude calls, no API key, no paid backend route.
+
+## 2026-06-01 — Phase 5 Meetings Canada starter expansion
+
+- Change: expanded `/meetings` support to Canadian finder handoffs for Toronto, Calgary, Edmonton, Ottawa, Montreal, Winnipeg, Halifax, Victoria, and Kelowna.
+- Added province/city aliases plus Canada-wide fallback copy for unsupported Canadian cities without paid APIs, runtime scraping, or live-availability claims.
+- Verification passed: `npm run test:meeting-locator`, `npm run build`, and `npm run lint`.
+
+## 2026-06-01 — Sprint B1 AA Canada local meeting dataset
+
+- Change: added an import/normalizer script for Codex's verified AA Canada TSML/Meeting Guide source manifest.
+- Generated a local starter dataset with 5,770 normalized AA Canada meeting rows from 24 primary sources, preserving source IDs, source URLs, meeting URLs, city/province, day/time, coordinates when available, and `checkedAt` provenance.
+- Added import summary docs at `docs/handoffs/aa-canada-import-summary-2026-06-01.json` and generated app data at `src/data/aaCanadaMeetings.generated.ts`.
+- Added package scripts: `npm run import:aa-canada-meetings` and `npm run test:aa-canada-import`.
+- Verification passed: `npm run test:aa-canada-import`, `npm run test:meeting-locator`, `npm run build`, and `npm run lint`.
+- Safety boundary remains: local starter dataset only; app copy must still say verify schedules before going and avoid live/complete meeting claims.
+
 ## 2026-06-01 — Phase 5 Meetings surfaced in Today/Rescue
 
 - Change: surfaced saved support-city meeting handoff on `/today` and `/rescue` so Meetings is no longer isolated on its own tab.
@@ -135,4 +151,15 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Vercel production alias: https://iron-habit-vite.vercel.app
 - Production route smoke passed for `/`, `/today`, `/rescue`, `/meetings`, `/fuel`, `/proof`, and `/launch-kit` with HTTP 200 and root app shell present.
 - No blocking production availability issues found.
+## 2026-06-01 — Sprint B2 AA Canada meetings app integration
+
+- Change: wired the generated AA Canada starter index into `getMeetingsForLocation` with imported AA rows, source names, source URLs, checked dates, and verify-schedule warnings.
+- `/meetings` now shows safe `LOCAL AA DATA` / `AA CANADA STARTER DATA` copy with imported/indexed row counts and keeps official AA, NA, SMART, and map handoffs available.
+- Unsupported Canadian cities remain in fallback finder mode instead of fabricating local rows.
+- `/today` and `/rescue` now use the shared meeting support summary so Meetings is visible from the daily and urgent support surfaces.
+- The import script now regenerates both the full local dataset and the smaller shipped starter index so future imports do not drift.
+- Verification passed: `npm run test:meeting-locator`, `npm run test:aa-canada-import`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for `/meetings?q=Kelowna%2C%20BC` and `/rescue`; earlier smoke also covered Toronto, Calgary, Regina, Kelowna, and Moose Jaw fallback.
+- Cursor status: used read-only Cursor reviewer; it found B2 launch-acceptable after landing untracked data/scripts, rerunning verification, clarifying Rescue scope, and adding index regeneration.
+- Known follow-up for B3: JS bundle remains large because the starter meeting index is bundled; lazy-load or fetch meeting data only on `/meetings` later.
 
