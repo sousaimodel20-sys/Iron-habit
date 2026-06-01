@@ -128,4 +128,11 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Local route smoke passed via Vite preview for `/`, `/setup-profile`, `/today`, `/check-in`, `/rescue`, `/meetings`, `/train`, `/fuel`, `/proof`, and `/launch-kit`.
 - Browser/CDP visual console smoke was unavailable in this session because no CDP endpoint was reachable at `127.0.0.1:9222`; HTTP route smoke covered route availability only.
 - No blocking code issues found. Remaining gate: push/deploy and verify the production URL.
+## 2026-06-01 — Phase 5 production deploy gate
+
+- Change: pushed the clean Phase 5 tester-ready build to GitHub and deployed production via Vercel.
+- GitHub push: `main` updated on `origin`.
+- Vercel production alias: https://iron-habit-vite.vercel.app
+- Production route smoke passed for `/`, `/today`, `/rescue`, `/meetings`, `/fuel`, `/proof`, and `/launch-kit` with HTTP 200 and root app shell present.
+- No blocking production availability issues found.
 
