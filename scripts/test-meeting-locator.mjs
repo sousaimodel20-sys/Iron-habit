@@ -8,6 +8,8 @@ import {
   getMeetingSupportSummary,
   getAaCanadaMeetingDataSummary,
   getMeetingsForLocation,
+  meetingTimeFilterLabels,
+  filterMeetingsByTimeIntent,
 } from '../src/utils/meetings.ts';
 
 const aaCanadaData = JSON.parse(await readFile('public/data/aa-canada-meeting-index.json', 'utf8'));
@@ -107,6 +109,21 @@ const regina = getMeetingsForLocation('Regina, SK', aaCanadaData);
 assert.equal(regina.isFallback, false);
 assert.equal(regina.hasImportedData, true);
 assert.ok(regina.meetings.some((meeting) => meeting.isImported && meeting.sourceName.includes('Regina')));
+
+assert.equal(meetingTimeFilterLabels.all, 'All');
+assert.equal(meetingTimeFilterLabels.today, 'Today');
+const mondayMeetings = [
+  { type: 'aa', badge: 'A', name: 'Monday noon room', address: '123 Main St', time: 'Monday 12:00 PM', distance: 'Local', meta: 'AA Canada data', tag: 'Imported', intensity: 'Verify schedule', nextStep: 'Open source', href: 'https://example.com/mon' },
+  { type: 'aa', badge: 'A', name: 'Tuesday room', address: '123 Main St', time: 'Tuesday 12:00 PM', distance: 'Local', meta: 'AA Canada data', tag: 'Imported', intensity: 'Verify schedule', nextStep: 'Open source', href: 'https://example.com/tue' },
+  { type: 'aa', badge: 'A', name: 'Night room', address: '456 Main St', time: 'Friday 8:30 PM', distance: 'Local', meta: 'AA Canada data', tag: 'Imported', intensity: 'Verify schedule', nextStep: 'Open source', href: 'https://example.com/night' },
+  { type: 'smart', badge: 'S', name: 'Online SMART', address: 'Online / phone', time: 'Check schedule', distance: 'Online', meta: 'SMART Recovery online finder', tag: 'Tools', intensity: 'Check schedule', nextStep: 'Open finder', href: 'https://meetings.smartrecovery.org/meetings/' },
+  { type: 'other', badge: '+', name: 'Map handoff', address: '789 Main St', time: 'Finder', distance: 'Map', meta: 'Map search backup', tag: 'Backup', intensity: 'Confirm source', nextStep: 'Open map', href: 'https://www.google.com/maps/search/test' },
+];
+const monday = new Date('2026-06-01T12:00:00-07:00');
+assert.deepEqual(filterMeetingsByTimeIntent(mondayMeetings, 'today', monday).map((meeting) => meeting.name), ['Monday noon room']);
+assert.deepEqual(filterMeetingsByTimeIntent(mondayMeetings, 'tonight', monday).map((meeting) => meeting.name), ['Night room']);
+assert.deepEqual(filterMeetingsByTimeIntent(mondayMeetings, 'online', monday).map((meeting) => meeting.name), ['Online SMART']);
+assert.deepEqual(filterMeetingsByTimeIntent(mondayMeetings, 'inPerson', monday).map((meeting) => meeting.name), ['Monday noon room', 'Tuesday room', 'Night room', 'Map handoff']);
 
 const unloadedSummary = getAaCanadaMeetingDataSummary();
 assert.equal(unloadedSummary.indexedRows, 0);

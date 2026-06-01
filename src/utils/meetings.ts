@@ -102,6 +102,61 @@ export const meetingProgramLabels: Record<MeetingProgram, string> = {
   other: 'Other',
 };
 
+export type MeetingTimeFilter = 'all' | 'today' | 'tonight' | 'online' | 'inPerson';
+
+export const meetingTimeFilterLabels: Record<MeetingTimeFilter, string> = {
+  all: 'All',
+  today: 'Today',
+  tonight: 'Tonight',
+  online: 'Online',
+  inPerson: 'In person',
+};
+
+const meetingDaySignals = [
+  ['sunday', 'sun'],
+  ['monday', 'mon'],
+  ['tuesday', 'tue'],
+  ['wednesday', 'wed'],
+  ['thursday', 'thu'],
+  ['friday', 'fri'],
+  ['saturday', 'sat'],
+];
+
+const normalizeMeetingText = (value: string) => value.toLowerCase().replace(/[^a-z0-9:/]+/g, ' ').trim();
+
+const getMeetingTextBlob = (meeting: LoadedMeeting) => normalizeMeetingText(`${meeting.name} ${meeting.address} ${meeting.time} ${meeting.distance} ${meeting.meta} ${meeting.tag} ${meeting.intensity} ${meeting.nextStep} ${meeting.href}`);
+
+const meetingMatchesDay = (meeting: LoadedMeeting, date: Date) => {
+  const time = normalizeMeetingText(meeting.time);
+  const signals = meetingDaySignals[date.getDay()] || [];
+  return signals.some((signal) => new RegExp(`(^|\\s)${signal}(day)?(\\s|$)`).test(time));
+};
+
+const meetingLooksLikeTonight = (meeting: LoadedMeeting) => {
+  const text = getMeetingTextBlob(meeting);
+  if (text.includes('tonight')) return true;
+  const timeMatch = meeting.time.match(/\b(1[0-2]|0?[1-9])(?::([0-5]\d))?\s*(am|pm)\b/i);
+  if (!timeMatch) return false;
+  const hour = Number(timeMatch[1]);
+  const meridian = timeMatch[3].toLowerCase();
+  const hour24 = meridian === 'pm' && hour !== 12 ? hour + 12 : meridian === 'am' && hour === 12 ? 0 : hour;
+  return hour24 >= 17;
+};
+
+const meetingLooksOnline = (meeting: LoadedMeeting) => {
+  const text = getMeetingTextBlob(meeting);
+  return /(^|\s)(online|virtual|zoom|phone|remote|web)(\s|$)/.test(text);
+};
+
+export const filterMeetingsByTimeIntent = (meetings: LoadedMeeting[], filter: MeetingTimeFilter, date = new Date()) => {
+  if (filter === 'all') return meetings;
+  if (filter === 'today') return meetings.filter((meeting) => meetingMatchesDay(meeting, date));
+  if (filter === 'tonight') return meetings.filter(meetingLooksLikeTonight);
+  if (filter === 'online') return meetings.filter(meetingLooksOnline);
+  if (filter === 'inPerson') return meetings.filter((meeting) => !meetingLooksOnline(meeting));
+  return meetings;
+};
+
 export const cleanMeetingLocation = (location: string) => location.trim().replace(/\s+/g, ' ');
 
 const normalizeMeetingLocation = (location: string) =>

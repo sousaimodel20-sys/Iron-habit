@@ -9804,6 +9804,18 @@ body {
   scrollbar-width: none;
 }
 
+.ih-meeting-time-tabs {
+  margin-top: -2px;
+}
+
+.ih-meeting-filter-note {
+  margin: -2px 2px 2px;
+  color: rgba(255,255,255,.58);
+  font-size: .66rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
 .ih-meeting-tabs::-webkit-scrollbar {
   display: none;
 }
@@ -9887,6 +9899,31 @@ body {
   display: grid;
   gap: 5px;
   padding: 12px;
+}
+
+.ih-meeting-empty-card {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+}
+
+.ih-meeting-empty-card small {
+  color: var(--red);
+  font-size: .62rem;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.ih-meeting-empty-card strong {
+  color: #fff;
+  font-size: .98rem;
+}
+
+.ih-meeting-empty-card p {
+  margin: 0;
+  color: rgba(255,255,255,.68);
+  font-size: .74rem;
+  line-height: 1.34;
 }
 
 .ih-meeting-safety-card .ih-action-row {

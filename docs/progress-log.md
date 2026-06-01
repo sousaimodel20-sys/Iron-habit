@@ -1,5 +1,17 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Meetings improvement pass: day/time filters
+
+Continued the post-B3 improvements with a small no-cost Meetings usability slice.
+
+- Added tested meeting intent filters: All, Today, Tonight, Online, and In person.
+- `/meetings` now has a second filter row that combines with the AA / NA / SMART / Other type filters.
+- Added a guarded empty state when filters hide every row, with a clear-filters action and copy that pushes users back to official finder verification instead of over-filtering.
+- Verification passed: `git diff --check`, `npm run test:meeting-locator`, `npm run test:aa-canada-import`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for `/meetings?q=Kelowna%2C%20BC`: Tonight filter narrowed rows, Online filter showed online/finder rows, NA + Today showed the empty-state guard, and zero console errors were observed.
+
+Next improvement slice: continue Phase 5 launch polish with either PWA/install trust polish or final tester-handoff/regression gate; defer live meeting refresh until backend/cron/storage is explicitly chosen.
+
 ## 2026-06-01 — Meetings improvement pass: loading/error safety
 
 Started the post-B3 improvement track with the safest no-cost upgrade: better runtime handling when the AA Canada starter JSON is loading or unavailable.

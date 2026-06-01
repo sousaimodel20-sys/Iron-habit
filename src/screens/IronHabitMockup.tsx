@@ -7,7 +7,7 @@ import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from 
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
-import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
+import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, filterMeetingsByTimeIntent, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, meetingTimeFilterLabels, type MeetingProgram, type MeetingTimeFilter } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
@@ -27,6 +27,7 @@ const exercises = [
 ];
 
 const meetingPrograms: MeetingProgram[] = ['all', 'aa', 'na', 'smart', 'other'];
+const meetingTimeFilters: MeetingTimeFilter[] = ['all', 'today', 'tonight', 'online', 'inPerson'];
 
 const formatNumber = (value: number) => value.toLocaleString();
 
@@ -391,6 +392,7 @@ export function MeetingsPage() {
   const initialLocation = queryLocation || (supportLocation !== 'your city' ? supportLocation : '');
   const [draftLocation, setDraftLocation] = useState(initialLocation);
   const [activeProgram, setActiveProgram] = useState<MeetingProgram>('all');
+  const [activeTimeFilter, setActiveTimeFilter] = useState<MeetingTimeFilter>('all');
   const cleanLocation = cleanMeetingLocation(draftLocation);
   const { payload: aaCanadaData, isLoading: aaCanadaDataLoading, error: aaCanadaDataError, reload: reloadAaCanadaData } = useAaCanadaMeetingIndex();
   const hasSavedSupportLocation = supportLocation !== 'your city';
@@ -407,7 +409,9 @@ export function MeetingsPage() {
         ? `Checking starter AA data for ${meetingLoadout.city}. Finder handoffs are available now.`
         : `Finder handoffs available for ${meetingLoadout.city}`
     : 'Preview the handoff, then save your real support area.';
-  const visibleMeetings = activeProgram === 'all' ? meetingLoadout.meetings : meetingLoadout.meetings.filter((meeting) => meeting.type === activeProgram);
+  const programMeetings = activeProgram === 'all' ? meetingLoadout.meetings : meetingLoadout.meetings.filter((meeting) => meeting.type === activeProgram);
+  const visibleMeetings = filterMeetingsByTimeIntent(programMeetings, activeTimeFilter);
+  const hasHiddenMeetings = visibleMeetings.length < meetingLoadout.meetings.length;
   const mapUrl = buildMeetingSearchUrl(meetingSearchArea, 'maps');
   const saveSupportArea = () => {
     if (!cleanLocation) return;
@@ -459,6 +463,15 @@ export function MeetingsPage() {
           return <button className={isActive ? 'active' : ''} type="button" key={program} onClick={() => setActiveProgram(program)}>{meetingProgramLabels[program]}</button>;
         })}
       </div>
+      <div className="ih-tabs ih-pill-tabs ih-meeting-tabs ih-meeting-time-tabs" aria-label="Meeting time filter">
+        {meetingTimeFilters.map((filter) => {
+          const isActive = activeTimeFilter === filter;
+          return <button className={isActive ? 'active' : ''} type="button" key={filter} onClick={() => setActiveTimeFilter(filter)}>{meetingTimeFilterLabels[filter]}</button>;
+        })}
+      </div>
+      {hasHiddenMeetings && (
+        <p className="ih-meeting-filter-note">Showing {visibleMeetings.length} of {meetingLoadout.meetings.length}. Verify schedule before going — filters are a fast triage, not a source of truth.</p>
+      )}
       <div className="ih-list ih-meeting-list">
         {visibleMeetings.map((meeting) => (
           <a className="ih-meeting ih-meeting-real" href={meeting.href} key={`${meeting.name}-${meeting.address}`} target="_blank" rel="noreferrer">
@@ -472,6 +485,14 @@ export function MeetingsPage() {
             <em>{meeting.distance}<small>{meeting.time}</small><small>{meeting.intensity}</small></em><b>›</b>
           </a>
         ))}
+        {!visibleMeetings.length && (
+          <div className="ih-card ih-meeting-empty-card">
+            <small>NO MATCHING STARTER ROWS</small>
+            <strong>Open the official finder instead of over-filtering.</strong>
+            <p>Schedules change. Clear a filter, open the map, or use AA / NA / SMART below to verify a real room now.</p>
+            <button type="button" className="ih-primary-mini" onClick={() => { setActiveProgram('all'); setActiveTimeFilter('all'); }}>Clear filters</button>
+          </div>
+        )}
       </div>
       <div className="ih-meeting-source-grid">
         <a href={buildMeetingSourceUrl('aa', meetingSearchArea)} target="_blank" rel="noreferrer">AA official finder</a>
