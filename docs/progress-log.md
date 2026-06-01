@@ -1,5 +1,18 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Meetings improvement pass: loading/error safety
+
+Started the post-B3 improvement track with the safest no-cost upgrade: better runtime handling when the AA Canada starter JSON is loading or unavailable.
+
+- `useAaCanadaMeetingIndex` now returns payload/loading/error/retry state instead of only a nullable payload.
+- `/meetings` shows a guarded “checking starter AA data” card while preserving immediate finder handoffs.
+- `/meetings` shows a “starter data unavailable” fallback with a retry button if the JSON request fails; imported/source rows are not fabricated.
+- `/rescue` keeps the meeting handoff safe and adds a small note if starter AA data is unavailable.
+- Verification passed: `git diff --check`, `npm run test:meeting-locator`, `npm run test:aa-canada-import`, `npm run build`, and `npm run lint`.
+- Browser smoke passed for normal Kelowna starter data, simulated missing starter JSON with finder fallback + retry, restored starter JSON, and zero console errors.
+
+Next later-improvement slice: add day/time filters or distance sorting; live scheduled refresh should wait until we explicitly choose backend/cron storage and update policy.
+
 ## 2026-06-01 — B3 meetings bundle/data-loading polish
 
 B3 reduced the Meetings launch bundle hit from the AA Canada starter data:

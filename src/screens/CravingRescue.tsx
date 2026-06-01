@@ -27,7 +27,7 @@ const CravingRescue = () => {
   const profile = data.profile;
   const supportLocation = getSupportLocation(profile);
   const rescueMeetingArea = supportLocation || 'your area';
-  const aaCanadaData = useAaCanadaMeetingIndex();
+  const { payload: aaCanadaData, error: aaCanadaDataError } = useAaCanadaMeetingIndex();
   const meetingLoadout = getMeetingsForLocation(rescueMeetingArea, aaCanadaData);
   const meetingSupport = getMeetingSupportSummary(meetingLoadout);
   const primaryMeeting = meetingLoadout.meetings[0];
@@ -284,6 +284,9 @@ const CravingRescue = () => {
           <small className="rescue-support-note">
             First path: {primaryMeeting.name} · {primaryMeeting.intensity}{primaryMeeting.sourceName ? ` · Source: ${primaryMeeting.sourceName} · Checked ${primaryMeeting.checkedAt}` : ''}
           </small>
+        )}
+        {aaCanadaDataError && !meetingLoadout.hasImportedData && (
+          <small className="rescue-support-note">Starter AA data is unavailable right now. Use the finder/map handoff and verify before going.</small>
         )}
         <div className="rescue-actions">
           <Link to={meetingsPath} className="btn btn-secondary">{meetingsLabel}</Link>

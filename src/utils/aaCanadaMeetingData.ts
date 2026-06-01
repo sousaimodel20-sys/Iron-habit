@@ -1,13 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { AaCanadaMeetingIndexPayload } from './meetings';
 
 export const AA_CANADA_MEETING_INDEX_URL = '/data/aa-canada-meeting-index.json';
 
+type AaCanadaMeetingIndexState = {
+  payload: AaCanadaMeetingIndexPayload | null;
+  isLoading: boolean;
+  error: string;
+  reload: () => void;
+};
+
 let cachedAaCanadaMeetingIndex: AaCanadaMeetingIndexPayload | null = null;
 let pendingAaCanadaMeetingIndex: Promise<AaCanadaMeetingIndexPayload | null> | null = null;
+let lastAaCanadaMeetingIndexError = '';
 
-export const loadAaCanadaMeetingIndex = async (): Promise<AaCanadaMeetingIndexPayload | null> => {
+export const loadAaCanadaMeetingIndex = async (forceReload = false): Promise<AaCanadaMeetingIndexPayload | null> => {
+  if (forceReload) {
+    cachedAaCanadaMeetingIndex = null;
+    lastAaCanadaMeetingIndexError = '';
+  }
   if (cachedAaCanadaMeetingIndex) return cachedAaCanadaMeetingIndex;
   if (pendingAaCanadaMeetingIndex) return pendingAaCanadaMeetingIndex;
 
@@ -18,9 +30,13 @@ export const loadAaCanadaMeetingIndex = async (): Promise<AaCanadaMeetingIndexPa
     })
     .then((payload) => {
       cachedAaCanadaMeetingIndex = payload;
+      lastAaCanadaMeetingIndexError = '';
       return payload;
     })
-    .catch(() => null)
+    .catch((error: unknown) => {
+      lastAaCanadaMeetingIndexError = error instanceof Error ? error.message : 'AA Canada starter data unavailable';
+      return null;
+    })
     .finally(() => {
       pendingAaCanadaMeetingIndex = null;
     });
@@ -28,18 +44,31 @@ export const loadAaCanadaMeetingIndex = async (): Promise<AaCanadaMeetingIndexPa
   return pendingAaCanadaMeetingIndex;
 };
 
-export const useAaCanadaMeetingIndex = () => {
+export const useAaCanadaMeetingIndex = (): AaCanadaMeetingIndexState => {
   const [payload, setPayload] = useState<AaCanadaMeetingIndexPayload | null>(cachedAaCanadaMeetingIndex);
+  const [isLoading, setIsLoading] = useState(!cachedAaCanadaMeetingIndex && !lastAaCanadaMeetingIndexError);
+  const [error, setError] = useState(lastAaCanadaMeetingIndexError);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let isActive = true;
-    loadAaCanadaMeetingIndex().then((nextPayload) => {
-      if (isActive) setPayload(nextPayload);
+    loadAaCanadaMeetingIndex(reloadKey > 0).then((nextPayload) => {
+      if (!isActive) return;
+      setPayload(nextPayload);
+      setError(nextPayload ? '' : lastAaCanadaMeetingIndexError || 'AA Canada starter data unavailable');
+      setIsLoading(false);
     });
     return () => {
       isActive = false;
     };
+  }, [reloadKey]);
+
+  const reload = useCallback(() => {
+    setPayload(null);
+    setError('');
+    setIsLoading(true);
+    setReloadKey((key) => key + 1);
   }, []);
 
-  return payload;
+  return { payload, isLoading, error, reload };
 };

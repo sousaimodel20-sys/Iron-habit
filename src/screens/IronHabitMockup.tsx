@@ -392,16 +392,20 @@ export function MeetingsPage() {
   const [draftLocation, setDraftLocation] = useState(initialLocation);
   const [activeProgram, setActiveProgram] = useState<MeetingProgram>('all');
   const cleanLocation = cleanMeetingLocation(draftLocation);
-  const aaCanadaData = useAaCanadaMeetingIndex();
+  const { payload: aaCanadaData, isLoading: aaCanadaDataLoading, error: aaCanadaDataError, reload: reloadAaCanadaData } = useAaCanadaMeetingIndex();
   const hasSavedSupportLocation = supportLocation !== 'your city';
   const supportArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : 'Add your support area');
   const meetingSearchArea = cleanLocation || (hasSavedSupportLocation ? supportLocation : '');
   const meetingLoadout = getMeetingsForLocation(meetingSearchArea, aaCanadaData);
   const meetingsDataSummary = getAaCanadaMeetingDataSummary(aaCanadaData);
-  const meetingsSummary = cleanLocation || hasSavedSupportLocation
+  const hasMeetingSearchArea = Boolean(cleanLocation || hasSavedSupportLocation);
+  const canShowAaDataStatus = hasMeetingSearchArea && aaCanadaDataLoading;
+  const meetingsSummary = hasMeetingSearchArea
     ? meetingLoadout.hasImportedData
       ? `${meetingLoadout.meetings.filter((meeting) => meeting.isImported).length} starter AA rows near ${meetingLoadout.city}`
-      : `Finder handoffs available for ${meetingLoadout.city}`
+      : canShowAaDataStatus
+        ? `Checking starter AA data for ${meetingLoadout.city}. Finder handoffs are available now.`
+        : `Finder handoffs available for ${meetingLoadout.city}`
     : 'Preview the handoff, then save your real support area.';
   const visibleMeetings = activeProgram === 'all' ? meetingLoadout.meetings : meetingLoadout.meetings.filter((meeting) => meeting.type === activeProgram);
   const mapUrl = buildMeetingSearchUrl(meetingSearchArea, 'maps');
@@ -427,6 +431,21 @@ export function MeetingsPage() {
         <div><small>{meetingLoadout.hasImportedData ? 'LOCAL AA DATA' : 'FAST HANDOFF'}</small><strong>{supportArea}</strong><span>{meetingLoadout.sourceNote}</span></div>
         <a className="ih-primary-mini" href={mapUrl} target="_blank" rel="noreferrer">Open map</a>
       </div>
+      {hasMeetingSearchArea && aaCanadaDataLoading && !meetingLoadout.hasImportedData && (
+        <div className="ih-card ih-meeting-safety-card">
+          <small>CHECKING STARTER AA DATA</small>
+          <strong>Finder handoffs stay available while Iron Habit checks the local starter index.</strong>
+          <p>If the starter data is unavailable, use the official finder links below and verify the schedule before going.</p>
+        </div>
+      )}
+      {hasMeetingSearchArea && aaCanadaDataError && !meetingLoadout.hasImportedData && (
+        <div className="ih-card ih-meeting-safety-card">
+          <small>STARTER DATA UNAVAILABLE</small>
+          <strong>Official finder handoffs are still available for {meetingLoadout.city}.</strong>
+          <p>The local AA starter index did not load. Open AA, NA, SMART, or map results below and verify the schedule before going.</p>
+          <button type="button" className="ih-primary-mini" onClick={reloadAaCanadaData}>Retry starter data</button>
+        </div>
+      )}
       {meetingLoadout.hasImportedData && (
         <div className="ih-card ih-meeting-safety-card">
           <small>AA CANADA STARTER DATA</small>
