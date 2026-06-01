@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildTrainingHeroSummary } from '../src/utils/trainingSummary.ts';
+import { buildTrainingHeroSummary, buildTrainingProgramCards } from '../src/utils/trainingSummary.ts';
 
 const noLoadout = buildTrainingHeroSummary(null);
 assert.equal(noLoadout.eyebrow, 'TODAY\'S TRAINING');
@@ -11,6 +11,15 @@ assert.equal(noLoadout.exerciseCount, 6);
 assert.equal(noLoadout.timeCap, '45 min');
 assert.ok(noLoadout.missionLine.includes('Start the default push session'));
 assert.ok(noLoadout.proofLine.includes('Log the work'));
+
+const defaultCards = buildTrainingProgramCards(null);
+assert.deepEqual(defaultCards.map((card) => card.accent), ['Today', 'Next', 'Base']);
+assert.equal(defaultCards[0].name, 'Push Day');
+assert.equal(defaultCards[0].badge, 'TODAY');
+assert.equal(defaultCards[0].sets, '16 sets');
+assert.equal(defaultCards[0].exercises, '6 exercises');
+assert.equal(defaultCards[1].meta, 'Back • Biceps • Rear delts');
+assert.equal(defaultCards[2].path, '/exercise?split=legs');
 
 const activeLoadout = {
   id: 'loadout-1',
@@ -41,5 +50,15 @@ assert.equal(loaded.exerciseCount, 3);
 assert.equal(loaded.timeCap, '52 min');
 assert.ok(loaded.missionLine.includes('Open PPL Reset'));
 assert.ok(loaded.proofLine.includes('3 moves'));
+
+const loadedCards = buildTrainingProgramCards(activeLoadout);
+assert.deepEqual(loadedCards.map((card) => card.accent), ['Base', 'Today', 'Next']);
+assert.equal(loadedCards[1].name, 'Pull Day');
+assert.equal(loadedCards[1].meta, 'Build sober strength');
+assert.equal(loadedCards[1].sets, '9 sets');
+assert.equal(loadedCards[1].exercises, '3 exercises');
+assert.equal(loadedCards[1].badge, 'TODAY');
+assert.equal(loadedCards[1].path, '/exercise?split=pull');
+assert.equal(loadedCards[2].accent, 'Next');
 
 console.log('training summary tests passed');

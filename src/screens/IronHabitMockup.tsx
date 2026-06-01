@@ -7,7 +7,7 @@ import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from 
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
-import { buildTrainingHeroSummary } from '../utils/trainingSummary';
+import { buildTrainingHeroSummary, buildTrainingProgramCards } from '../utils/trainingSummary';
 import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, filterMeetingsByTimeIntent, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, meetingTimeFilterLabels, type MeetingProgram, type MeetingTimeFilter } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
@@ -504,11 +504,11 @@ export function TrainPage() {
   const { data } = useMockData();
   const activeLoadout = data.activeLoadout;
   const trainingSummary = buildTrainingHeroSummary(activeLoadout);
-  const workoutRows = [
-    { name: `${trainingSummary.activeDay} Day`, meta: activeLoadout?.goal || 'Chest • Shoulders • Triceps', accent: activeLoadout ? 'Loaded today' : 'Classic Strength', sets: `${trainingSummary.totalSets} sets`, exercises: `${trainingSummary.exerciseCount} exercises`, image: pushPhoto, badge: 'TODAY', path: '/exercise?split=push' },
-    { name: 'Pull Day', meta: 'Back • Biceps', accent: 'Classic Strength', sets: '16 sets', exercises: '6 exercises', image: pullPhoto, path: '/exercise?split=pull' },
-    { name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', accent: 'Power Base', sets: '18 sets', exercises: '7 exercises', image: legsPhoto, path: '/exercise?split=legs' },
-  ];
+  const workoutImageBySplit = { push: pushPhoto, pull: pullPhoto, legs: legsPhoto };
+  const workoutRows = buildTrainingProgramCards(activeLoadout).map((workout) => ({
+    ...workout,
+    image: workoutImageBySplit[workout.split],
+  }));
   const statTiles = [
     { label: 'Split', value: trainingSummary.planLabel, sub: activeLoadout ? 'Active' : 'Default', icon: 'split', tone: 'red', to: '/exercise?split=custom' },
     { label: 'Day', value: trainingSummary.activeDay, sub: activeLoadout?.level || 'Chest/Delts', icon: 'day', tone: 'orange', to: '/exercise?split=push' },

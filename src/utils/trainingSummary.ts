@@ -12,6 +12,17 @@ export type TrainingHeroSummary = {
   proofLine: string;
 };
 
+export type TrainingProgramCardSummary = {
+  split: 'push' | 'pull' | 'legs';
+  name: string;
+  meta: string;
+  accent: 'Today' | 'Next' | 'Base';
+  sets: string;
+  exercises: string;
+  badge?: string;
+  path: string;
+};
+
 const DEFAULT_PLAN_LABEL = 'PPL';
 const DEFAULT_ACTIVE_DAY = 'Push';
 const DEFAULT_EXERCISE_COUNT = 6;
@@ -28,6 +39,47 @@ export const getTrainingSetTotal = (exercises: SavedExercise[] = []) => exercise
 const cleanTimeCap = (time: string | undefined) => {
   const clean = (time || '').trim();
   return clean || DEFAULT_TIME_CAP;
+};
+
+const splitOrder: TrainingProgramCardSummary['split'][] = ['push', 'pull', 'legs'];
+
+const splitDefaults: Record<TrainingProgramCardSummary['split'], Omit<TrainingProgramCardSummary, 'accent' | 'badge' | 'path'>> = {
+  push: { split: 'push', name: 'Push Day', meta: 'Chest • Shoulders • Triceps', sets: '16 sets', exercises: '6 exercises' },
+  pull: { split: 'pull', name: 'Pull Day', meta: 'Back • Biceps • Rear delts', sets: '16 sets', exercises: '6 exercises' },
+  legs: { split: 'legs', name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', sets: '18 sets', exercises: '7 exercises' },
+};
+
+const normalizeSplit = (day: string): TrainingProgramCardSummary['split'] => {
+  const clean = day.toLowerCase();
+  if (clean.includes('pull')) return 'pull';
+  if (clean.includes('leg')) return 'legs';
+  return 'push';
+};
+
+const getNextSplit = (split: TrainingProgramCardSummary['split']) => splitOrder[(splitOrder.indexOf(split) + 1) % splitOrder.length];
+
+export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): TrainingProgramCardSummary[] => {
+  const summary = buildTrainingHeroSummary(activeLoadout);
+  const todaySplit = normalizeSplit(summary.activeDay);
+  const nextSplit = getNextSplit(todaySplit);
+
+  return splitOrder.map((split) => {
+    const defaults = splitDefaults[split];
+    const isToday = split === todaySplit;
+    const isNext = split === nextSplit;
+    const loadedToday = isToday && Boolean(activeLoadout);
+
+    return {
+      ...defaults,
+      name: isToday ? `${summary.activeDay} Day` : defaults.name,
+      meta: loadedToday ? activeLoadout?.goal || defaults.meta : defaults.meta,
+      accent: isToday ? 'Today' : isNext ? 'Next' : 'Base',
+      sets: isToday ? `${summary.totalSets} sets` : defaults.sets,
+      exercises: isToday ? `${summary.exerciseCount} exercises` : defaults.exercises,
+      badge: isToday ? 'TODAY' : undefined,
+      path: `/exercise?split=${split}`,
+    };
+  });
 };
 
 export const buildTrainingHeroSummary = (activeLoadout: ActiveLoadout | null): TrainingHeroSummary => {

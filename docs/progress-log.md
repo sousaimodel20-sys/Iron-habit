@@ -1,5 +1,18 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Training Sprint T2: program-card usefulness
+
+Continued Training page dial-in without changing the page layout.
+
+- Added `buildTrainingProgramCards` so Push/Pull/Legs cards have a tested Today / Next / Base intent model.
+- Kept the same card stack and visual structure, but made cards read more like selectable workout paths instead of placeholders.
+- Reflected active loadout stats on the matching day card while keeping default PPL fallbacks for tester launch.
+- Expanded `npm run test:training-summary` to cover default and active-loadout card contracts.
+- Verification passed: `git diff --check`, `npm run test:training-summary`, `npm run build`, and `npm run lint`.
+- Browser smoke passed locally for `/train`: program cards showed Today / Next / Base labels, updated metadata, correct links, and zero console errors.
+
+Next Training slice: Start Workout path polish for `/workout-mode`, still keeping scope tight.
+
 ## 2026-06-01 — Training Sprint T1: first-screen clarity
 
 Started Training page dial-in without changing the page layout.
