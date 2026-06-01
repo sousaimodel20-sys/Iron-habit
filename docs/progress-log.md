@@ -1,5 +1,19 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Training Sprint T4: final Training regression
+
+Closed the Training page sprint sequence with a no-redesign regression pass.
+
+- Automated checks passed: `npm run test:training-summary`, `npm run test:talk-next-move`, `npm run test:proof-receipts`, `npm run build`, and `npm run lint`.
+- Browser smoke passed for `/train`: active/default training summary, Start Workout/View Program actions, Push/Pull/Legs cards, and primary bottom nav.
+- Browser smoke passed for `/exercise?split=push`: Push Day program sheet, six exercise rows, Start Workout handoff to `/workout-mode`, and bottom nav.
+- Browser smoke passed for `/workout-mode`: proof-already-saved state, Victory Card link, Proof Stack link, Back to Train link, and primary bottom nav.
+- Proof/progress smoke passed for `/profile` and `/share-progress?template=receipts&proof=...`: saved training receipt appeared in the proof vault and Victory Card route rendered the selected receipt.
+- Visual smoke on `/train` confirmed the bottom navigation was visible and not blocking critical Training buttons/cards; spacing is tight but usable.
+- Console check finished with zero browser console messages and zero JS errors.
+
+Training is tester-ready. Next Phase 5 coding slice should move outside Training: mobile visual polish on remaining key pages or PWA/install/trust polish.
+
 ## 2026-06-01 — Training Sprint T3: Start Workout path polish
 
 Tightened the `/workout-mode` path without changing the route structure or adding new backend scope.
