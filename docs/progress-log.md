@@ -1,5 +1,18 @@
 # Iron Habit Progress Log
 
+## 2026-06-01 — Training Sprint T3: Start Workout path polish
+
+Tightened the `/workout-mode` path without changing the route structure or adding new backend scope.
+
+- Updated no-loadout starter copy so the fallback path explains: start starter loadout, check real sets, save proof.
+- Sharpened the active routine hero to "Log the work. Save the proof." and tied the route directly to the Victory Card handoff.
+- Changed locked/ready finish CTAs from generic finish language to proof-specific states: "Check Sets First" while locked and "Save Proof" once all sets are checked.
+- Kept existing set checklist, draft persistence, proof save, Proof Stack, and Victory Card links intact.
+- Verification passed: `git diff --check`, `npm run test:training-summary`, `npm run test:talk-next-move`, `npm run build`, and `npm run lint`.
+- Browser smoke passed from `/train` → Start Workout → starter loadout → check all sets → Save Proof → proof-saved receipt, with zero console errors.
+
+Next Training slice: T4 final Training regression across `/train`, `/exercise?split=push`, `/workout-mode`, proof/progress links, bottom-nav clearance, and console errors.
+
 ## 2026-06-01 — Training Sprint T2: program-card usefulness
 
 Continued Training page dial-in without changing the page layout.

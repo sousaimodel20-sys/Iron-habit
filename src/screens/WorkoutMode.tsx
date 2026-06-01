@@ -73,7 +73,7 @@ const WorkoutMode = () => {
           <div>
             <small>WORKOUT MODE</small>
             <h1>No routine loaded.</h1>
-            <p>Start the sober-strength starter and turn today into proof.</p>
+            <p>Start the sober-strength starter, check real sets, then save today’s proof.</p>
           </div>
         </section>
 
@@ -106,7 +106,7 @@ const WorkoutMode = () => {
         <Card className="active-program-card stack-md">
           <span className="tag">No Active Routine</span>
           <h1>Start a starter loadout in one tap.</h1>
-          <p>Use the 20-minute sober strength starter, jump into Workout Mode, and stack proof before you build custom splits.</p>
+          <p>Use the 20-minute sober strength starter, log the work set by set, and build a proof receipt before custom splits matter.</p>
           <div className="hero-actions">
             <button type="button" className="btn btn-primary" onClick={startStarterLoadout}>Start Starter Loadout</button>
             <Link to="/talk" className="btn btn-secondary">Open Coach Loadouts</Link>
@@ -281,9 +281,9 @@ const WorkoutMode = () => {
       <section className="ih-card ih-ai-card ih-real-workout-hero" aria-label="Iron Habit routine sheet">
         <HelmetCoach small />
         <div>
-          <small>ROUTINE SHEET</small>
-          <h1>Check the work. Stack the proof.</h1>
-          <p>{loadout.title} is loaded. Finish when the sets are real.</p>
+          <small>ROUTINE READY</small>
+          <h1>Log the work. Save the proof.</h1>
+          <p>{loadout.title} is loaded. Check every real set, finish once honest, then build the Victory Card.</p>
           <div className="hero-actions workout-mode-hero-actions">
             <Link to="/train" className="btn btn-ghost">Back to Train</Link>
           </div>
@@ -333,8 +333,8 @@ const WorkoutMode = () => {
           onClick={logRoutineComplete}
           disabled={!allSetsDone}
           aria-describedby="finish-proof-status"
-          aria-label={allSetsDone ? 'Finish workout and make proof' : `Finish workout locked, ${totalSets - completedSets} sets left`}
-        >Finish</button>
+          aria-label={allSetsDone ? 'Save workout proof and build victory card' : `Proof locked, ${totalSets - completedSets} sets left`}
+        >{allSetsDone ? 'Save Proof' : 'Check Sets First'}</button>
       </section>
 
       <section className="routine-sheet-card stack-md">
@@ -371,7 +371,7 @@ const WorkoutMode = () => {
           <div className="first-victory-cue" aria-label="First Victory Card cue">
             <span className="tag">First Victory Card</span>
             <h2>Finish this routine to create your first training receipt.</h2>
-            <p>Your check-in is already locked. Complete the sets, tap Finish + Make Proof, then Iron Habit builds the Victory Card from this exact session.</p>
+            <p>Your check-in is already locked. Complete the sets, tap Save Proof, then Iron Habit builds the Victory Card from this exact session.</p>
             <div className="first-proof-steps" aria-label="First training proof path">
               <div><strong>✓</strong><span>Check-in saved</span></div>
               <div><strong>2</strong><span>Finish routine</span></div>
@@ -445,8 +445,8 @@ const WorkoutMode = () => {
       <Card className={`workout-nav-card routine-log-card${allSetsDone ? ' is-proof-ready' : ''}`}>
         <div>
           <span className="tag">{allSetsDone ? 'Proof ready' : 'Finish'}</span>
-          <h2>{isFirstVictoryProof ? 'First training proof is ready to lock.' : 'Done with the routine?'}</h2>
-          <p id="finish-proof-status">{allSetsDone ? (isFirstVictoryProof ? 'All sets checked. Finish now and this becomes your first Victory Card receipt.' : 'All sets checked. Proof is ready for the Victory Card.') : `${totalSets - completedSets} sets left. Check them off to unlock proof.`}</p>
+          <h2>{isFirstVictoryProof ? 'First training proof is ready to lock.' : 'Ready to save the receipt?'}</h2>
+          <p id="finish-proof-status">{allSetsDone ? (isFirstVictoryProof ? 'All sets checked. Save proof now and this becomes your first Victory Card receipt.' : 'All sets checked. Save the proof receipt, then build the Victory Card.') : `${totalSets - completedSets} sets left. Check them off to unlock proof.`}</p>
         </div>
         <button
           type="button"
@@ -454,8 +454,8 @@ const WorkoutMode = () => {
           onClick={logRoutineComplete}
           disabled={!allSetsDone}
           aria-describedby="finish-proof-status"
-          aria-label={allSetsDone ? 'Finish workout and make proof' : `Finish workout locked, ${totalSets - completedSets} sets left`}
-        >Finish + Make Proof</button>
+          aria-label={allSetsDone ? 'Save workout proof and build victory card' : `Proof locked, ${totalSets - completedSets} sets left`}
+        >{allSetsDone ? 'Save Proof' : 'Check Sets First'}</button>
       </Card>
     </div>
   );
