@@ -6,7 +6,7 @@ import { buildFavoriteMeal, buildManualMealEntry, buildMealEntry, buildMealEntry
 import { buildMockFoodScanEstimate, getFoodScanUsage, recordMockFoodScan } from '../utils/aiFoodScan';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
-import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getMeetingsForLocation, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
+import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, type MeetingProgram } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
 const benchImage = '/mockup-assets/train-bench.svg';
@@ -297,18 +297,22 @@ export function OnboardingFlow() {
 }
 
 export function TodayPage() {
-  const { data, day } = useMockData();
+  const { data, day, supportLocation } = useMockData();
   const targets = calculateMacroTargets(data.bodyProfile);
   const mealTotals = sumMealsForDate(data);
   const proteinPct = targets ? clampPct((mealTotals.proteinGrams / targets.proteinGrams) * 100) : 0;
   const proteinStatus = targets ? `${formatNumber(mealTotals.proteinGrams)}g / ${formatNumber(targets.proteinGrams)}g` : 'Set baseline';
   const fuelValue = targets ? `${proteinPct}%` : 'Set';
   const fuelSub = targets ? proteinStatus : 'Set baseline';
+  const hasSavedSupportLocation = supportLocation !== 'your city';
+  const meetingArea = hasSavedSupportLocation ? supportLocation : 'your area';
+  const meetingLoadout = getMeetingsForLocation(meetingArea);
+  const meetingSupport = getMeetingSupportSummary(meetingLoadout);
   const missions = [
     { label: 'Morning check-in', detail: 'Mood, sleep, sober plan.', status: 'Done', done: true },
     { label: 'Push workout', detail: 'Chest, delts, triceps.', status: 'Done', done: true },
     { label: 'Protein target', detail: 'Keep meals steady.', status: proteinStatus },
-    { label: 'Steps', detail: 'Move stress through.', status: '6.4k' },
+    { label: 'Meeting backup', detail: meetingSupport.headline, status: hasSavedSupportLocation ? 'Loaded' : 'Set city' },
     { label: 'Night reflection', detail: 'Close the loop sober.', status: 'Open' },
   ];
   return (
@@ -344,6 +348,10 @@ export function TodayPage() {
             </div>
           ))}
         </div>
+      </div>
+      <div className="ih-card ih-meetings-action-card">
+        <div><small>{meetingSupport.eyebrow}</small><strong>{meetingSupport.headline}</strong><span>{meetingSupport.todayLine}</span></div>
+        <Link className="ih-primary-mini" to="/meetings">Open meetings</Link>
       </div>
     </section>
   );
@@ -1053,6 +1061,12 @@ export function FuelPage() {
 }
 
 export function RescuePage() {
+  const { supportLocation } = useMockData();
+  const hasSavedSupportLocation = supportLocation !== 'your city';
+  const meetingArea = hasSavedSupportLocation ? supportLocation : 'your area';
+  const meetingLoadout = getMeetingsForLocation(meetingArea);
+  const meetingSupport = getMeetingSupportSummary(meetingLoadout);
+  const mapUrl = buildMeetingSearchUrl(meetingArea, 'maps');
   const rescueSteps = [
     { title: 'Hydrate', detail: 'Water + electrolytes. Give the body signal first.', status: '01' },
     { title: 'Protein / fruit', detail: 'Put real fuel between you and the craving.', status: '02' },
@@ -1082,6 +1096,10 @@ export function RescuePage() {
       <div className="ih-card ih-chain-card">
         <div className="ih-section-head"><div><small>EMERGENCY CHAIN</small><h2>DO THESE IN ORDER.</h2></div><b>LIVE</b></div>
         <div className="ih-chain-actions"><Link to="/talk">Text Support</Link><Link to="/meetings">Meetings</Link><Link to="/fuel">Eat Now</Link></div>
+      </div>
+      <div className="ih-card ih-meetings-action-card">
+        <div><small>{meetingSupport.eyebrow}</small><strong>{meetingSupport.headline}</strong><span>{meetingSupport.rescueLine}</span></div>
+        <a className="ih-primary-mini" href={mapUrl} target="_blank" rel="noreferrer">Open map</a>
       </div>
       <div className="ih-card ih-rescue-protocol"><div className="ih-section-head"><div><small>10-MINUTE PROTOCOL</small><h2>STAY HERE. WIN THIS.</h2></div><b>6 STEPS</b></div>{rescueSteps.map((step) => <div className="ih-mission ih-rescue-step" key={step.title}><span>{step.status}</span><div><strong>{step.title}</strong><small>{step.detail}</small></div><b>○</b></div>)}</div>
       <button className="ih-secondary ih-wide">I SLIPPED — RESTART WITHOUT SHAME</button>

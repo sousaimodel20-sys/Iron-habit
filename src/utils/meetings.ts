@@ -65,6 +65,20 @@ export const getMeetingSearchLabel = (location: string) => {
   return cleanLocation ? `Open map near ${cleanLocation}` : 'Open map near me';
 };
 
+export const getMeetingSupportSummary = (loadout: CityMeetingLoadout) => {
+  const hasStarterCards = !loadout.isFallback;
+  return {
+    eyebrow: hasStarterCards ? 'MEETINGS LOADED' : 'MEETING HANDOFF',
+    headline: hasStarterCards ? `Rooms loaded for ${loadout.city}` : `Find a room near ${loadout.city}`,
+    todayLine: hasStarterCards
+      ? `Meeting cards are ready for ${loadout.city}. Verify the time before going.`
+      : `Open trusted finder/map results for ${loadout.city}.`,
+    rescueLine: hasStarterCards
+      ? `Do not browse alone — open the ${loadout.city} room list and move toward people.`
+      : `Do not browse alone — open map/finder results for ${loadout.city} and move toward people.`,
+  };
+};
+
 const verifiedCityMeetings: Record<string, Omit<CityMeetingLoadout, 'isFallback'>> = {
   burnaby: {
     city: 'Burnaby, BC',

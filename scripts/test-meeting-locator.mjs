@@ -4,6 +4,7 @@ import {
   buildMeetingSourceUrl,
   cleanMeetingLocation,
   getMeetingSearchLabel,
+  getMeetingSupportSummary,
   getMeetingsForLocation,
 } from '../src/utils/meetings.ts';
 
@@ -35,6 +36,11 @@ assert.equal(burnaby.isFallback, false);
 assert.equal(burnaby.city, 'Burnaby, BC');
 assert.ok(burnaby.meetings.some((meeting) => meeting.address.includes('7638 6th St')));
 assert.ok(burnaby.meetings.every((meeting) => meeting.address.length > 0));
+const burnabySupport = getMeetingSupportSummary(burnaby);
+assert.equal(burnabySupport.eyebrow, 'MEETINGS LOADED');
+assert.equal(burnabySupport.headline, 'Rooms loaded for Burnaby, BC');
+assert.ok(burnabySupport.todayLine.includes('Verify the time'));
+assert.ok(burnabySupport.rescueLine.includes('Do not browse alone'));
 
 const burnabyAlias = getMeetingsForLocation('burnaby british columbia');
 assert.equal(burnabyAlias.city, 'Burnaby, BC');
@@ -49,5 +55,8 @@ assert.equal(unknown.isFallback, true);
 assert.equal(unknown.city, 'Kelowna, BC');
 assert.ok(unknown.meetings.every((meeting) => meeting.address.includes('Kelowna, BC')));
 assert.ok(unknown.meetings.every((meeting) => meeting.href.startsWith('https://')));
+const unknownSupport = getMeetingSupportSummary(unknown);
+assert.equal(unknownSupport.eyebrow, 'MEETING HANDOFF');
+assert.equal(unknownSupport.headline, 'Find a room near Kelowna, BC');
 
 console.log('meeting locator tests passed');

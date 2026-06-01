@@ -101,3 +101,13 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification passed: `npm run test:food-scan-mock`, `npm run test:nutrition-log`, `npm run build`, and `npm run lint`.
 - Local smoke passed: preview server returned 200 for `/fuel` and `/`.
 - Paid boundary remains unchanged: no Gemini/OpenAI/Claude calls, no API key, no paid backend route.
+## 2026-06-01 — Phase 5 Meetings surfaced in Today/Rescue
+
+- Change: surfaced saved support-city meeting handoff on `/today` and `/rescue` so Meetings is no longer isolated on its own tab.
+- Added shared meeting support summary copy for verified starter cities vs fallback map/finder mode.
+- Today now includes a Meeting backup mission and direct Open meetings card.
+- Rescue now includes a crisis-first nearby support card with map handoff copy.
+- Files: `src/screens/IronHabitMockup.tsx`, `src/utils/meetings.ts`, `scripts/test-meeting-locator.mjs`, `docs/progress-log.md`.
+- Verification passed: `npm run test:meeting-locator`, `npm run build`, and `npm run lint`.
+- Still $0: no paid meeting API, scraping, or live database claims.
+
