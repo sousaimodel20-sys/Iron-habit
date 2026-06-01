@@ -111,3 +111,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Verification passed: `npm run test:meeting-locator`, `npm run build`, and `npm run lint`.
 - Still $0: no paid meeting API, scraping, or live database claims.
 
+## 2026-06-01 — Phase 5 tester handoff package
+
+- Change: tightened `/launch-kit` into a practical tester handoff package for the first 2–5 testers.
+- Tester message now gives a phone-first path through setup, check-in, Rescue, Meetings, Train, Fuel, and Proof.
+- Added a dedicated feedback capture card with exactly three questions and copy/SMS actions.
+- Files: `src/screens/LaunchKit.tsx`, `docs/progress-log.md`.
+- Verification passed: `npm run build` and `npm run lint`.
+- Local route smoke passed: preview served `/launch-kit` successfully.
+

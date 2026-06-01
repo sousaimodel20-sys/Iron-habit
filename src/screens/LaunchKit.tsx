@@ -3,11 +3,18 @@ import { Link } from 'react-router-dom';
 import { Button, Card, PageHeader } from '../components/UI';
 
 const testerChecklist = [
-  'Open the app on your phone, finish setup, or use Setup Profile → Load demo mode for the fastest tour.',
-  'Save a daily check-in, then try Rescue with a high craving moment.',
-  'Ask Talk: “help me create my first proof” or “I need help now”.',
-  'Open Train, load the starter routine, finish Workout Mode, then make a Victory Card.',
-  'Send 3 notes: what confused you, what felt useful, and what would make you come back tomorrow.',
+  'Setup: open on your phone, finish setup, or use Setup Profile → Load demo mode for the fastest tour.',
+  'Check-in: save today’s mood/sleep/sober plan and confirm Today updates clearly.',
+  'Rescue: try the craving chain, then open Meetings from the emergency flow.',
+  'Meetings: enter your city, save it, and check that the map/finder handoff makes sense.',
+  'Train + Fuel: open the starter routine, finish Workout Mode, then try the mock-only Fuel scan/log flow.',
+  'Proof: make a Victory Card and decide if you would share or screenshot it.',
+];
+
+const feedbackQuestions = [
+  'Where did you get stuck or hesitate?',
+  'Which screen felt most useful in a real craving or low-motivation moment?',
+  'What one change would make you open Iron Habit again tomorrow?',
 ];
 
 const demoPath = [
@@ -20,7 +27,8 @@ const demoPath = [
 const LaunchKit = () => {
   const [copyStatus, setCopyStatus] = useState('');
   const liveUrl = window.location.origin;
-  const testerMessage = `Can you test Iron Habit on your phone? ${liveUrl}\n\nTry this path:\n1. Finish setup, or use Setup Profile → Load demo mode for the fastest tour\n2. Save a check-in\n3. Use Rescue for a craving\n4. Ask Talk what to do next\n5. Open Train → Load starter routine → Finish Workout Mode\n6. Make a Victory Card from the proof\n\nOptional: check Meetings and Fuel.\n\nSend me 3 things: what confused you, what felt useful, and what would make you come back tomorrow.`;
+  const testerMessage = `Can you test Iron Habit on your phone? ${liveUrl}\n\nTry this path:\n1. Setup: finish setup, or use Setup Profile → Load demo mode for the fastest tour\n2. Check-in: save today’s mood/sleep/sober plan\n3. Rescue: use the craving chain, then open Meetings from Rescue\n4. Meetings: enter your city and check the map/finder handoff\n5. Train + Fuel: open the starter routine, finish Workout Mode, then try mock-only Fuel scan/logging\n6. Proof: make a Victory Card\n\nReply with 3 notes:\n1. Where did you get stuck or hesitate?\n2. Which screen felt most useful in a real craving or low-motivation moment?\n3. What one change would make you open Iron Habit again tomorrow?`;
+  const feedbackPrompt = `Iron Habit feedback\n\n1. Where did I get stuck or hesitate?\n\n2. Which screen felt most useful in a real craving or low-motivation moment?\n\n3. What one change would make me open Iron Habit again tomorrow?`;
   const launchCaption = 'One year ago I got sober. Today I’m launching Iron Habit — the sober fitness app I wish I had on day one. Check in, survive cravings, train, save proof, and turn the comeback into receipts. #IronHabit #SoberFitness #RecoveryTok';
 
   const copyText = async (text: string, success: string) => {
@@ -89,6 +97,19 @@ const LaunchKit = () => {
         <div className="hero-actions">
           <Button variant="primary" onClick={() => copyText(testerMessage, 'Tester message copied.')}>Copy tester message</Button>
           <a className="btn btn-secondary" href={`sms:?&body=${encodeURIComponent(testerMessage)}`}>Open SMS draft</a>
+        </div>
+      </Card>
+
+      <Card className="stack-sm tester-feedback-card">
+        <span className="tag">Feedback capture</span>
+        <h2>Ask for these 3 notes. Nothing more.</h2>
+        <div className="proof-angle-strip">
+          {feedbackQuestions.map((question) => <span key={question}>{question}</span>)}
+        </div>
+        <p className="caption-box">{feedbackPrompt}</p>
+        <div className="hero-actions">
+          <Button variant="secondary" onClick={() => copyText(feedbackPrompt, 'Feedback prompt copied.')}>Copy feedback prompt</Button>
+          <a className="btn btn-secondary" href={`sms:?&body=${encodeURIComponent(feedbackPrompt)}`}>Open feedback SMS</a>
         </div>
       </Card>
 
