@@ -343,3 +343,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Commit/push/deploy: `ac8f75e training: carry selected split into workout mode` pushed to `main`; Vercel production deployed and aliased to https://iron-habit-vite.vercel.app.
 - Live route checks: `/train`, `/exercise?split=lower-a`, `/workout-mode?split=lower-a`, `/today`, and `/proof` returned HTTP 200 with the app shell.
 - Next slice: make Workout Mode’s active exercise list/proof copy more day-specific when the selected split day differs from the saved loadout’s generic exercises.
+
+## 2026-06-02 01:42 PDT — Training split-system slice 5
+
+- Slice: made Workout Mode run the selected split day’s actual preset exercise list and proof copy, so `/workout-mode?split=lower-a` logs Lower A moves instead of the saved generic loadout exercises.
+- Cursor status: used advisory wrapper; recommended day-specific Workout Mode exercise list + proof copy as the smallest next split-system slice.
+- Codex status: read-only advisory timed out after partial inspection; no Codex edits were used.
+- Files changed: `src/utils/splitSystem.ts`, `src/screens/WorkoutMode.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; `git diff --check`; local browser smoke for `/workout-mode?split=lower-a` confirmed Lower A proof saved with Leg Press/Romanian Deadlift/Barbell Hip Thrust and zero console errors.
+- Next slice: share the split exercise presets with `/exercise?split=...` directly or continue filling day presets beyond the currently covered PPL/Arnold/Upper-Lower starter days.

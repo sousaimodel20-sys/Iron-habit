@@ -7,7 +7,7 @@ import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { getWorkoutDraftKey, loadWorkoutDraft, setsAsNumber } from '../utils/workoutDraft';
-import { getWorkoutSplitSelection } from '../utils/splitSystem';
+import { getWorkoutExercisesForSplit, getWorkoutSplitSelection } from '../utils/splitSystem';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const today = () => formatLocalDateKey();
@@ -23,6 +23,9 @@ const WorkoutMode = () => {
   const [setProof, setSetProof] = useState<Record<string, number>>(() => loadWorkoutDraft(loadData().activeLoadout?.title));
   const workoutDraftKey = useMemo(() => getWorkoutDraftKey(loadout?.title), [loadout?.title]);
   const selectedSplit = useMemo(() => getWorkoutSplitSelection(loadout, splitParam), [loadout, splitParam]);
+  const routineExercises = useMemo(() => (
+    loadout ? getWorkoutExercisesForSplit(loadout, selectedSplit.day.id) : []
+  ), [loadout, selectedSplit.day.id]);
   const activeDay = useMemo(() => {
     return loadout ? selectedSplit.day.name : '';
   }, [loadout, selectedSplit.day.name]);
@@ -49,8 +52,8 @@ const WorkoutMode = () => {
   const todayKey = today();
   const todayProof = loadout ? data.completedLoadouts.find((proof) => proof.date === todayKey) || null : null;
   const isFirstVictoryProof = Boolean(loadout && data.checkIns[todayKey]) && data.completedLoadouts.length === 0 && !data.latestVictoryProof;
-  const totalSets = loadout?.exercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0) || 0;
-  const completedSets = loadout?.exercises.reduce((sum, item) => sum + Math.min(setProof[item.name] || 0, setsAsNumber(item.sets)), 0) || 0;
+  const totalSets = routineExercises.reduce((sum, item) => sum + setsAsNumber(item.sets), 0) || 0;
+  const completedSets = routineExercises.reduce((sum, item) => sum + Math.min(setProof[item.name] || 0, setsAsNumber(item.sets)), 0) || 0;
   const progressPercent = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
   const allSetsDone = totalSets > 0 && completedSets >= totalSets;
   const hasWorkoutDraft = completedSets > 0 && !allSetsDone;
@@ -157,11 +160,11 @@ const WorkoutMode = () => {
       activeDay,
       durationMinutes: minutes,
       intensity,
-      exercises: loadout.exercises.map((item) => item.name),
+      exercises: routineExercises.map((item) => item.name),
       completedSets: allSetsDone ? totalSets : Math.max(completedSets, totalSets),
       totalSets,
       finisher: loadout.finisher,
-      proofCopy: `Day ${soberDay} sober. ${loadout.title} conquered: ${totalSets} sets, ${minutes} minutes. Receipts beat promises.`,
+      proofCopy: `Day ${soberDay} sober. ${activeDay} conquered inside ${selectedSplit.family.name}: ${totalSets} sets, ${minutes} minutes. Receipts beat promises.`,
     };
     const entry: FitnessEntry = {
       id: proof.id,
@@ -169,7 +172,7 @@ const WorkoutMode = () => {
       type: loadout.label,
       durationMinutes: minutes,
       intensity,
-      note: `${activeDay}: ${loadout.exercises.map((item) => item.name).join(', ')}. ${loadout.finisher}`,
+      note: `${activeDay}: ${routineExercises.map((item) => item.name).join(', ')}. ${loadout.finisher}`,
     };
     const nextData = saveData({
       fitnessEntries: [entry, ...data.fitnessEntries],
@@ -303,7 +306,7 @@ const WorkoutMode = () => {
         <div>
           <small>ROUTINE READY</small>
           <h1>Log the work. Save the proof.</h1>
-          <p>{loadout.title} is loaded. Check every real set, finish once honest, then build the Victory Card.</p>
+          <p>{loadout.title} / {activeDay} is loaded. Check every real set, finish once honest, then build the Victory Card.</p>
           <div className="hero-actions workout-mode-hero-actions">
             <Link to="/train" className="btn btn-ghost">Back to Train</Link>
           </div>
@@ -372,7 +375,7 @@ const WorkoutMode = () => {
         </div>
 
         <div className="ih-stat-grid four ih-real-workout-stat-grid" aria-label="Routine proof snapshot">
-          <StatCard label="Moves" value={`${loadout.exercises.length}`} sub="exercises" tone="red" />
+          <StatCard label="Moves" value={`${routineExercises.length}`} sub="exercises" tone="red" />
           <StatCard label="Sets" value={`${completedSets}/${totalSets}`} sub="checked" tone={allSetsDone ? 'green' : 'amber'} />
           <StatCard label="Target" value={loadout.time} sub="training window" tone="blue" />
           <StatCard label="Proof" value={`${progressPercent}%`} sub="receipt progress" tone="red" />
@@ -402,7 +405,7 @@ const WorkoutMode = () => {
       </section>
 
       <section className="routine-exercise-list" aria-label="Routine exercises">
-        {loadout.exercises.map((exercise, index) => {
+        {routineExercises.map((exercise, index) => {
           const exerciseSetTotal = setsAsNumber(exercise.sets);
           const exerciseSetsDone = Math.min(setProof[exercise.name] || 0, exerciseSetTotal);
           const exerciseComplete = exerciseSetsDone >= exerciseSetTotal;

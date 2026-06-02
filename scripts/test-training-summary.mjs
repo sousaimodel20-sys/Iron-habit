@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { buildTrainingHeroSummary, buildTrainingProgramCards, getActiveLoadoutDay } from '../src/utils/trainingSummary.ts';
-import { defaultSplitFamily, getSplitDayById, getSplitFamilyForLoadout, getWorkoutSplitSelection, splitFamilies } from '../src/utils/splitSystem.ts';
+import { defaultSplitFamily, getSplitDayById, getSplitFamilyForLoadout, getWorkoutExercisesForSplit, getWorkoutSplitSelection, splitFamilies } from '../src/utils/splitSystem.ts';
 
 const noLoadout = buildTrainingHeroSummary(null);
 assert.equal(noLoadout.eyebrow, 'TODAY\'S TRAINING');
@@ -109,5 +109,12 @@ assert.equal(getWorkoutSplitSelection({ ...activeLoadout, splitFamilyId: 'arnold
 assert.equal(getWorkoutSplitSelection({ ...activeLoadout, splitFamilyId: 'arnold' }, 'legs').day.name, 'Legs');
 assert.equal(getWorkoutSplitSelection({ ...activeLoadout, splitFamilyId: 'upper-lower' }, 'lower-a').day.name, 'Lower A');
 assert.equal(getWorkoutSplitSelection(activeLoadout).day.name, 'Pull');
+
+const lowerAWorkoutExercises = getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'upper-lower', activeDayId: 'lower-a' }, 'lower-a');
+assert.deepEqual(lowerAWorkoutExercises.slice(0, 3).map((exercise) => exercise.name), ['Leg Press', 'Romanian Deadlift', 'Barbell Hip Thrust']);
+assert.equal(lowerAWorkoutExercises.length, 6);
+assert.equal(lowerAWorkoutExercises.reduce((sum, exercise) => sum + Number.parseInt(exercise.sets, 10), 0), 20);
+assert.ok(lowerAWorkoutExercises.every((exercise) => exercise.reps && exercise.rest && exercise.cue));
+assert.ok(!lowerAWorkoutExercises.map((exercise) => exercise.name).includes('Pull-up'));
 
 console.log('training summary tests passed');
