@@ -188,6 +188,19 @@ export const splitFamilies: Record<SplitFamilyId, SplitFamily> = {
 
 export const defaultSplitFamily = splitFamilies.ppl;
 
+export const getSplitDayById = (splitId: string, preferredFamilyId?: SplitFamilyId): { family: SplitFamily; day: SplitDay } => {
+  const preferredFamily = preferredFamilyId ? splitFamilies[preferredFamilyId] : undefined;
+  const preferredDay = preferredFamily?.days.find((day) => day.id === splitId);
+  if (preferredFamily && preferredDay) return { family: preferredFamily, day: preferredDay };
+
+  for (const family of Object.values(splitFamilies)) {
+    const day = family.days.find((candidate) => candidate.id === splitId);
+    if (day) return { family, day };
+  }
+
+  return { family: defaultSplitFamily, day: defaultSplitFamily.days[0] };
+};
+
 export const getDayRotationIndex = (date: Pick<Date, 'getDay'>, dayCount: number) => {
   if (dayCount <= 0) return 0;
   const zeroBasedWeekday = (date.getDay() + 6) % 7;

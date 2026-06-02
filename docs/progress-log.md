@@ -322,3 +322,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Files changed: `src/utils/trainingSummary.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
 - Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; local browser smoke for `/train` seeded with Upper/Lower confirmed four internal day cards: Upper A, Lower A, Upper B, Lower B.
 - Next slice: make `/exercise?split=...` understand the selected internal split day instead of showing the static Push Day sheet.
+
+## 2026-06-01 18:39 PDT — Training split-system slice 3
+
+- Slice: made `/exercise?split=...` route-aware so selected internal split days render the correct family label, day title, focus, stats, exercise rows, demo detail, and start CTA instead of always showing static Push Day.
+- Cursor status: `CURSOR_TIMEOUT` after 45s; continued with Hermes-owned narrow edits.
+- Codex status: read-only advisory timed out after partial inspection; no Codex edits were used.
+- Files changed: `src/utils/splitSystem.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; `git diff --check`; local browser smoke for `/exercise?split=pull` and `/exercise?split=lower-a` confirmed PPL Pull and Upper/Lower Lower A sheets with zero console errors.
+- Next slice: make `/workout-mode` carry split family + selected day from the chosen program handoff.

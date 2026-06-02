@@ -8,6 +8,7 @@ import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
 import { buildTrainingHeroSummary, buildTrainingProgramCards } from '../utils/trainingSummary';
+import { getSplitDayById, getSplitFamilyForLoadout, type SplitDayId } from '../utils/splitSystem';
 import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, filterMeetingsByTimeIntent, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, meetingTimeFilterLabels, type MeetingProgram, type MeetingTimeFilter } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
@@ -26,6 +27,60 @@ const exercises = [
   { name: 'Dips', sets: '3 × 10–15', muscle: 'Chest • Triceps' },
   { name: 'Rope Tricep Pushdown', sets: '3 × 12–15', muscle: 'Triceps' },
 ];
+
+type ExerciseRow = typeof exercises[number];
+
+const splitExercisePresets: Partial<Record<SplitDayId, ExerciseRow[]>> = {
+  push: exercises,
+  pull: [
+    { name: 'Weighted Pull-Up', sets: '4 × 5–8', muscle: 'Lats • Biceps' },
+    { name: 'Seated Cable Row', sets: '4 × 8–12', muscle: 'Mid back • Rear delts' },
+    { name: 'One-Arm Dumbbell Row', sets: '3 × 10/side', muscle: 'Lats • Core' },
+    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts • Upper back' },
+    { name: 'Barbell Curl', sets: '3 × 10–12', muscle: 'Biceps' },
+    { name: 'Hammer Curl', sets: '2 × 12–15', muscle: 'Biceps • Forearms' },
+  ],
+  legs: [
+    { name: 'Hack Squat', sets: '4 × 8–12', muscle: 'Quads • Glutes' },
+    { name: 'Romanian Deadlift', sets: '4 × 8–10', muscle: 'Hamstrings • Glutes' },
+    { name: 'Leg Press', sets: '3 × 10–15', muscle: 'Quads • Glutes' },
+    { name: 'Walking Lunge', sets: '3 × 10/side', muscle: 'Legs • Balance' },
+    { name: 'Calf Raise', sets: '4 × 12–20', muscle: 'Calves' },
+    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
+  ],
+  'chest-back': [
+    { name: 'Bench Press', sets: '4 × 6–8', muscle: 'Chest • Triceps' },
+    { name: 'Seated Cable Row', sets: '4 × 8–10', muscle: 'Back • Rear delts' },
+    { name: 'Incline Dumbbell Press', sets: '3 × 8–12', muscle: 'Upper chest' },
+    { name: 'Lat Pulldown', sets: '3 × 10–12', muscle: 'Lats • Biceps' },
+    { name: 'Dumbbell Pullover', sets: '3 × 12', muscle: 'Chest • Lats' },
+    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts' },
+  ],
+  'shoulders-arms': [
+    { name: 'Seated Shoulder Press', sets: '4 × 6–10', muscle: 'Shoulders • Triceps' },
+    { name: 'Cable Lateral Raise', sets: '4 × 12–15', muscle: 'Side delts' },
+    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts' },
+    { name: 'Barbell Curl', sets: '3 × 10–12', muscle: 'Biceps' },
+    { name: 'Rope Tricep Pushdown', sets: '3 × 12–15', muscle: 'Triceps' },
+    { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
+  ],
+  'upper-a': [
+    { name: 'Barbell Bench Press', sets: '4 × 5–8', muscle: 'Chest • Triceps' },
+    { name: 'Weighted Pull-Up', sets: '4 × 5–8', muscle: 'Lats • Biceps' },
+    { name: 'Seated Shoulder Press', sets: '3 × 8–10', muscle: 'Shoulders' },
+    { name: 'Seated Cable Row', sets: '3 × 10–12', muscle: 'Back' },
+    { name: 'Cable Lateral Raise', sets: '3 × 12–15', muscle: 'Side delts' },
+    { name: 'Barbell Curl', sets: '2 × 10–12', muscle: 'Biceps' },
+  ],
+  'lower-a': [
+    { name: 'Leg Press', sets: '4 × 8–12', muscle: 'Quads • Glutes' },
+    { name: 'Romanian Deadlift', sets: '4 × 8–10', muscle: 'Hamstrings' },
+    { name: 'Barbell Hip Thrust', sets: '3 × 8–12', muscle: 'Glutes' },
+    { name: 'Walking Lunge', sets: '3 × 10/side', muscle: 'Legs • Balance' },
+    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
+    { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
+  ],
+};
 
 const meetingPrograms: MeetingProgram[] = ['all', 'aa', 'na', 'smart', 'other'];
 const meetingTimeFilters: MeetingTimeFilter[] = ['all', 'today', 'tonight', 'online', 'inPerson'];
@@ -598,19 +653,33 @@ export function TrainPage() {
 }
 
 export function ExerciseDetail() {
+  const [searchParams] = useSearchParams();
+  const { data } = useMockData();
+  const activeLoadout = data.activeLoadout;
+  const activeFamily = getSplitFamilyForLoadout(activeLoadout);
+  const splitParam = searchParams.get('split') || activeLoadout?.activeDayId || activeFamily.days[0].id;
+  const { family, day } = getSplitDayById(splitParam, activeFamily.id);
+  const activeDayExercises = activeLoadout && family.id === activeFamily.id && day.id === (activeLoadout.activeDayId || activeFamily.days[0].id)
+    ? activeLoadout.exercises.map((exercise) => ({ name: exercise.name, sets: `${exercise.sets} × ${exercise.reps}`, muscle: exercise.muscle }))
+    : undefined;
+  const programExercises = activeDayExercises?.length ? activeDayExercises : splitExercisePresets[day.id] || splitExercisePresets.push || exercises;
+  const totalSets = programExercises.reduce((total, exercise) => total + (Number.parseInt(exercise.sets, 10) || 0), 0);
+  const heroImage = getWorkoutImage(day.id);
+  const firstExercise = programExercises[0] || exercises[0];
+
   return (
     <section className="ih-page ih-mock-train-page ih-exercise-detail-page">
       <BrandHeader back />
       <div className="ih-card ih-workout-head ih-exercise-hero">
         <HelmetCoach small />
-        <div><small>PUSH DAY PROGRAM</small><h1>PUSH DAY</h1><p>Chest • Shoulders • Triceps</p></div>
-        <b>01</b>
+        <div><small>{family.shortLabel} PROGRAM</small><h1>{day.name.toUpperCase()}</h1><p>{day.focus}</p></div>
+        <b>{String(Math.max(1, family.days.findIndex((item) => item.id === day.id) + 1)).padStart(2, '0')}</b>
       </div>
-      <div className="ih-stat-grid four ih-train-snapshot"><StatCard label="MIN" value="45" sub="Work cap" /><StatCard label="SETS" value="16" sub="Target" /><StatCard label="REPS" value="8-12" sub="Range" /><StatCard label="CAL" value="~480" sub="Burn" /></div>
-      <div className="section-title-row"><div><small>PROGRAM SHEET</small><h2>EXERCISES</h2></div><b>6 MOVES</b></div>
-      <div className="ih-list ih-exercise-list">{exercises.map((exercise, index) => <Link className="ih-exercise ih-exercise-row" to="/workout-mode" key={exercise.name}><MediaTile label="DEMO" src={benchImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><span>{index === 0 ? 'ACTIVE' : 'QUEUE'}</span><b>▶</b></Link>)}</div>
-      <div className="ih-card ih-exercise-focus-card"><div className="ih-section-head"><div><small>DEMO DETAIL</small><h2>BARBELL BENCH PRESS</h2></div><b>CHEST</b></div><MediaTile label="DEMO GIF / VIDEO AREA" tall src={benchImage} /><div className="ih-tabs"><b>DEMO</b><span>MUSCLES</span><span>CUES</span></div><ul className="ih-cues"><li>Grip slightly wider than shoulders.</li><li>Retract shoulder blades.</li><li>Lower bar to mid-chest.</li><li>Press up fast. No ego.</li></ul><div className="ih-muscles">Target muscles: Chest, front delts, triceps</div></div>
-      <Link to="/workout-mode" className="ih-primary ih-wide">START WORKOUT</Link>
+      <div className="ih-stat-grid four ih-train-snapshot"><StatCard label="MIN" value={activeLoadout?.time?.replace(/\s*min$/i, '') || '45'} sub="Work cap" /><StatCard label="SETS" value={`${totalSets || 16}`} sub="Target" /><StatCard label="FAMILY" value={family.shortLabel} sub="Split" /><StatCard label="MOVES" value={`${programExercises.length}`} sub="Exercises" /></div>
+      <div className="section-title-row"><div><small>PROGRAM SHEET</small><h2>{day.name.toUpperCase()} EXERCISES</h2></div><b>{programExercises.length} MOVES</b></div>
+      <div className="ih-list ih-exercise-list">{programExercises.map((exercise, index) => <Link className="ih-exercise ih-exercise-row" to="/workout-mode" key={`${day.id}-${exercise.name}`}><MediaTile label="DEMO" src={heroImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><span>{index === 0 ? 'ACTIVE' : 'QUEUE'}</span><b>▶</b></Link>)}</div>
+      <div className="ih-card ih-exercise-focus-card"><div className="ih-section-head"><div><small>DEMO DETAIL</small><h2>{firstExercise.name.toUpperCase()}</h2></div><b>{family.shortLabel}</b></div><MediaTile label="DEMO GIF / VIDEO AREA" tall src={heroImage} /><div className="ih-tabs"><b>DEMO</b><span>MUSCLES</span><span>CUES</span></div><ul className="ih-cues"><li>Own the first set before adding load.</li><li>Keep the rep tempo controlled.</li><li>Stop sloppy reps before they become ego.</li><li>Finish clean, then save the proof.</li></ul><div className="ih-muscles">Target muscles: {firstExercise.muscle}</div></div>
+      <Link to="/workout-mode" className="ih-primary ih-wide">START {day.name.toUpperCase()}</Link>
     </section>
   );
 }

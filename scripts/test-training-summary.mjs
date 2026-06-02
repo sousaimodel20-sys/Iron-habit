@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { buildTrainingHeroSummary, buildTrainingProgramCards, getActiveLoadoutDay } from '../src/utils/trainingSummary.ts';
-import { defaultSplitFamily, getSplitFamilyForLoadout, splitFamilies } from '../src/utils/splitSystem.ts';
+import { defaultSplitFamily, getSplitDayById, getSplitFamilyForLoadout, splitFamilies } from '../src/utils/splitSystem.ts';
 
 const noLoadout = buildTrainingHeroSummary(null);
 assert.equal(noLoadout.eyebrow, 'TODAY\'S TRAINING');
@@ -99,5 +99,9 @@ assert.deepEqual(upperLowerCards.map((card) => card.accent), ['Today', 'Next', '
 assert.equal(upperLowerCards[0].familyId, 'upper-lower');
 assert.equal(upperLowerCards[0].familyLabel, 'U/L');
 assert.equal(upperLowerCards[1].path, '/exercise?split=lower-a');
+assert.equal(getSplitDayById('lower-a', 'upper-lower').family.id, 'upper-lower');
+assert.equal(getSplitDayById('lower-a', 'upper-lower').day.name, 'Lower A');
+assert.equal(getSplitDayById('chest-back', 'arnold').family.id, 'arnold');
+assert.equal(getSplitDayById('missing-split').day.name, 'Push');
 
 console.log('training summary tests passed');
