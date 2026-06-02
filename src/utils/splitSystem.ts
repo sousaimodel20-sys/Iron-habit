@@ -269,6 +269,30 @@ export const splitExercisePresets: Partial<Record<SplitDayId, SplitExerciseRow[]
     { name: 'Calf Raise', sets: '4 × 12–20', muscle: 'Calves' },
     { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
   ],
+  'full-body-a': [
+    { name: 'Goblet Squat', sets: '3 × 8–12', muscle: 'Quads • Glutes • Core' },
+    { name: 'Incline Dumbbell Press', sets: '3 × 8–12', muscle: 'Chest • Shoulders' },
+    { name: 'Seated Cable Row', sets: '3 × 10–12', muscle: 'Back • Rear delts' },
+    { name: 'Romanian Deadlift', sets: '3 × 8–10', muscle: 'Hamstrings • Glutes' },
+    { name: 'Cable Lateral Raise', sets: '2 × 12–15', muscle: 'Side delts' },
+    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
+  ],
+  'full-body-b': [
+    { name: 'Trap Bar Deadlift', sets: '3 × 5–8', muscle: 'Hinge • Back • Legs' },
+    { name: 'Lat Pulldown', sets: '3 × 10–12', muscle: 'Lats • Biceps' },
+    { name: 'Dumbbell Bench Press', sets: '3 × 8–12', muscle: 'Chest • Triceps' },
+    { name: 'Walking Lunge', sets: '3 × 10/side', muscle: 'Legs • Balance' },
+    { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
+    { name: 'Dead Bug', sets: '2 × 8/side', muscle: 'Core • Breath control' },
+  ],
+  'full-body-c': [
+    { name: 'Leg Press', sets: '3 × 10–15', muscle: 'Quads • Glutes' },
+    { name: 'Seated Shoulder Press', sets: '3 × 8–12', muscle: 'Shoulders • Triceps' },
+    { name: 'One-Arm Dumbbell Row', sets: '3 × 10/side', muscle: 'Back • Core' },
+    { name: 'Barbell Hip Thrust', sets: '3 × 8–12', muscle: 'Glutes • Hamstrings' },
+    { name: 'Rope Tricep Pushdown', sets: '2 × 12–15', muscle: 'Triceps' },
+    { name: 'Pallof Press', sets: '2 × 10/side', muscle: 'Core • Anti-rotation' },
+  ],
 };
 
 const parsePrescription = (sets: string) => {

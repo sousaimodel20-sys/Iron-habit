@@ -361,3 +361,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Files changed: `src/utils/splitSystem.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
 - Verification: `npm run test:training-summary`; `npm run lint`; `npm run build`; local browser smoke for `/exercise?split=upper-b` confirmed Upper B details and `/workout-mode?split=upper-b` confirmed the matching 19-set Upper B routine sheet.
 - Remaining coding: no known launch-blocking Training split-system code after this slice; remaining work is final tester polish/deploy/handoff unless QA finds a bug.
+
+## 2026-06-02 02:17 PDT — Training split-system slice 6
+
+- Slice: added real Full Body A/B/C exercise presets so the Full Body top-level split family no longer falls back to Push Day rows on `/exercise` or generic saved-loadout rows in Workout Mode.
+- Cursor status: used advisory wrapper; recommended Full Body A/B/C presets as the smallest next split-system slice.
+- Codex status: read-only advisory timed out after partial inspection; no Codex edits were used.
+- Files changed: `src/utils/splitSystem.ts`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `git diff --check`; `npm run test:training-summary`; `npm run build`; `npm run lint`; local HTTP smoke for `/exercise?split=full-body-a` and `/workout-mode?split=full-body-a`; browser smoke confirmed Full Body A rows and zero console errors.
+- Next slice: add Bro / Body-Part day presets or wire `/train` stats to selected-day preset counts so cards match Workout Mode totals.

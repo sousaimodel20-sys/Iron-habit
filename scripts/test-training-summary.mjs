@@ -125,4 +125,11 @@ assert.deepEqual(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 
 assert.deepEqual(getExerciseRowsForSplit(activeLoadout, 'lower-b').slice(0, 3).map((exercise) => exercise.name), ['Hack Squat', 'Barbell Hip Thrust', 'Romanian Deadlift']);
 assert.deepEqual(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'upper-lower' }, 'lower-b').slice(0, 3).map((exercise) => exercise.name), ['Hack Squat', 'Barbell Hip Thrust', 'Romanian Deadlift']);
 
+const fullBodyARows = getSplitDayExerciseRows('full-body-a');
+assert.deepEqual(fullBodyARows.slice(0, 3).map((exercise) => exercise.name), ['Goblet Squat', 'Incline Dumbbell Press', 'Seated Cable Row']);
+assert.deepEqual(getExerciseRowsForSplit(activeLoadout, 'full-body-b').slice(0, 3).map((exercise) => exercise.name), ['Trap Bar Deadlift', 'Lat Pulldown', 'Dumbbell Bench Press']);
+assert.deepEqual(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'full-body' }, 'full-body-c').slice(0, 3).map((exercise) => exercise.name), ['Leg Press', 'Seated Shoulder Press', 'One-Arm Dumbbell Row']);
+assert.equal(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'full-body' }, 'full-body-a').length, 6);
+assert.ok(!fullBodyARows.map((exercise) => exercise.name).includes('Barbell Bench Press'));
+
 console.log('training summary tests passed');
