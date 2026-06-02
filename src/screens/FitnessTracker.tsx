@@ -6,6 +6,7 @@ import { createStarterLoadout } from '../utils/starterLoadout';
 import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
+import { getActiveLoadoutDay } from '../utils/trainingSummary';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const activityTypes = ['Gym', 'Walk', 'Run', 'Mobility', 'Boxing', 'Yoga'];
@@ -48,9 +49,7 @@ const FitnessTracker = () => {
     navigate('/workout-mode');
   };
   const activeDay = useMemo(() => {
-    if (!activeLoadout) return '';
-    const dayIndex = new Date().getDay();
-    return activeLoadout.days[(dayIndex + 6) % activeLoadout.days.length] || activeLoadout.days[0];
+    return activeLoadout ? getActiveLoadoutDay(activeLoadout) : '';
   }, [activeLoadout]);
 
   const persist = (next: FitnessEntry[]) => {

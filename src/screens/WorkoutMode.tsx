@@ -7,6 +7,7 @@ import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { getWorkoutDraftKey, loadWorkoutDraft, setsAsNumber } from '../utils/workoutDraft';
+import { getActiveLoadoutDay } from '../utils/trainingSummary';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const today = () => formatLocalDateKey();
@@ -20,9 +21,7 @@ const WorkoutMode = () => {
   const [setProof, setSetProof] = useState<Record<string, number>>(() => loadWorkoutDraft(loadData().activeLoadout?.title));
   const workoutDraftKey = useMemo(() => getWorkoutDraftKey(loadout?.title), [loadout?.title]);
   const activeDay = useMemo(() => {
-    if (!loadout) return '';
-    const dayIndex = new Date().getDay();
-    return loadout.days[(dayIndex + 6) % loadout.days.length] || loadout.days[0];
+    return loadout ? getActiveLoadoutDay(loadout) : '';
   }, [loadout]);
   const missionState = computeDailyMissionState(data, today());
   const missionRouteLabel = missionState.primaryMission.stage === 'check-in'

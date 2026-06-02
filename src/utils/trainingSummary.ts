@@ -1,4 +1,5 @@
 import type { ActiveLoadout, SavedExercise } from './storage';
+import { defaultSplitFamily, getActiveSplitDay, getSplitFamilyForLoadout } from './splitSystem.ts';
 
 export type TrainingHeroSummary = {
   eyebrow: string;
@@ -36,17 +37,19 @@ const getSetTotal = (sets: string) => {
 
 export const getTrainingSetTotal = (exercises: SavedExercise[] = []) => exercises.reduce((total, exercise) => total + getSetTotal(exercise.sets), 0);
 
+export const getActiveLoadoutDay = (activeLoadout: ActiveLoadout | null | undefined, date: Pick<Date, 'getDay'> = new Date()) => getActiveSplitDay(activeLoadout, date).name || DEFAULT_ACTIVE_DAY;
+
 const cleanTimeCap = (time: string | undefined) => {
   const clean = (time || '').trim();
   return clean || DEFAULT_TIME_CAP;
 };
 
-const splitOrder: TrainingProgramCardSummary['split'][] = ['push', 'pull', 'legs'];
+const splitOrder: TrainingProgramCardSummary['split'][] = defaultSplitFamily.days.map((day) => day.id as TrainingProgramCardSummary['split']);
 
 const splitDefaults: Record<TrainingProgramCardSummary['split'], Omit<TrainingProgramCardSummary, 'accent' | 'badge' | 'path'>> = {
-  push: { split: 'push', name: 'Push Day', meta: 'Chest • Shoulders • Triceps', sets: '16 sets', exercises: '6 exercises' },
-  pull: { split: 'pull', name: 'Pull Day', meta: 'Back • Biceps • Rear delts', sets: '16 sets', exercises: '6 exercises' },
-  legs: { split: 'legs', name: 'Legs Day', meta: 'Quads • Hamstrings • Calves', sets: '18 sets', exercises: '7 exercises' },
+  push: { split: 'push', name: 'Push Day', meta: defaultSplitFamily.days[0].focus, sets: '16 sets', exercises: '6 exercises' },
+  pull: { split: 'pull', name: 'Pull Day', meta: defaultSplitFamily.days[1].focus, sets: '16 sets', exercises: '6 exercises' },
+  legs: { split: 'legs', name: 'Legs Day', meta: defaultSplitFamily.days[2].focus, sets: '18 sets', exercises: '7 exercises' },
 };
 
 const normalizeSplit = (day: string): TrainingProgramCardSummary['split'] => {
@@ -60,7 +63,8 @@ const getNextSplit = (split: TrainingProgramCardSummary['split']) => splitOrder[
 
 export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): TrainingProgramCardSummary[] => {
   const summary = buildTrainingHeroSummary(activeLoadout);
-  const todaySplit = normalizeSplit(summary.activeDay);
+  const family = getSplitFamilyForLoadout(activeLoadout);
+  const todaySplit = family.id === 'ppl' ? normalizeSplit(summary.activeDay) : 'push';
   const nextSplit = getNextSplit(todaySplit);
 
   return splitOrder.map((split) => {
@@ -83,7 +87,7 @@ export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): 
 };
 
 export const buildTrainingHeroSummary = (activeLoadout: ActiveLoadout | null): TrainingHeroSummary => {
-  const activeDay = activeLoadout?.days?.[0] || DEFAULT_ACTIVE_DAY;
+  const activeDay = getActiveLoadoutDay(activeLoadout);
   const planLabel = activeLoadout?.label || DEFAULT_PLAN_LABEL;
   const exerciseCount = activeLoadout?.exercises.length || DEFAULT_EXERCISE_COUNT;
   const totalSets = activeLoadout ? getTrainingSetTotal(activeLoadout.exercises) || DEFAULT_TOTAL_SETS : DEFAULT_TOTAL_SETS;

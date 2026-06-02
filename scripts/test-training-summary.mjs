@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { buildTrainingHeroSummary, buildTrainingProgramCards } from '../src/utils/trainingSummary.ts';
+import { buildTrainingHeroSummary, buildTrainingProgramCards, getActiveLoadoutDay } from '../src/utils/trainingSummary.ts';
+import { defaultSplitFamily, getSplitFamilyForLoadout, splitFamilies } from '../src/utils/splitSystem.ts';
 
 const noLoadout = buildTrainingHeroSummary(null);
 assert.equal(noLoadout.eyebrow, 'TODAY\'S TRAINING');
@@ -40,6 +41,17 @@ const activeLoadout = {
   ],
 };
 
+const rotatingPplLoadout = {
+  ...activeLoadout,
+  days: ['Push', 'Pull', 'Legs'],
+};
+
+assert.equal(getActiveLoadoutDay(rotatingPplLoadout, { getDay: () => 1 }), 'Push');
+assert.equal(getActiveLoadoutDay(rotatingPplLoadout, { getDay: () => 2 }), 'Pull');
+assert.equal(getActiveLoadoutDay(rotatingPplLoadout, { getDay: () => 3 }), 'Legs');
+assert.equal(getActiveLoadoutDay(rotatingPplLoadout, { getDay: () => 0 }), 'Push');
+assert.equal(getActiveLoadoutDay({ ...activeLoadout, days: [] }, { getDay: () => 2 }), 'Push');
+
 const loaded = buildTrainingHeroSummary(activeLoadout);
 assert.equal(loaded.eyebrow, 'LOADED TODAY');
 assert.equal(loaded.headline, 'Pull day ready');
@@ -60,5 +72,18 @@ assert.equal(loadedCards[1].exercises, '3 exercises');
 assert.equal(loadedCards[1].badge, 'TODAY');
 assert.equal(loadedCards[1].path, '/exercise?split=pull');
 assert.equal(loadedCards[2].accent, 'Next');
+
+assert.equal(defaultSplitFamily.id, 'ppl');
+assert.deepEqual(defaultSplitFamily.days.map((day) => day.name), ['Push', 'Pull', 'Legs']);
+assert.equal(splitFamilies.arnold.days[0].name, 'Chest + Back');
+assert.equal(splitFamilies['upper-lower'].days[0].name, 'Upper A');
+assert.equal(splitFamilies['full-body'].days[0].name, 'Full Body A');
+assert.equal(splitFamilies.bro.days[0].name, 'Chest');
+assert.equal(splitFamilies['dumbbell-home'].days[0].name, 'Home Upper');
+assert.equal(splitFamilies.conditioning.days[0].name, 'Strength Circuit');
+assert.equal(splitFamilies.beginner.days[0].name, 'Foundation A');
+assert.equal(getSplitFamilyForLoadout(activeLoadout).id, 'ppl');
+assert.equal(getSplitFamilyForLoadout({ ...activeLoadout, templateId: 'arnold', label: 'Arnold Split', title: 'Arnold Armor' }).id, 'arnold');
+assert.equal(getActiveLoadoutDay({ ...activeLoadout, templateId: 'upper-lower', label: 'Upper / Lower', title: '4-Day Upper Lower', days: ['Upper Strength', 'Lower Strength'] }, { getDay: () => 2 }), 'Lower A');
 
 console.log('training summary tests passed');

@@ -304,3 +304,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Cursor status: used read-only Cursor reviewer; it found B2 launch-acceptable after landing untracked data/scripts, rerunning verification, clarifying Rescue scope, and adding index regeneration.
 - Known follow-up for B3: JS bundle remains large because the starter meeting index is bundled; lazy-load or fetch meeting data only on `/meetings` later.
 
+
+## 2026-06-01 17:26 PDT — Training split-system slice 1
+
+- Slice: added the first split-family registry and shared active-day resolver so PPL is modeled as one family with Push/Pull/Legs child days, alongside Arnold, Upper/Lower, Full Body, Bro, Dumbbell/Home, Conditioning, and Beginner families.
+- Cursor status: used advisory wrapper; recommended a typed split-family registry + shared resolver before UI redesign.
+- Codex status: used read-only advisory; recommended a pure split helper, backward-compatible ActiveLoadout metadata, and tests.
+- Files changed: src/utils/splitSystem.ts, src/utils/trainingSummary.ts, src/utils/storage.ts, src/screens/FitnessTracker.tsx, src/screens/WorkoutMode.tsx, scripts/test-training-summary.mjs.
+- Verification: npm run test:training-summary; npm run lint; npm run build.
+- Next slice: make /train cards family-aware without changing the visual shell.

@@ -1,4 +1,5 @@
 import { formatLocalDateKey } from './date';
+import type { SplitDayId, SplitFamilyId } from './splitSystem';
 
 export type CheckIn = {
   date: string;
@@ -80,6 +81,8 @@ export type ActiveLoadout = {
   goal: string;
   time: string;
   level: string;
+  splitFamilyId?: SplitFamilyId;
+  activeDayId?: SplitDayId;
   days: string[];
   intent: string;
   finisher: string;
