@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card } from '../components/UI';
 import { loadData, saveData, type CompletedLoadout, type FitnessEntry } from '../utils/storage';
 import { createStarterLoadout } from '../utils/starterLoadout';
@@ -7,22 +7,25 @@ import { computeDailyMissionState } from '../utils/dailyMission';
 import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { getWorkoutDraftKey, loadWorkoutDraft, setsAsNumber } from '../utils/workoutDraft';
-import { getActiveLoadoutDay } from '../utils/trainingSummary';
+import { getWorkoutSplitSelection } from '../utils/splitSystem';
 import { BrandHeader, HelmetCoach, StatCard } from './IronHabitMockup';
 
 const today = () => formatLocalDateKey();
 
 const WorkoutMode = () => {
   const [data, setData] = useState(() => loadData());
+  const [searchParams] = useSearchParams();
   const [finished, setFinished] = useState(false);
   const [victoryProof, setVictoryProof] = useState<CompletedLoadout | null>(null);
 
   const loadout = data.activeLoadout;
+  const splitParam = searchParams.get('split');
   const [setProof, setSetProof] = useState<Record<string, number>>(() => loadWorkoutDraft(loadData().activeLoadout?.title));
   const workoutDraftKey = useMemo(() => getWorkoutDraftKey(loadout?.title), [loadout?.title]);
+  const selectedSplit = useMemo(() => getWorkoutSplitSelection(loadout, splitParam), [loadout, splitParam]);
   const activeDay = useMemo(() => {
-    return loadout ? getActiveLoadoutDay(loadout) : '';
-  }, [loadout]);
+    return loadout ? selectedSplit.day.name : '';
+  }, [loadout, selectedSplit.day.name]);
   const missionState = computeDailyMissionState(data, today());
   const missionRouteLabel = missionState.primaryMission.stage === 'check-in'
     ? 'Daily Check-In'
@@ -61,6 +64,24 @@ const WorkoutMode = () => {
     }
     window.sessionStorage.removeItem(workoutDraftKey);
   }, [setProof, workoutDraftKey]);
+
+  useEffect(() => {
+    if (!loadout || !splitParam) return;
+    if (loadout.splitFamilyId === selectedSplit.family.id && loadout.activeDayId === selectedSplit.day.id) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const nextData = saveData({
+        activeLoadout: {
+          ...loadout,
+          splitFamilyId: selectedSplit.family.id,
+          activeDayId: selectedSplit.day.id,
+        },
+      });
+      setData(nextData);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadout, selectedSplit.day.id, selectedSplit.family.id, splitParam]);
 
   if (!loadout) {
     return (

@@ -260,3 +260,15 @@ export const getActiveSplitDay = (activeLoadout: ActiveLoadout | null | undefine
   const rotatedDay = days[getDayRotationIndex(date, days.length)] || days[0] || family.days[0].name;
   return matchSplitDay(family, rotatedDay);
 };
+
+export const getWorkoutSplitSelection = (
+  activeLoadout: ActiveLoadout | null | undefined,
+  splitId?: string | null,
+): { family: SplitFamily; day: SplitDay } => {
+  const family = getSplitFamilyForLoadout(activeLoadout);
+  const cleanSplitId = (splitId || '').trim();
+
+  if (cleanSplitId) return getSplitDayById(cleanSplitId, family.id);
+
+  return { family, day: getActiveSplitDay(activeLoadout) };
+};

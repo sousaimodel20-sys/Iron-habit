@@ -331,3 +331,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Files changed: `src/utils/splitSystem.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
 - Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; `git diff --check`; local browser smoke for `/exercise?split=pull` and `/exercise?split=lower-a` confirmed PPL Pull and Upper/Lower Lower A sheets with zero console errors.
 - Next slice: make `/workout-mode` carry split family + selected day from the chosen program handoff.
+
+## 2026-06-01 19:20 PDT — Training split-system slice 4
+
+- Slice: wired `/exercise?split=...` start links into `/workout-mode?split=...`, persisted the selected `splitFamilyId` + `activeDayId` on start, and made Workout Mode display/log the chosen internal split day instead of falling back to weekday rotation.
+- Cursor status: used advisory wrapper; recommended the Exercise → Workout Mode selected-day handoff as the smallest next split-system slice.
+- Codex status: used read-only advisory; recommended carrying selected split day/family into Workout Mode and proof copy. No Codex edits were used.
+- Files changed: `src/utils/splitSystem.ts`, `src/screens/IronHabitMockup.tsx`, `src/screens/WorkoutMode.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; local browser smoke for `/exercise?split=lower-a` → `/workout-mode?split=lower-a` confirmed `Lower A` visible and localStorage persisted `activeDayId: lower-a` with zero console errors.
+- Next slice: make Workout Mode’s active exercise list/proof copy more day-specific when the selected split day differs from the saved loadout’s generic exercises.

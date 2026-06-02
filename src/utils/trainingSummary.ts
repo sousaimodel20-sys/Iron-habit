@@ -55,10 +55,10 @@ const getNextSplit = (split: SplitDayId, splitOrder: SplitDayId[]) => {
   return splitOrder[(currentIndex + 1) % splitOrder.length];
 };
 
-export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): TrainingProgramCardSummary[] => {
-  const summary = buildTrainingHeroSummary(activeLoadout);
+export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null, date: Pick<Date, 'getDay'> = new Date()): TrainingProgramCardSummary[] => {
+  const summary = buildTrainingHeroSummary(activeLoadout, date);
   const family = getSplitFamilyForLoadout(activeLoadout);
-  const todaySplit = getActiveSplitDay(activeLoadout).id;
+  const todaySplit = getActiveSplitDay(activeLoadout, date).id;
   const splitOrder = family.days.map((day) => day.id);
   const nextSplit = getNextSplit(todaySplit, splitOrder);
 
@@ -84,8 +84,8 @@ export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): 
   });
 };
 
-export const buildTrainingHeroSummary = (activeLoadout: ActiveLoadout | null): TrainingHeroSummary => {
-  const activeDay = getActiveLoadoutDay(activeLoadout);
+export const buildTrainingHeroSummary = (activeLoadout: ActiveLoadout | null, date: Pick<Date, 'getDay'> = new Date()): TrainingHeroSummary => {
+  const activeDay = getActiveLoadoutDay(activeLoadout, date);
   const planLabel = activeLoadout?.label || DEFAULT_PLAN_LABEL;
   const exerciseCount = activeLoadout?.exercises.length || DEFAULT_EXERCISE_COUNT;
   const totalSets = activeLoadout ? getTrainingSetTotal(activeLoadout.exercises) || DEFAULT_TOTAL_SETS : DEFAULT_TOTAL_SETS;

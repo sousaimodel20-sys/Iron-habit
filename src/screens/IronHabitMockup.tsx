@@ -666,6 +666,12 @@ export function ExerciseDetail() {
   const totalSets = programExercises.reduce((total, exercise) => total + (Number.parseInt(exercise.sets, 10) || 0), 0);
   const heroImage = getWorkoutImage(day.id);
   const firstExercise = programExercises[0] || exercises[0];
+  const workoutModePath = `/workout-mode?split=${day.id}`;
+  const saveWorkoutHandoff = () => {
+    if (!activeLoadout) return;
+    if (activeLoadout.splitFamilyId === family.id && activeLoadout.activeDayId === day.id) return;
+    saveData({ activeLoadout: { ...activeLoadout, splitFamilyId: family.id, activeDayId: day.id } });
+  };
 
   return (
     <section className="ih-page ih-mock-train-page ih-exercise-detail-page">
@@ -677,9 +683,9 @@ export function ExerciseDetail() {
       </div>
       <div className="ih-stat-grid four ih-train-snapshot"><StatCard label="MIN" value={activeLoadout?.time?.replace(/\s*min$/i, '') || '45'} sub="Work cap" /><StatCard label="SETS" value={`${totalSets || 16}`} sub="Target" /><StatCard label="FAMILY" value={family.shortLabel} sub="Split" /><StatCard label="MOVES" value={`${programExercises.length}`} sub="Exercises" /></div>
       <div className="section-title-row"><div><small>PROGRAM SHEET</small><h2>{day.name.toUpperCase()} EXERCISES</h2></div><b>{programExercises.length} MOVES</b></div>
-      <div className="ih-list ih-exercise-list">{programExercises.map((exercise, index) => <Link className="ih-exercise ih-exercise-row" to="/workout-mode" key={`${day.id}-${exercise.name}`}><MediaTile label="DEMO" src={heroImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><span>{index === 0 ? 'ACTIVE' : 'QUEUE'}</span><b>▶</b></Link>)}</div>
+      <div className="ih-list ih-exercise-list">{programExercises.map((exercise, index) => <Link className="ih-exercise ih-exercise-row" to={workoutModePath} onClick={saveWorkoutHandoff} key={`${day.id}-${exercise.name}`}><MediaTile label="DEMO" src={heroImage} /><div><strong>{index + 1} {exercise.name}</strong><small>{exercise.sets}</small><em>{exercise.muscle}</em></div><span>{index === 0 ? 'ACTIVE' : 'QUEUE'}</span><b>▶</b></Link>)}</div>
       <div className="ih-card ih-exercise-focus-card"><div className="ih-section-head"><div><small>DEMO DETAIL</small><h2>{firstExercise.name.toUpperCase()}</h2></div><b>{family.shortLabel}</b></div><MediaTile label="DEMO GIF / VIDEO AREA" tall src={heroImage} /><div className="ih-tabs"><b>DEMO</b><span>MUSCLES</span><span>CUES</span></div><ul className="ih-cues"><li>Own the first set before adding load.</li><li>Keep the rep tempo controlled.</li><li>Stop sloppy reps before they become ego.</li><li>Finish clean, then save the proof.</li></ul><div className="ih-muscles">Target muscles: {firstExercise.muscle}</div></div>
-      <Link to="/workout-mode" className="ih-primary ih-wide">START {day.name.toUpperCase()}</Link>
+      <Link to={workoutModePath} onClick={saveWorkoutHandoff} className="ih-primary ih-wide">START {day.name.toUpperCase()}</Link>
     </section>
   );
 }
