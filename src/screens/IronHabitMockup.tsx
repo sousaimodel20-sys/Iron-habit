@@ -500,14 +500,19 @@ export function MeetingsPage() {
   );
 }
 
+const getWorkoutImage = (split: string) => {
+  if (/pull|back|row/.test(split)) return pullPhoto;
+  if (/leg|lower|squat|hinge|glute/.test(split)) return legsPhoto;
+  return pushPhoto;
+};
+
 export function TrainPage() {
   const { data } = useMockData();
   const activeLoadout = data.activeLoadout;
   const trainingSummary = buildTrainingHeroSummary(activeLoadout);
-  const workoutImageBySplit = { push: pushPhoto, pull: pullPhoto, legs: legsPhoto };
   const workoutRows = buildTrainingProgramCards(activeLoadout).map((workout) => ({
     ...workout,
-    image: workoutImageBySplit[workout.split],
+    image: getWorkoutImage(workout.split),
   }));
   const statTiles = [
     { label: 'Split', value: trainingSummary.planLabel, sub: activeLoadout ? 'Active' : 'Default', icon: 'split', tone: 'red', to: '/exercise?split=custom' },

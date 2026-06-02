@@ -86,4 +86,18 @@ assert.equal(getSplitFamilyForLoadout(activeLoadout).id, 'ppl');
 assert.equal(getSplitFamilyForLoadout({ ...activeLoadout, templateId: 'arnold', label: 'Arnold Split', title: 'Arnold Armor' }).id, 'arnold');
 assert.equal(getActiveLoadoutDay({ ...activeLoadout, templateId: 'upper-lower', label: 'Upper / Lower', title: '4-Day Upper Lower', days: ['Upper Strength', 'Lower Strength'] }, { getDay: () => 2 }), 'Lower A');
 
+const upperLowerCards = buildTrainingProgramCards({
+  ...activeLoadout,
+  templateId: 'upper-lower',
+  label: 'Upper / Lower',
+  title: '4-Day Upper Lower',
+  days: ['Upper Strength', 'Lower Strength', 'Upper Volume', 'Lower Volume'],
+});
+assert.equal(upperLowerCards.length, 4);
+assert.deepEqual(upperLowerCards.map((card) => card.name), ['Upper A Day', 'Lower A Day', 'Upper B Day', 'Lower B Day']);
+assert.deepEqual(upperLowerCards.map((card) => card.accent), ['Today', 'Next', 'Base', 'Base']);
+assert.equal(upperLowerCards[0].familyId, 'upper-lower');
+assert.equal(upperLowerCards[0].familyLabel, 'U/L');
+assert.equal(upperLowerCards[1].path, '/exercise?split=lower-a');
+
 console.log('training summary tests passed');

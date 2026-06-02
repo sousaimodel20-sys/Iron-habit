@@ -1,5 +1,5 @@
 import type { ActiveLoadout, SavedExercise } from './storage';
-import { defaultSplitFamily, getActiveSplitDay, getSplitFamilyForLoadout } from './splitSystem.ts';
+import { getActiveSplitDay, getSplitFamilyForLoadout, type SplitDayId } from './splitSystem.ts';
 
 export type TrainingHeroSummary = {
   eyebrow: string;
@@ -14,7 +14,9 @@ export type TrainingHeroSummary = {
 };
 
 export type TrainingProgramCardSummary = {
-  split: 'push' | 'pull' | 'legs';
+  split: SplitDayId;
+  familyId: string;
+  familyLabel: string;
   name: string;
   meta: string;
   accent: 'Today' | 'Next' | 'Base';
@@ -44,44 +46,40 @@ const cleanTimeCap = (time: string | undefined) => {
   return clean || DEFAULT_TIME_CAP;
 };
 
-const splitOrder: TrainingProgramCardSummary['split'][] = defaultSplitFamily.days.map((day) => day.id as TrainingProgramCardSummary['split']);
+const getDefaultSetCount = (dayId: SplitDayId) => dayId === 'legs' || dayId === 'lower-a' || dayId === 'lower-b' ? 18 : 16;
 
-const splitDefaults: Record<TrainingProgramCardSummary['split'], Omit<TrainingProgramCardSummary, 'accent' | 'badge' | 'path'>> = {
-  push: { split: 'push', name: 'Push Day', meta: defaultSplitFamily.days[0].focus, sets: '16 sets', exercises: '6 exercises' },
-  pull: { split: 'pull', name: 'Pull Day', meta: defaultSplitFamily.days[1].focus, sets: '16 sets', exercises: '6 exercises' },
-  legs: { split: 'legs', name: 'Legs Day', meta: defaultSplitFamily.days[2].focus, sets: '18 sets', exercises: '7 exercises' },
+const getDefaultExerciseCount = (dayId: SplitDayId) => dayId === 'legs' || dayId === 'lower-a' || dayId === 'lower-b' ? 7 : 6;
+
+const getNextSplit = (split: SplitDayId, splitOrder: SplitDayId[]) => {
+  const currentIndex = Math.max(0, splitOrder.indexOf(split));
+  return splitOrder[(currentIndex + 1) % splitOrder.length];
 };
-
-const normalizeSplit = (day: string): TrainingProgramCardSummary['split'] => {
-  const clean = day.toLowerCase();
-  if (clean.includes('pull')) return 'pull';
-  if (clean.includes('leg')) return 'legs';
-  return 'push';
-};
-
-const getNextSplit = (split: TrainingProgramCardSummary['split']) => splitOrder[(splitOrder.indexOf(split) + 1) % splitOrder.length];
 
 export const buildTrainingProgramCards = (activeLoadout: ActiveLoadout | null): TrainingProgramCardSummary[] => {
   const summary = buildTrainingHeroSummary(activeLoadout);
   const family = getSplitFamilyForLoadout(activeLoadout);
-  const todaySplit = family.id === 'ppl' ? normalizeSplit(summary.activeDay) : 'push';
-  const nextSplit = getNextSplit(todaySplit);
+  const todaySplit = getActiveSplitDay(activeLoadout).id;
+  const splitOrder = family.days.map((day) => day.id);
+  const nextSplit = getNextSplit(todaySplit, splitOrder);
 
-  return splitOrder.map((split) => {
-    const defaults = splitDefaults[split];
-    const isToday = split === todaySplit;
-    const isNext = split === nextSplit;
+  return family.days.map((day) => {
+    const isToday = day.id === todaySplit;
+    const isNext = day.id === nextSplit;
     const loadedToday = isToday && Boolean(activeLoadout);
+    const defaultSets = getDefaultSetCount(day.id);
+    const defaultExercises = getDefaultExerciseCount(day.id);
 
     return {
-      ...defaults,
-      name: isToday ? `${summary.activeDay} Day` : defaults.name,
-      meta: loadedToday ? activeLoadout?.goal || defaults.meta : defaults.meta,
+      split: day.id,
+      familyId: family.id,
+      familyLabel: family.shortLabel,
+      name: isToday ? `${summary.activeDay} Day` : `${day.name} Day`,
+      meta: loadedToday ? activeLoadout?.goal || day.focus : day.focus,
       accent: isToday ? 'Today' : isNext ? 'Next' : 'Base',
-      sets: isToday ? `${summary.totalSets} sets` : defaults.sets,
-      exercises: isToday ? `${summary.exerciseCount} exercises` : defaults.exercises,
+      sets: isToday ? `${summary.totalSets} sets` : `${defaultSets} sets`,
+      exercises: isToday ? `${summary.exerciseCount} exercises` : `${defaultExercises} exercises`,
       badge: isToday ? 'TODAY' : undefined,
-      path: `/exercise?split=${split}`,
+      path: day.path || `/exercise?split=${day.id}`,
     };
   });
 };

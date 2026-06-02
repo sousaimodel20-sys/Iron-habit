@@ -313,3 +313,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Files changed: src/utils/splitSystem.ts, src/utils/trainingSummary.ts, src/utils/storage.ts, src/screens/FitnessTracker.tsx, src/screens/WorkoutMode.tsx, scripts/test-training-summary.mjs.
 - Verification: npm run test:training-summary; npm run lint; npm run build.
 - Next slice: make /train cards family-aware without changing the visual shell.
+
+## 2026-06-01 18:03 PDT — Training split-system slice 2
+
+- Slice: made `/train` program cards render the resolved split family’s internal days instead of hardcoded Push/Pull/Legs cards, preserving PPL as one top-level family with Push, Pull, and Legs child days.
+- Cursor status: used advisory wrapper; recommended family-aware `/train` cards with no layout/CSS redesign.
+- Codex status: read-only advisory produced useful partial guidance but timed out after 60s; no Codex edits were used.
+- Files changed: `src/utils/trainingSummary.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; local browser smoke for `/train` seeded with Upper/Lower confirmed four internal day cards: Upper A, Lower A, Upper B, Lower B.
+- Next slice: make `/exercise?split=...` understand the selected internal split day instead of showing the static Push Day sheet.
