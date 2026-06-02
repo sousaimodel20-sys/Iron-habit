@@ -253,6 +253,22 @@ export const splitExercisePresets: Partial<Record<SplitDayId, SplitExerciseRow[]
     { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
     { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
   ],
+  'upper-b': [
+    { name: 'Incline Dumbbell Press', sets: '4 × 8–10', muscle: 'Upper chest • Front delts' },
+    { name: 'Seated Cable Row', sets: '4 × 8–12', muscle: 'Back • Biceps' },
+    { name: 'Smith Machine Overhead Press', sets: '3 × 8–10', muscle: 'Shoulders • Triceps' },
+    { name: 'Lat Pulldown', sets: '3 × 10–12', muscle: 'Lats • Biceps' },
+    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts • Upper back' },
+    { name: 'Rope Tricep Pushdown', sets: '2 × 12–15', muscle: 'Triceps' },
+  ],
+  'lower-b': [
+    { name: 'Hack Squat', sets: '4 × 8–12', muscle: 'Quads • Glutes' },
+    { name: 'Barbell Hip Thrust', sets: '4 × 8–12', muscle: 'Glutes • Hamstrings' },
+    { name: 'Romanian Deadlift', sets: '3 × 8–10', muscle: 'Hamstrings • Glutes' },
+    { name: 'Leg Press', sets: '3 × 12–15', muscle: 'Quads' },
+    { name: 'Calf Raise', sets: '4 × 12–20', muscle: 'Calves' },
+    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
+  ],
 };
 
 const parsePrescription = (sets: string) => {
@@ -280,6 +296,20 @@ const presetToSavedExercise = (exercise: SplitExerciseRow): SavedExercise => {
 };
 
 export const getSplitDayExerciseRows = (dayId: SplitDayId): SplitExerciseRow[] => splitExercisePresets[dayId] || pushExercises;
+
+export const savedExercisesToSplitRows = (exercises: SavedExercise[] = []): SplitExerciseRow[] => exercises.map((exercise) => ({
+  name: exercise.name,
+  sets: `${exercise.sets} × ${exercise.reps}`,
+  muscle: exercise.muscle,
+}));
+
+export const getExerciseRowsForSplit = (
+  activeLoadout: ActiveLoadout | null | undefined,
+  selectedDayId: SplitDayId,
+): SplitExerciseRow[] => {
+  if (activeLoadout) return savedExercisesToSplitRows(getWorkoutExercisesForSplit(activeLoadout, selectedDayId));
+  return getSplitDayExerciseRows(selectedDayId);
+};
 
 export const getWorkoutExercisesForSplit = (activeLoadout: ActiveLoadout, selectedDayId: SplitDayId): SavedExercise[] => {
   const presetRows = splitExercisePresets[selectedDayId];

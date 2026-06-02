@@ -8,7 +8,7 @@ import { calculateSobrietyStreak } from '../utils/streaks';
 import { formatLocalDateKey } from '../utils/date';
 import { useAaCanadaMeetingIndex } from '../utils/aaCanadaMeetingData';
 import { buildTrainingHeroSummary, buildTrainingProgramCards } from '../utils/trainingSummary';
-import { getSplitDayById, getSplitFamilyForLoadout, type SplitDayId } from '../utils/splitSystem';
+import { getExerciseRowsForSplit, getSplitDayById, getSplitFamilyForLoadout } from '../utils/splitSystem';
 import { buildMeetingSearchUrl, buildMeetingSourceUrl, cleanMeetingLocation, filterMeetingsByTimeIntent, getAaCanadaMeetingDataSummary, getMeetingsForLocation, getMeetingSupportSummary, meetingProgramLabels, meetingTimeFilterLabels, type MeetingProgram, type MeetingTimeFilter } from '../utils/meetings';
 
 const coachImage = '/mockup-assets/iron-habit-coach-v2.png';
@@ -18,69 +18,6 @@ const trainHeroImage = '/mockup-assets/train-reference-hero-left.jpg';
 const pushPhoto = '/exercise-media/Barbell_Bench_Press_-_Medium_Grip/0.jpg';
 const pullPhoto = '/exercise-media/Seated_Cable_Rows/0.jpg';
 const legsPhoto = '/exercise-media/Hack_Squat/0.jpg';
-
-const exercises = [
-  { name: 'Barbell Bench Press', sets: '4 × 6–10', muscle: 'Chest • Shoulders • Triceps' },
-  { name: 'Incline Dumbbell Press', sets: '3 × 8–12', muscle: 'Upper chest • Front delts' },
-  { name: 'Seated Shoulder Press', sets: '3 × 8–12', muscle: 'Delts • Triceps' },
-  { name: 'Cable Lateral Raise', sets: '3 × 12–15', muscle: 'Side delts' },
-  { name: 'Dips', sets: '3 × 10–15', muscle: 'Chest • Triceps' },
-  { name: 'Rope Tricep Pushdown', sets: '3 × 12–15', muscle: 'Triceps' },
-];
-
-type ExerciseRow = typeof exercises[number];
-
-const splitExercisePresets: Partial<Record<SplitDayId, ExerciseRow[]>> = {
-  push: exercises,
-  pull: [
-    { name: 'Weighted Pull-Up', sets: '4 × 5–8', muscle: 'Lats • Biceps' },
-    { name: 'Seated Cable Row', sets: '4 × 8–12', muscle: 'Mid back • Rear delts' },
-    { name: 'One-Arm Dumbbell Row', sets: '3 × 10/side', muscle: 'Lats • Core' },
-    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts • Upper back' },
-    { name: 'Barbell Curl', sets: '3 × 10–12', muscle: 'Biceps' },
-    { name: 'Hammer Curl', sets: '2 × 12–15', muscle: 'Biceps • Forearms' },
-  ],
-  legs: [
-    { name: 'Hack Squat', sets: '4 × 8–12', muscle: 'Quads • Glutes' },
-    { name: 'Romanian Deadlift', sets: '4 × 8–10', muscle: 'Hamstrings • Glutes' },
-    { name: 'Leg Press', sets: '3 × 10–15', muscle: 'Quads • Glutes' },
-    { name: 'Walking Lunge', sets: '3 × 10/side', muscle: 'Legs • Balance' },
-    { name: 'Calf Raise', sets: '4 × 12–20', muscle: 'Calves' },
-    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
-  ],
-  'chest-back': [
-    { name: 'Bench Press', sets: '4 × 6–8', muscle: 'Chest • Triceps' },
-    { name: 'Seated Cable Row', sets: '4 × 8–10', muscle: 'Back • Rear delts' },
-    { name: 'Incline Dumbbell Press', sets: '3 × 8–12', muscle: 'Upper chest' },
-    { name: 'Lat Pulldown', sets: '3 × 10–12', muscle: 'Lats • Biceps' },
-    { name: 'Dumbbell Pullover', sets: '3 × 12', muscle: 'Chest • Lats' },
-    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts' },
-  ],
-  'shoulders-arms': [
-    { name: 'Seated Shoulder Press', sets: '4 × 6–10', muscle: 'Shoulders • Triceps' },
-    { name: 'Cable Lateral Raise', sets: '4 × 12–15', muscle: 'Side delts' },
-    { name: 'Face Pull', sets: '3 × 12–15', muscle: 'Rear delts' },
-    { name: 'Barbell Curl', sets: '3 × 10–12', muscle: 'Biceps' },
-    { name: 'Rope Tricep Pushdown', sets: '3 × 12–15', muscle: 'Triceps' },
-    { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
-  ],
-  'upper-a': [
-    { name: 'Barbell Bench Press', sets: '4 × 5–8', muscle: 'Chest • Triceps' },
-    { name: 'Weighted Pull-Up', sets: '4 × 5–8', muscle: 'Lats • Biceps' },
-    { name: 'Seated Shoulder Press', sets: '3 × 8–10', muscle: 'Shoulders' },
-    { name: 'Seated Cable Row', sets: '3 × 10–12', muscle: 'Back' },
-    { name: 'Cable Lateral Raise', sets: '3 × 12–15', muscle: 'Side delts' },
-    { name: 'Barbell Curl', sets: '2 × 10–12', muscle: 'Biceps' },
-  ],
-  'lower-a': [
-    { name: 'Leg Press', sets: '4 × 8–12', muscle: 'Quads • Glutes' },
-    { name: 'Romanian Deadlift', sets: '4 × 8–10', muscle: 'Hamstrings' },
-    { name: 'Barbell Hip Thrust', sets: '3 × 8–12', muscle: 'Glutes' },
-    { name: 'Walking Lunge', sets: '3 × 10/side', muscle: 'Legs • Balance' },
-    { name: 'Plank', sets: '3 × 30–45 sec', muscle: 'Core' },
-    { name: 'Farmer Carry', sets: '3 × 30 sec', muscle: 'Grip • Core' },
-  ],
-};
 
 const meetingPrograms: MeetingProgram[] = ['all', 'aa', 'na', 'smart', 'other'];
 const meetingTimeFilters: MeetingTimeFilter[] = ['all', 'today', 'tonight', 'online', 'inPerson'];
@@ -659,13 +596,10 @@ export function ExerciseDetail() {
   const activeFamily = getSplitFamilyForLoadout(activeLoadout);
   const splitParam = searchParams.get('split') || activeLoadout?.activeDayId || activeFamily.days[0].id;
   const { family, day } = getSplitDayById(splitParam, activeFamily.id);
-  const activeDayExercises = activeLoadout && family.id === activeFamily.id && day.id === (activeLoadout.activeDayId || activeFamily.days[0].id)
-    ? activeLoadout.exercises.map((exercise) => ({ name: exercise.name, sets: `${exercise.sets} × ${exercise.reps}`, muscle: exercise.muscle }))
-    : undefined;
-  const programExercises = activeDayExercises?.length ? activeDayExercises : splitExercisePresets[day.id] || splitExercisePresets.push || exercises;
+  const programExercises = getExerciseRowsForSplit(activeLoadout, day.id);
   const totalSets = programExercises.reduce((total, exercise) => total + (Number.parseInt(exercise.sets, 10) || 0), 0);
   const heroImage = getWorkoutImage(day.id);
-  const firstExercise = programExercises[0] || exercises[0];
+  const firstExercise = programExercises[0];
   const workoutModePath = `/workout-mode?split=${day.id}`;
   const saveWorkoutHandoff = () => {
     if (!activeLoadout) return;

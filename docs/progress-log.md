@@ -352,3 +352,12 @@ Next phase: start Phase 3 Share/TikTok engine with share progress cards, milesto
 - Files changed: `src/utils/splitSystem.ts`, `src/screens/WorkoutMode.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
 - Verification: `npm run test:training-summary`; `npm run build`; `npm run lint`; `git diff --check`; local browser smoke for `/workout-mode?split=lower-a` confirmed Lower A proof saved with Leg Press/Romanian Deadlift/Barbell Hip Thrust and zero console errors.
 - Next slice: share the split exercise presets with `/exercise?split=...` directly or continue filling day presets beyond the currently covered PPL/Arnold/Upper-Lower starter days.
+
+## 2026-06-02 01:56 PDT — Training split-system final slice
+
+- Slice: moved Exercise Detail onto the shared split-system exercise presets so `/exercise?split=...` and `/workout-mode?split=...` now show the same selected-day rows instead of separate hard-coded lists.
+- Added missing Upper B and Lower B preset exercises so the full Upper/Lower family has usable day sheets and Workout Mode proof rows.
+- Cursor status: used read-only advisory wrapper; recommendation was to finish the tester-ready split day handoff with the smallest shared-preset slice.
+- Files changed: `src/utils/splitSystem.ts`, `src/screens/IronHabitMockup.tsx`, `scripts/test-training-summary.mjs`, `docs/progress-log.md`.
+- Verification: `npm run test:training-summary`; `npm run lint`; `npm run build`; local browser smoke for `/exercise?split=upper-b` confirmed Upper B details and `/workout-mode?split=upper-b` confirmed the matching 19-set Upper B routine sheet.
+- Remaining coding: no known launch-blocking Training split-system code after this slice; remaining work is final tester polish/deploy/handoff unless QA finds a bug.

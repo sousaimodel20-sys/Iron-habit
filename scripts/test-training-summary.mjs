@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { buildTrainingHeroSummary, buildTrainingProgramCards, getActiveLoadoutDay } from '../src/utils/trainingSummary.ts';
-import { defaultSplitFamily, getSplitDayById, getSplitFamilyForLoadout, getWorkoutExercisesForSplit, getWorkoutSplitSelection, splitFamilies } from '../src/utils/splitSystem.ts';
+import { defaultSplitFamily, getExerciseRowsForSplit, getSplitDayById, getSplitDayExerciseRows, getSplitFamilyForLoadout, getWorkoutExercisesForSplit, getWorkoutSplitSelection, splitFamilies } from '../src/utils/splitSystem.ts';
 
 const noLoadout = buildTrainingHeroSummary(null);
 assert.equal(noLoadout.eyebrow, 'TODAY\'S TRAINING');
@@ -116,5 +116,13 @@ assert.equal(lowerAWorkoutExercises.length, 6);
 assert.equal(lowerAWorkoutExercises.reduce((sum, exercise) => sum + Number.parseInt(exercise.sets, 10), 0), 20);
 assert.ok(lowerAWorkoutExercises.every((exercise) => exercise.reps && exercise.rest && exercise.cue));
 assert.ok(!lowerAWorkoutExercises.map((exercise) => exercise.name).includes('Pull-up'));
+
+const pullProgramRows = getSplitDayExerciseRows('pull');
+const pullWorkoutRows = getExerciseRowsForSplit(activeLoadout, 'pull');
+assert.deepEqual(pullProgramRows.map((exercise) => exercise.name), pullWorkoutRows.map((exercise) => exercise.name));
+assert.deepEqual(getExerciseRowsForSplit(activeLoadout, 'upper-b').slice(0, 3).map((exercise) => exercise.name), ['Incline Dumbbell Press', 'Seated Cable Row', 'Smith Machine Overhead Press']);
+assert.deepEqual(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'upper-lower' }, 'upper-b').slice(0, 3).map((exercise) => exercise.name), ['Incline Dumbbell Press', 'Seated Cable Row', 'Smith Machine Overhead Press']);
+assert.deepEqual(getExerciseRowsForSplit(activeLoadout, 'lower-b').slice(0, 3).map((exercise) => exercise.name), ['Hack Squat', 'Barbell Hip Thrust', 'Romanian Deadlift']);
+assert.deepEqual(getWorkoutExercisesForSplit({ ...activeLoadout, splitFamilyId: 'upper-lower' }, 'lower-b').slice(0, 3).map((exercise) => exercise.name), ['Hack Squat', 'Barbell Hip Thrust', 'Romanian Deadlift']);
 
 console.log('training summary tests passed');
